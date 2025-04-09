@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Development process
+ - Pull the most recent version of dev
+ - Create (checkout) a named feature branch from dev
+   - `git checkout -b desc-of-feature`
+ - Make changes
+   - Write tests for changes
+     - Most tests should be written for the service layer. 
+     - Push as much logic as possible into the service layer when adding features.
+   - Run all tests
+     - [add command for running tests here]
+   - Write meaningful commit messages
+ - Run the linter from the terminal: [add command for running linter here]
+   - Note: You can setup a pre-commit hook for this (Check the QOL section)
+ - Commit linted changes
+ - Open PR against dev branch
+ - Request a PR review
+ - Request to have dev merged to main for deployment of new feature
+   - PR's merged to `main` trigger CI/CD (deployment to heroku)
 
-## Getting Started
+# Install instructions:
 
-First, run the development server:
+## Prerequisites
+- Homebrew
+- Docker
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Install process
+ - add npm via homebrew
+
+
+### Set environment variables
+ - open the repository and create a `.env.local` file containing the following:
+```
+BACKEND_BASE_URL=http://localhost:8080
+
+# other env keys here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### run the application
+```bash
+// build and run the docker image locally
+// [command to create and run docker container locally here]
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+// OPTIONAL - use npme to run the app directly if you'd like to run the app w/o docker
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+#### Open the app in a web browser to verify it's running
+ - Go to `http://localhost:3000/` in a web browser
 
-To learn more about Next.js, take a look at the following resources:
+# QOL
+- Linting
+  - [Instructions for running the linter here]
+  - [Instructions for creating a pre-commit hook for linter here]
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### FAQ
+- What is [tool name here]?
+    - [tool desc here]
+- Linter?
+    - [linter name here] - [link to linter docs]
 
-## Deploy on Vercel
+# Troubleshooting
+ - 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# Version info
+- Framework: NextJS [add version here]
+- Language: TypeScript [add version here]
+- Runtime: NodeJS [add version here]
+- [other tools] [add version here]
