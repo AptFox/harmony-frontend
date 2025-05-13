@@ -10,6 +10,15 @@
         "request": "launch",
         "command": "npm run dev",
         "cwd": "${workspaceFolder}"
-        }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Next.js: debug in Chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true,
+            "trace": true
+          }
     ]
 }

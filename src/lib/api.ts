@@ -1,31 +1,79 @@
-export interface FetchOptions {
-    method?: 'GET' | 'POST' | 'PUT'
+import axios from 'axios'
+import { Middleware } from 'swr/_internal'
+
+const ACCESS_TOKEN_STRING = 'harmony_access_token'
+const REFRESH_TOKEN_URL = '/auth/refresh_token'
+const LOGOUT_URL = '/auth/logout'
+
+const apiClient = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080',
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+
+export async function getAccessToken(initialLogin: boolean = false): Promise<string> {
+  const requestArgs = { withCredentials: true, headers: { 'Initial-Login': `${initialLogin}` } }
+  const response = await apiClient.post(REFRESH_TOKEN_URL, null, requestArgs)
+  return response.data[ACCESS_TOKEN_STRING]
 }
 
-export default function fetcher<T>(url: string): Promise<T> {
-    const accessToken = 'someTokenHere' // TODO: somehow retrieve this from react AuthContext
-    const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL
-    const requestUrl = backendBaseUrl ? `${backendBaseUrl+url}` : url
+export async function logoutOfApi(): Promise<void> {
+    return await apiClient.post(LOGOUT_URL, null, { withCredentials: true })
+}
 
-    // 401 error shape
-    // {
-    //     "timestamp": "2025-04-09T17:48:27.840+00:00",
-    //     "status": 401,
-    //     "error": "Unauthorized",
-    //     "message": "Unauthorized",
-    //     "path": "/api/user/@me"
-    // }
-    return fetch(requestUrl, {
-        credentials: 'include',
-        headers: { 
-            'Content-Type': 'application/json',
-            ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })
-         },
-        method: 'GET',
-    }).then(
-        (res) => {
-            if (res.ok) return res.json()
-            throw new Error('something went wrong')
+// export async function apiRequestWithRetry<T>(apiCall: () => Promise<T>, setAccessToken: (accessToken: string) => void) {
+//     try {
+//         return await apiCall()
+//     } catch (error: any) {
+//         if (error.response?.status === 401){
+//             const accessToken = await getAccessToken()
+//             setAccessToken(accessToken)
+//             return await apiCall()
+//         }
+//         throw error
+//     }
+// }
+
+export function createSwrRetryHandler(setAccessToken: (token: string | undefined) => void): Middleware {
+    let refreshPromise: Promise<string | null> | null = null;
+    
+    return (useSWRNext) => (key, fetcher, config) => {
+      const retryFetcher = async (...args: any[]) => {
+        try {
+          return await fetcher!(...args);
+        } catch (error: any) {
+            // skip retry and propogate error if not 401
+          if (error?.response?.status !== 401) throw error;
+  
+          if (!refreshPromise) {
+            refreshPromise = (async () => {
+              try {
+                const newToken = await getAccessToken();
+                setAccessToken(newToken);
+                return newToken;
+              } catch(error: any) {
+                setAccessToken(undefined);
+                return null;
+              } finally {
+                refreshPromise = null;
+              }
+            })();
+          }
+  
+          const newToken = await refreshPromise;
+          if (!newToken) throw error;
+  
+          return await fetcher!(...args); // retry original request
         }
-    )
+      };
+  
+      return useSWRNext(key, retryFetcher, config);
+    };
+  }
+
+export default async function swrFetcher<T>(args: string[]): Promise<T> {
+        const [url, accessToken] = args
+        const response = await apiClient.get<T>(url, { headers: {...(accessToken && { 'Authorization': `Bearer ${accessToken}` })}})
+        return response.data
 }
