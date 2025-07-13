@@ -19,8 +19,6 @@ export default function LoginPage() {
         router.replace(backendBaseUrl+'/oauth2/authorization/discord')
     }
 
-    // TODO: turn this button into the discord button
-
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-24">
             <div className="flex justify-center items-center h-screen lg:mb-0 lg:grid-cols-4 lg:text-center">

@@ -7,13 +7,3 @@ export type AuthContextType = {
     login: () => void;
     logout: () => void;
 }
-
-// TODO: maybe get rid of this
-// export interface AuthError extends Error {
-//     info: {
-//         error: string;
-//         path: string;
-//         status: number;
-//         timestamp: string;
-//     }
-// }

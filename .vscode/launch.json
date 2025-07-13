@@ -5,11 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-        "type": "node-terminal",
-        "name": "Next.js: run dev",
-        "request": "launch",
-        "command": "npm run dev",
-        "cwd": "${workspaceFolder}"
+            "command": "npm run test",
+            "name": "Run tests",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "type": "node-terminal",
+            "name": "Next.js: run dev",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}"
         },
         {
             "type": "chrome",
@@ -19,6 +25,6 @@
             "webRoot": "${workspaceFolder}",
             "sourceMaps": true,
             "trace": true
-          }
+        },
     ]
 }

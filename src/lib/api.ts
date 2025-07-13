@@ -22,19 +22,6 @@ export async function logoutOfApi(): Promise<void> {
     return await apiClient.post(LOGOUT_URL, null, { withCredentials: true })
 }
 
-// export async function apiRequestWithRetry<T>(apiCall: () => Promise<T>, setAccessToken: (accessToken: string) => void) {
-//     try {
-//         return await apiCall()
-//     } catch (error: any) {
-//         if (error.response?.status === 401){
-//             const accessToken = await getAccessToken()
-//             setAccessToken(accessToken)
-//             return await apiCall()
-//         }
-//         throw error
-//     }
-// }
-
 export function createSwrRetryHandler(setAccessToken: (token: string | undefined) => void): Middleware {
     let refreshPromise: Promise<string | null> | null = null;
     
