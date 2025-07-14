@@ -3,7 +3,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   extends: [
-    'next/core-web-vitals',        // Next.js rules
+    'next/core-web-vitals', // Next.js rules
     'plugin:@typescript-eslint/recommended',
     // 'plugin:react-hooks/recommended',
     'plugin:testing-library/react',
@@ -29,7 +29,6 @@ module.exports = {
     'prettier/prettier': 'error', // Treat prettier issues as lint errors
     'unused-imports/no-unused-imports': 'error',
     'react/react-in-jsx-scope': 'off', // Next.js doesn't need it
-    'unused-imports/no-unused-imports': 'error',
     'unused-imports/no-unused-vars': [
       'warn',
       {
