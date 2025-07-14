@@ -1,26 +1,26 @@
 'use client';
 
-import { useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { useRouter } from "next/navigation"
+import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 export default function OAuthCallbackHandler() {
-    const router = useRouter()
-    const { login, accessToken, accessTokenIsLoading } = useAuth()
+  const router = useRouter();
+  const { login, accessToken, accessTokenIsLoading } = useAuth();
 
-    useEffect(() => {
-        if (!accessToken && accessTokenIsLoading) {
-            login()
-        } 
-        if(accessToken && !accessTokenIsLoading) {
-            router.replace("/dashboard")
-        }
-    }, [accessToken, accessTokenIsLoading])
+  useEffect(() => {
+    if (!accessToken && accessTokenIsLoading) {
+      login();
+    }
+    if (accessToken && !accessTokenIsLoading) {
+      router.replace('/dashboard');
+    }
+  }, [accessToken, accessTokenIsLoading]);
 
-    return (
-        <div>
-            { !accessToken && accessTokenIsLoading && <p>Logging you in...</p>}
-            { !accessToken && !accessTokenIsLoading && <p>Something went wrong</p>}
-        </div>
-    )
+  return (
+    <div>
+      {!accessToken && accessTokenIsLoading && <p>Logging you in...</p>}
+      {!accessToken && !accessTokenIsLoading && <p>Something went wrong</p>}
+    </div>
+  );
 }

@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import OAuthCallbackHandler from '@/components/auth/OAuthCallbackHandler'
+import OAuthCallbackHandler from '@/components/auth/OAuthCallbackHandler';
 
 export default function OAuthCallback() {
-    return <OAuthCallbackHandler />
+  return <OAuthCallbackHandler />;
 }
