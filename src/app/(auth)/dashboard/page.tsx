@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Dashboard() {
+  // TODO: split this file into components
   const { user, isLoading, isError } = useUser();
   const { logout, accessToken } = useAuth();
   const router = useRouter();

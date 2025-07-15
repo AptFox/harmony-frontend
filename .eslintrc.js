@@ -29,14 +29,14 @@ module.exports = {
     'prettier/prettier': 'error', // Treat prettier issues as lint errors
     'unused-imports/no-unused-imports': 'error',
     'react/react-in-jsx-scope': 'off', // Next.js doesn't need it
-    'unused-imports/no-unused-vars': [
-      'warn',
-      {
-        vars: 'all',
-        varsIgnorePattern: '^_',
-        args: 'after-used',
-        argsIgnorePattern: '^_',
-      },
-    ],
+    // 'unused-imports/no-unused-vars': [
+    //   'warn',
+    //   {
+    //     vars: 'all',
+    //     varsIgnorePattern: '^_',
+    //     args: 'after-used',
+    //     argsIgnorePattern: '^_',
+    //   },
+    // ],
   },
 };

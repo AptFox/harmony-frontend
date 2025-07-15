@@ -15,7 +15,7 @@ export default function OAuthCallbackHandler() {
     if (accessToken && !accessTokenIsLoading) {
       router.replace('/dashboard');
     }
-  }, [accessToken, accessTokenIsLoading]);
+  }, [accessToken, accessTokenIsLoading, login, router]);
 
   return (
     <div>

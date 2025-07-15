@@ -35,7 +35,7 @@ describe('OAuthCallbackHandler', () => {
       expect(screen.getByText(/Logging you in.../i)).toBeInTheDocument();
 
       expect(loginFn).toHaveBeenCalledTimes(1);
-      expect(replaceFn).not.toHaveBeenCalled;
+      expect(replaceFn).not.toHaveBeenCalled();
     });
   });
 
@@ -77,8 +77,8 @@ describe('OAuthCallbackHandler', () => {
       render(<OAuthCallbackHandler />);
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
 
-      expect(replaceFn).not.toHaveBeenCalled;
-      expect(loginFn).not.toHaveBeenCalled;
+      expect(replaceFn).not.toHaveBeenCalled();
+      expect(loginFn).not.toHaveBeenCalled();
     });
   });
 });

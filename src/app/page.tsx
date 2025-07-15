@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 export default function Home() {
+  // TODO: split this file into components
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
       <div className="flex items-center">
