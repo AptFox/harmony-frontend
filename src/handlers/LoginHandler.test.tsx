@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginHandler from './LoginHandler';
 import { useAuth } from '@/hooks/useAuth';
@@ -76,4 +77,3 @@ describe('LoginHandler', () => {
     });
   });
 });
-

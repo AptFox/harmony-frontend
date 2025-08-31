@@ -33,9 +33,10 @@ export function createSwrRetryHandler(
   let refreshPromise: Promise<string | null> | null = null;
 
   return (useSWRNext) => (key, fetcher, config) => {
-    const retryFetcher = async (...args: any[]) => {
+    const retryFetcher = async (...args: unknown[]) => {
       try {
         return await fetcher!(...args);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         // skip retry and propogate error if not 401
         if (error?.response?.status !== 401) throw error;
@@ -46,7 +47,7 @@ export function createSwrRetryHandler(
               const newToken = await getAccessToken();
               setAccessToken(newToken);
               return newToken;
-            } catch (error: any) {
+            } catch (error: unknown) {
               setAccessToken(undefined);
               return null;
             } finally {

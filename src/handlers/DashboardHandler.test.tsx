@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
 import { useAuth, useUser } from '@/hooks';
@@ -31,7 +32,7 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
-      } as any)
+      } as any);
 
       render(<DashboardHandler />);
       expect(screen.getByText(/Dashboard loading.../i)).toBeInTheDocument();
@@ -56,7 +57,7 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
-      } as any)
+      } as any);
 
       render(<DashboardHandler />);
       expect(
@@ -87,7 +88,7 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
-      } as any)
+      } as any);
 
       render(
         <body>
@@ -96,9 +97,9 @@ describe('DashboardHandler', () => {
       );
       // TODO: figure out how to test the toast error message
       expect(pushFn).toHaveBeenCalledWith('/login');
-    })
-  })
-  
+    });
+  });
+
   describe('when logout button is clicked', () => {
     it('redirects to the logout page', () => {
       useUserMock.mockReturnValue({
@@ -115,12 +116,12 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
-      } as any)
+      } as any);
 
       render(<DashboardHandler />);
-      fireEvent.click(screen.getByText('Logout', {exact: true}))
+      fireEvent.click(screen.getByText('Logout', { exact: true }));
       expect(logoutFn).toHaveBeenCalled();
       expect(pushFn).not.toHaveBeenCalled();
-    })
-  })
+    });
+  });
 });

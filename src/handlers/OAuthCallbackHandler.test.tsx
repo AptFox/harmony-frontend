@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react';
 import OAuthCallbackHandler from './OAuthCallbackHandler';
 import { useAuth } from '@/hooks/useAuth';

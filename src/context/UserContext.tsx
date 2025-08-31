@@ -3,7 +3,7 @@
 import { createContext, ReactNode } from 'react';
 import useSWR from 'swr';
 import swrFetcher, { createSwrRetryHandler } from '@/lib/api';
-import { User, UserContextType } from '@/types/user';
+import { User, UserContextType } from '@/types/User';
 import { useAuth } from '@/hooks/useAuth';
 
 export const UserContext = createContext<UserContextType | undefined>(

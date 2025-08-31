@@ -17,7 +17,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(token);
       setAccessTokenIsLoading(false);
       router.replace('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log('unable to login automatically'); // get rid of this and eat the error
     }
   };
