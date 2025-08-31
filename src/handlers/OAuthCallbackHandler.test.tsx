@@ -4,14 +4,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { mocked } from 'jest-mock';
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 jest.mock('@/hooks/useAuth');
 jest.mock('next/navigation');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useRouterMock = mocked(useRouter, { shallow: true });
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 
 describe('OAuthCallbackHandler', () => {
   describe('accessToken is loading', () => {

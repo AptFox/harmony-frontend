@@ -10,5 +10,5 @@ export type UserContextType = {
   user: User | undefined;
   isLoading: boolean;
   isError: Error | undefined;
-  refreshUser: KeyedMutator<User>;
+  refreshUser: KeyedMutator<User>; // I don't remember why this exists
 };
