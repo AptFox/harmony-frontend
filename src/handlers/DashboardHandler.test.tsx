@@ -90,11 +90,7 @@ describe('DashboardHandler', () => {
         logout: logoutFn,
       } as any);
 
-      render(
-        <body>
-          <DashboardHandler />
-        </body>
-      );
+      render(<DashboardHandler />);
       // TODO: figure out how to test the toast error message
       expect(pushFn).toHaveBeenCalledWith('/login');
     });
