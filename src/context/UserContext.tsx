@@ -12,7 +12,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const { accessToken, setAccessToken } = useAuth();
-  const swrSignature: string[] | null = ['/api/user/@me', accessToken];
+  const swrSignature: string[] | null = ['/api/user/@me', accessToken ?? ''];
 
   const retryHandler = createSwrRetryHandler(setAccessToken);
 
