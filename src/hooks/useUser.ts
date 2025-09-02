@@ -1,15 +1,11 @@
-'use client'
-import useSWR from 'swr'
-import fetcher, { FetchOptions } from "@/lib/api"
-import { User } from "@/types/User"
+'use client';
 
+import { useContext } from 'react';
+import { UserContext } from '@/context/UserContext';
 
-export function useUser(): { user: User | undefined, isLoading: boolean, isError: any } {
-    const { data, error, isLoading } = useSWR('/api/user/@me', fetcher<User>)
-
-    return {
-        user: data,
-        isLoading,
-        isError: error
-    }
-}
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context)
+    throw new Error('useUser must be used within a UserContextProvider');
+  return context;
+};
