@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function DashboardHandler() {
   // TODO: split this file into components
   const { user, isLoading, isError } = useUser();
-  const { logout, accessToken } = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -23,7 +23,12 @@ export default function DashboardHandler() {
 
       router.push('/login');
     }
-  }, [user, isLoading, isError, accessToken, toast, router]);
+  }, [user, isLoading, isError, toast, router]);
+
+  function logoutFn() {
+    logout();
+    router.replace('/login');
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -45,7 +50,7 @@ export default function DashboardHandler() {
         )}
       </div>
       <div>
-        <button onClick={logout}>Logout</button>
+        <button onClick={logoutFn}>Logout</button>
       </div>
     </main>
   );
