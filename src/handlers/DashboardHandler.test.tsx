@@ -97,16 +97,18 @@ describe('DashboardHandler', () => {
   });
 
   describe('when logout button is clicked', () => {
-    it('redirects to the logout page', () => {
+    it('redirects to the login page', () => {
       useUserMock.mockReturnValue({
         user: undefined,
         isLoading: false,
         isError: undefined,
       } as any);
 
-      const pushFn = jest.fn();
+      const loginFn = jest.fn();
+      const replaceFn = jest.fn();
       useRouterMock.mockReturnValue({
-        push: pushFn,
+        login: loginFn,
+        replace: replaceFn,
       } as any);
 
       const logoutFn = jest.fn();
@@ -117,7 +119,8 @@ describe('DashboardHandler', () => {
       render(<DashboardHandler />);
       fireEvent.click(screen.getByText('Logout', { exact: true }));
       expect(logoutFn).toHaveBeenCalled();
-      expect(pushFn).not.toHaveBeenCalled();
+      expect(replaceFn).toHaveBeenCalled();
+      expect(loginFn).not.toHaveBeenCalled();
     });
   });
 });
