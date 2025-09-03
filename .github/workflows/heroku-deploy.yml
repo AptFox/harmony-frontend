@@ -21,7 +21,10 @@ jobs:
     
       # Build Docker image
       - name: Build Docker image
-        run: docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }} \
+            -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
           
       
       # Push the Docker image to Herkoku
