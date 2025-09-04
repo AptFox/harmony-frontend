@@ -80,9 +80,9 @@ describe('DashboardHandler', () => {
         isError: error,
       } as any);
 
-      const pushFn = jest.fn();
+      const replaceFn = jest.fn();
       useRouterMock.mockReturnValue({
-        push: pushFn,
+        replace: replaceFn,
       } as any);
 
       const logoutFn = jest.fn();
@@ -92,7 +92,7 @@ describe('DashboardHandler', () => {
 
       render(<DashboardHandler />);
       // TODO: figure out how to test the toast error message
-      expect(pushFn).toHaveBeenCalledWith('/login');
+      expect(replaceFn).toHaveBeenCalledWith('/login');
     });
   });
 

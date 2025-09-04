@@ -1,7 +1,13 @@
 'use client';
 
 import { AuthContextType } from '@/types/auth';
-import { createContext, useCallback, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { getAccessTokenFromApi, logoutOfApi } from '@/lib/api';
 import { mutate } from 'swr';
@@ -11,6 +17,22 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessTokenIsLoading, setAccessTokenIsLoading] =
     useState<boolean>(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const token = await getAccessTokenFromApi(false);
+        setAccessToken(token);
+      } catch {
+        setAccessToken(undefined);
+        router.replace('/login');
+      } finally {
+        setAccessTokenIsLoading(false);
+      }
+    };
+
+    initAuth();
+  }, [router]);
 
   const getAccessToken = useCallback(async () => {
     setAccessTokenIsLoading(true);
