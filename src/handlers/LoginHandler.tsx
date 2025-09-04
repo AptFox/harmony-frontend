@@ -7,18 +7,13 @@ import LoginButton from '@/components/auth/LoginButton';
 
 export default function LoginHandler() {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, triggerBackendOAuth } = useAuth();
 
   useEffect(() => {
     if (accessToken) {
       router.replace('/dashboard');
     }
   }, [accessToken, router]);
-
-  const triggerBackendOAuth = () => {
-    const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-    router.replace(backendBaseUrl + '/oauth2/authorization/discord');
-  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">

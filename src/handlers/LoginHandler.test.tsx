@@ -41,9 +41,11 @@ describe('LoginHandler', () => {
       expect(replaceFn).not.toHaveBeenCalled();
     });
 
-    it('redirects to the backend oauth endpoint when clicked', () => {
+    it('triggers a an oauth redirect when clicked', () => {
+      const triggerBackendOAuthFn = jest.fn();
       useAuthMock.mockReturnValue({
         accessToken: undefined,
+        triggerBackendOAuth: triggerBackendOAuthFn,
       } as any);
 
       const replaceFn = jest.fn();
@@ -54,9 +56,8 @@ describe('LoginHandler', () => {
       render(<LoginHandler />);
 
       fireEvent.click(screen.getByText(/Login/i));
-      expect(replaceFn).toHaveBeenCalledWith(
-        'backendBaseUrl/oauth2/authorization/discord'
-      );
+      expect(triggerBackendOAuthFn).toHaveBeenCalled();
+      expect(replaceFn).not.toHaveBeenCalled();
     });
   });
 

@@ -12,7 +12,7 @@ const apiClient = axios.create({
   },
 });
 
-export async function getAccessToken(
+export async function getAccessTokenFromApi(
   initialLogin: boolean = false
 ): Promise<string> {
   const requestArgs = {
@@ -44,7 +44,7 @@ export function createSwrRetryHandler(
         if (!refreshPromise) {
           refreshPromise = (async () => {
             try {
-              const newToken = await getAccessToken();
+              const newToken = await getAccessTokenFromApi();
               setAccessToken(newToken);
               return newToken;
             } catch (error: unknown) {
