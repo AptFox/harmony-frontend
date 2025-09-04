@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/html-has-lang */
 'use client';
 
 import * as Sentry from '@sentry/nextjs';
