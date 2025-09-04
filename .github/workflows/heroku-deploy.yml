@@ -14,19 +14,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-    # Log in to Heroku Container Registry
+      # Log in to Heroku Container Registry
       - name: Log in to Heroku Container Registry
         run: |
           echo "${{ secrets.HEROKU_AUTH_TOKEN }}" | docker login --username=_ --password-stdin registry.heroku.com
-    
+
       # Build Docker image
       - name: Build Docker image
         run: |
           docker build \
             --build-arg NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }} \
+            --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
-          
-      
+
       # Push the Docker image to Herkoku
       - name: Push Docker image
         run: docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
@@ -41,7 +41,7 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_AUTH_TOKEN }}
           HEROKU_HEADERS: ${{ vars.HEROKU_HEADERS }}
-      
+
       # Trigger Heroku deploy
       - name: Deploy the updated container on Heroku
         run: heroku container:release web -a harmony-frontend
