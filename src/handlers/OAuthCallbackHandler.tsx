@@ -10,11 +10,9 @@ export default function OAuthCallbackHandler() {
 
   useEffect(() => {
     if (!accessToken && accessTokenIsLoading) {
-      console.log('Attempting to get access token...');
       getAccessToken();
     }
     if (accessToken && !accessTokenIsLoading) {
-      console.log('Access token acquired, routing to dashboard...');
       router.replace('/dashboard');
     }
   }, [accessToken, accessTokenIsLoading, getAccessToken, router]);

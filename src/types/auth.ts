@@ -5,4 +5,5 @@ export type AuthContextType = {
   setAccessTokenIsLoading: (isLoading: boolean) => void;
   getAccessToken: () => void;
   clearAccessToken: () => void;
+  triggerBackendOAuth: () => void;
 };

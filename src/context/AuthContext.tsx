@@ -57,6 +57,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     router.replace('/login');
   }, [setAccessToken, setAccessTokenIsLoading, router]);
 
+  const triggerBackendOAuth = () => {
+    const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+    router.replace(backendBaseUrl + '/oauth2/authorization/discord');
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -66,6 +71,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessTokenIsLoading,
         getAccessToken,
         clearAccessToken,
+        triggerBackendOAuth,
       }}
     >
       {children}
