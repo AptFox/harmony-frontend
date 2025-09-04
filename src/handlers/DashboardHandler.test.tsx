@@ -111,15 +111,14 @@ describe('DashboardHandler', () => {
         replace: replaceFn,
       } as any);
 
-      const logoutFn = jest.fn();
+      const clearAccessTokenFn = jest.fn();
       useAuthMock.mockReturnValue({
-        logout: logoutFn,
+        clearAccessToken: clearAccessTokenFn,
       } as any);
 
       render(<DashboardHandler />);
       fireEvent.click(screen.getByText('Logout', { exact: true }));
-      expect(logoutFn).toHaveBeenCalled();
-      expect(replaceFn).toHaveBeenCalled();
+      expect(clearAccessTokenFn).toHaveBeenCalled();
       expect(loginFn).not.toHaveBeenCalled();
     });
   });

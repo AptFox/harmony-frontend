@@ -1,7 +1,8 @@
 export type AuthContextType = {
   accessToken: string | undefined;
-  accessTokenIsLoading: boolean;
   setAccessToken: (accessToken: string | undefined) => void;
-  login: () => void;
-  logout: () => void;
+  accessTokenIsLoading: boolean;
+  setAccessTokenIsLoading: (isLoading: boolean) => void;
+  getAccessToken: () => void;
+  clearAccessToken: () => void;
 };
