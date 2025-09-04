@@ -1,9 +1,16 @@
 'use client';
 
 import { AuthContextType } from '@/types/auth';
-import { createContext, useCallback, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
-import { getAccessToken, logoutOfApi } from '@/lib/api';
+import { getAccessTokenFromApi, logoutOfApi } from '@/lib/api';
+import { mutate } from 'swr';
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
@@ -11,39 +18,60 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     useState<boolean>(true);
   const router = useRouter();
 
-  const login = async () => {
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const token = await getAccessTokenFromApi(false);
+        setAccessToken(token);
+      } catch {
+        setAccessToken(undefined);
+        router.replace('/login');
+      } finally {
+        setAccessTokenIsLoading(false);
+      }
+    };
+
+    initAuth();
+  }, [router]);
+
+  const getAccessToken = useCallback(async () => {
+    setAccessTokenIsLoading(true);
     try {
-      const token = await getAccessToken(true);
+      const token = await getAccessTokenFromApi(true);
       setAccessToken(token);
-      setAccessTokenIsLoading(false);
-      router.replace('/dashboard');
     } catch (error: unknown) {
-      console.log('unable to login automatically'); // get rid of this and eat the error
-    }
-  };
-
-  const setAccessTokenFn = useCallback(
-    async (accessToken: string | undefined) => {
-      setAccessToken(accessToken);
+      console.error('unable to login automatically', error);
+    } finally {
       setAccessTokenIsLoading(false);
-    },
-    []
-  );
+    }
+  }, []);
 
-  const logout = useCallback(async () => {
+  const clearAccessToken = useCallback(async () => {
     setAccessToken(undefined);
     setAccessTokenIsLoading(false);
+
+    await mutate('/api/user/@me', null, { revalidate: false }); // clear user and prevent future fetches
+
     await logoutOfApi();
-  }, []);
+
+    router.replace('/login');
+  }, [setAccessToken, setAccessTokenIsLoading, router]);
+
+  const triggerBackendOAuth = () => {
+    const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+    router.replace(backendBaseUrl + '/oauth2/authorization/discord');
+  };
 
   return (
     <AuthContext.Provider
       value={{
         accessToken,
+        setAccessToken,
         accessTokenIsLoading,
-        setAccessToken: setAccessTokenFn,
-        login,
-        logout,
+        setAccessTokenIsLoading,
+        getAccessToken,
+        clearAccessToken,
+        triggerBackendOAuth,
       }}
     >
       {children}

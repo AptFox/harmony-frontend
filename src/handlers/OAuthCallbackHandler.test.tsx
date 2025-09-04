@@ -20,10 +20,10 @@ describe('OAuthCallbackHandler', () => {
       // TODO: figure out how to simplify this mock, maybe spread or something
       // TODO: make generic mocks
       // TODO: Make mock factory with sensible default
-      const loginFn = jest.fn();
+      const getAccessTokenFn = jest.fn();
       const replaceFn = jest.fn();
       useAuthMock.mockReturnValue({
-        login: loginFn,
+        getAccessToken: getAccessTokenFn,
         accessToken: undefined,
         accessTokenIsLoading: true,
       } as any);
@@ -35,7 +35,7 @@ describe('OAuthCallbackHandler', () => {
       render(<OAuthCallbackHandler />);
       expect(screen.getByText(/Logging you in.../i)).toBeInTheDocument();
 
-      expect(loginFn).toHaveBeenCalledTimes(1);
+      expect(getAccessTokenFn).toHaveBeenCalledTimes(1);
       expect(replaceFn).not.toHaveBeenCalled();
     });
   });
