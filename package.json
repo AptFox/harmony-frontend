@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@radix-ui/react-toast": "^1.2.11",
+    "@sentry/nextjs": "^10.10.0",
     "add": "^2.0.6",
     "alert": "^6.0.2",
     "axios": "^1.8.4",
