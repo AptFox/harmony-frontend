@@ -46,16 +46,18 @@ export default function DashboardHandler() {
             <div>
               <p>Hello, {user.displayName}</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               {avatarUrl && (
                 <Image
                   src={avatarUrl}
                   alt={`${user.displayName}'s avatar`}
                   width={64}
                   height={64}
-                  className="rounded-full center"
+                  className="rounded-full"
                 />
               )}
+            </div>
+            <div>
               <p>Details: {JSON.stringify(user)}</p>
             </div>
           </div>

@@ -47,6 +47,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   }, [isOnLoginPage, router]);
 
   const getAccessToken = useCallback(async () => {
+    setAccessTokenIsLoading(true);
     try {
       const token = await getAccessTokenFromApi(true);
       setAccessToken(token);
