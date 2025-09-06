@@ -8,6 +8,7 @@ import {
   useState,
   ReactNode,
 } from 'react';
+import { isRateLimitError, sendErrorToSentry } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { getAccessTokenFromApi, logoutOfApi } from '@/lib/api';
 import { mutate } from 'swr';
@@ -29,11 +30,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken(token);
       } catch (error: unknown) {
         console.error('unable to refresh access token', error);
-        setAccessToken(undefined);
+        sendErrorToSentry(error);
 
-        if (error?.status === 429) {
-          return;
-        }
+        if (isRateLimitError(error)) return;
+
+        setAccessToken(undefined);
 
         if (isOnLoginPage) return;
         router.replace('/login');
@@ -46,7 +47,6 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   }, [isOnLoginPage, router]);
 
   const getAccessToken = useCallback(async () => {
-    setAccessTokenIsLoading(true);
     try {
       const token = await getAccessTokenFromApi(true);
       setAccessToken(token);

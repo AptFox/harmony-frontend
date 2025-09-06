@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Middleware } from 'swr/_internal';
+import { isUnauthorizedError, sendErrorToSentry } from '@/lib/utils';
 
 const ACCESS_TOKEN_STRING = 'harmony_access_token';
 const REFRESH_TOKEN_URL = '/auth/refresh_token';
@@ -27,6 +28,7 @@ export async function logoutOfApi(): Promise<void> {
   return await apiClient.post(LOGOUT_URL, null, { withCredentials: true });
 }
 
+// this function is here to set the access token on retry, I might be able to use the onErrorRetry function instead
 export function createSwrRetryHandler(
   setAccessToken: (token: string | undefined) => void
 ): Middleware {
@@ -36,10 +38,12 @@ export function createSwrRetryHandler(
     const retryFetcher = async (...args: unknown[]) => {
       try {
         return await fetcher!(...args);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
+      } catch (error: unknown) {
         // skip retry and propogate error if not 401
-        if (error?.response?.status !== 401) throw error;
+        if (!isUnauthorizedError(error)) {
+          sendErrorToSentry(error);
+          throw error;
+        }
 
         if (!refreshPromise) {
           refreshPromise = (async () => {
