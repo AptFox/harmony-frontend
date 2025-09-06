@@ -43,7 +43,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-  }, [router]);
+  }, [isOnLoginPage, router]);
 
   const getAccessToken = useCallback(async () => {
     setAccessTokenIsLoading(true);
