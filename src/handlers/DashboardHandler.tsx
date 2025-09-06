@@ -15,11 +15,21 @@ export default function DashboardHandler() {
     if (isLoading) return;
     if (isError) {
       // TODO: add logic that inspects the error and prints a standard pretty message
-      toast({
-        title: isError.name,
-        description: isError.message,
-        variant: 'destructive',
-      });
+      if (isError.status === 429) {
+        toast({
+          title: 'Too Many Requests',
+          description:
+            "You are refreshing the page too often. If it didn't work the first few times, it probably won't work now. Please wait a bit before trying again.",
+          variant: 'destructive',
+        });
+        return;
+      } else {
+        toast({
+          title: isError.name,
+          description: isError.message,
+          variant: 'destructive',
+        });
+      }
 
       router.replace('/login');
     }
