@@ -8,7 +8,7 @@ import {
   useState,
   ReactNode,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getAccessTokenFromApi, logoutOfApi } from '@/lib/api';
 import { mutate } from 'swr';
 
@@ -17,14 +17,25 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessTokenIsLoading, setAccessTokenIsLoading] =
     useState<boolean>(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // If the user is already on the login page, don't redirect them again
+  const isOnLoginPage = pathname === '/login';
 
   useEffect(() => {
     const initAuth = async () => {
       try {
         const token = await getAccessTokenFromApi(false);
         setAccessToken(token);
-      } catch {
+      } catch (error: unknown) {
+        console.error('unable to refresh access token', error);
         setAccessToken(undefined);
+
+        if (error?.status === 429) {
+          return;
+        }
+
+        if (isOnLoginPage) return;
         router.replace('/login');
       } finally {
         setAccessTokenIsLoading(false);
@@ -32,7 +43,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-  }, [router]);
+  }, [isOnLoginPage, router]);
 
   const getAccessToken = useCallback(async () => {
     setAccessTokenIsLoading(true);
