@@ -2,7 +2,7 @@
 
 import { createContext, ReactNode, useMemo } from 'react';
 import useSWR from 'swr';
-import swrFetcher, { createSwrRetryHandler } from '@/lib/api';
+import swrFetcher from '@/lib/api';
 import { User, UserContextType } from '@/types/User';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -18,29 +18,27 @@ export const UserContext = createContext<UserContextType | undefined>(
 
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const DISCORD_CDN_URL = 'https://cdn.discordapp.com';
-  const { accessToken, setAccessToken } = useAuth();
+  const { accessToken } = useAuth();
   const swrKey = useMemo(
     () => (accessToken ? ['/api/user/@me', accessToken] : null),
     [accessToken]
   );
-
-  const retryHandler = createSwrRetryHandler(setAccessToken);
 
   const {
     data: user,
     error,
     isLoading,
   } = useSWR<User>(swrKey, swrFetcher, {
+    errorRetryCount: 3,
+    revalidateOnReconnect: true,
+    revalidateOnFocus: false,
     shouldRetryOnError: true,
-    use: [retryHandler],
     onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
       if (!key) return;
       if (isForbiddenError(error)) return; // forbidden request, don't retry
       if (isBadRequestError(error)) return; // bad request, don't retry
       if (isNotFoundError(error)) return; // user not found, don't retry
       if (isRateLimitError(error)) return; // too many requests, don't retry
-      // Never retry more than 3 times.
-      if (retryCount >= 3) return;
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
       console.warn(

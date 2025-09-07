@@ -8,7 +8,7 @@ import Image from 'next/image';
 export default function DashboardHandler() {
   // TODO: split this file into components
   const { user, avatarUrl, isLoading, isError } = useUser();
-  const { clearAccessToken } = useAuth();
+  const { logout } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function DashboardHandler() {
             <p>Dashboard loading...</p>
           </div>
         )}
-        {!isLoading && !isError && user && (
+        {user && (
           <div>
             <div>
               <p>Hello, {user.displayName}</p>
@@ -62,9 +62,14 @@ export default function DashboardHandler() {
             </div>
           </div>
         )}
+        {isError && (
+          <div>
+            <p>Error loading user data</p>
+          </div>
+        )}
       </div>
       <div>
-        <button onClick={clearAccessToken}>Logout</button>
+        <button onClick={logout}>Logout</button>
       </div>
     </main>
   );
