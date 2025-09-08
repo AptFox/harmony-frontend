@@ -1,0 +1,20 @@
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Set ENV vars
+ENV NEXT_PUBLIC_API_URL=http://localhost:8080
+ENV NODE_ENV=development
+ENV PORT=3000
+
+EXPOSE $PORT
+
+# Start dev
+CMD ["npm", "run", "dev"]

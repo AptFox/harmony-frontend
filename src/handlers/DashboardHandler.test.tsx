@@ -2,7 +2,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
 import { useAuth, useUser } from '@/hooks';
-import { useRouter } from 'next/navigation';
 import { mocked } from 'jest-mock';
 
 beforeEach(() => {
@@ -13,7 +12,6 @@ jest.mock('@/hooks');
 jest.mock('next/navigation');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
-const useRouterMock = mocked(useRouter, { shallow: true });
 
 describe('DashboardHandler', () => {
   describe('user is loading', () => {
@@ -24,11 +22,6 @@ describe('DashboardHandler', () => {
         isError: undefined,
       } as any);
 
-      const pushFn = jest.fn();
-      useRouterMock.mockReturnValue({
-        push: pushFn,
-      } as any);
-
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
@@ -36,22 +29,17 @@ describe('DashboardHandler', () => {
 
       render(<DashboardHandler />);
       expect(screen.getByText(/Dashboard loading.../i)).toBeInTheDocument();
-      expect(pushFn).not.toHaveBeenCalled();
     });
   });
 
   describe('when user is loaded', () => {
-    it('shows a welcome message and user details', () => {
+    it('shows a welcome message, user avatar and user details', () => {
       const testUser = { id: 'someId', displayName: 'someName' };
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,
         isError: undefined,
-      } as any);
-
-      const pushFn = jest.fn();
-      useRouterMock.mockReturnValue({
-        push: pushFn,
+        avatarUrl: '/someUrl',
       } as any);
 
       const logoutFn = jest.fn();
@@ -60,6 +48,7 @@ describe('DashboardHandler', () => {
       } as any);
 
       render(<DashboardHandler />);
+      expect(screen.getByAltText(`${testUser.displayName}'s avatar`)).toBeInTheDocument();
       expect(
         screen.getByText(`Hello, ${testUser.displayName}`, { exact: true })
       ).toBeInTheDocument();
@@ -68,31 +57,21 @@ describe('DashboardHandler', () => {
           exact: true,
         })
       );
-      expect(pushFn).not.toHaveBeenCalled();
     });
   });
   describe('when an error occurs while loading the user', () => {
-    it('redirects to the login page', async () => {
+    it('displays a toast message', async () => {
       const error = { name: 'someError', message: 'someMessage' };
       useUserMock.mockReturnValue({
         user: undefined,
+        avatarUrl: null,
         isLoading: false,
         isError: error,
       } as any);
 
-      const replaceFn = jest.fn();
-      useRouterMock.mockReturnValue({
-        replace: replaceFn,
-      } as any);
-
-      const logoutFn = jest.fn();
-      useAuthMock.mockReturnValue({
-        logout: logoutFn,
-      } as any);
-
       render(<DashboardHandler />);
-      // TODO: figure out how to test the toast error message
-      expect(replaceFn).toHaveBeenCalledWith('/login');
+      expect(screen.getByText('Error loading user data')).toBeInTheDocument();
+      // TODO: figure out how to test the toast error message as well likely by mocking useToast
     });
   });
 
@@ -104,22 +83,15 @@ describe('DashboardHandler', () => {
         isError: undefined,
       } as any);
 
-      const loginFn = jest.fn();
-      const replaceFn = jest.fn();
-      useRouterMock.mockReturnValue({
-        login: loginFn,
-        replace: replaceFn,
-      } as any);
 
-      const clearAccessTokenFn = jest.fn();
+      const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
-        clearAccessToken: clearAccessTokenFn,
+        logout: logoutFn,
       } as any);
 
       render(<DashboardHandler />);
       fireEvent.click(screen.getByText('Logout', { exact: true }));
-      expect(clearAccessTokenFn).toHaveBeenCalled();
-      expect(loginFn).not.toHaveBeenCalled();
+      expect(logoutFn).toHaveBeenCalled();
     });
   });
 });

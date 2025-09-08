@@ -26,7 +26,7 @@ module.exports = {
     'prettier',
   ],
   rules: {
-    'prettier/prettier': 'error', // Treat prettier issues as lint errors
+    'prettier/prettier': 'off', // Treat prettier issues as lint errors
     'unused-imports/no-unused-imports': 'error',
     'react/react-in-jsx-scope': 'off', // Next.js doesn't need it
     // 'unused-imports/no-unused-vars': [

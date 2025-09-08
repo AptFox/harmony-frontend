@@ -20,12 +20,9 @@ describe('OAuthCallbackHandler', () => {
       // TODO: figure out how to simplify this mock, maybe spread or something
       // TODO: make generic mocks
       // TODO: Make mock factory with sensible default
-      const getAccessTokenFn = jest.fn();
       const replaceFn = jest.fn();
       useAuthMock.mockReturnValue({
-        getAccessToken: getAccessTokenFn,
-        accessToken: undefined,
-        accessTokenIsLoading: true,
+        accessToken: 'someAccessToken',
       } as any);
 
       useRouterMock.mockReturnValue({
@@ -34,41 +31,31 @@ describe('OAuthCallbackHandler', () => {
 
       render(<OAuthCallbackHandler />);
       expect(screen.getByText(/Logging you in.../i)).toBeInTheDocument();
-
-      expect(getAccessTokenFn).toHaveBeenCalledTimes(1);
-      expect(replaceFn).not.toHaveBeenCalled();
     });
   });
 
   describe('accessToken has loaded', () => {
     it('routes to the dashboard page', () => {
-      const loginFn = jest.fn();
-      const replaceFn = jest.fn();
       useAuthMock.mockReturnValue({
-        login: loginFn,
         accessToken: 'accessTokenBlahBlah',
-        accessTokenIsLoading: false,
       } as any);
 
+      const replaceFn = jest.fn();
       useRouterMock.mockReturnValue({
         replace: replaceFn,
       } as any);
 
       render(<OAuthCallbackHandler />);
 
-      expect(replaceFn).toHaveBeenCalledTimes(1);
-      expect(loginFn).not.toHaveBeenCalled;
+      expect(replaceFn).toHaveBeenCalledWith('/dashboard');
     });
   });
 
   describe('accessToken has failed to load', () => {
     it('renders an error message', () => {
-      const loginFn = jest.fn();
       const replaceFn = jest.fn();
       useAuthMock.mockReturnValue({
-        login: loginFn,
         accessToken: undefined,
-        accessTokenIsLoading: false,
       } as any);
 
       useRouterMock.mockReturnValue({
@@ -79,7 +66,6 @@ describe('OAuthCallbackHandler', () => {
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
 
       expect(replaceFn).not.toHaveBeenCalled();
-      expect(loginFn).not.toHaveBeenCalled();
     });
   });
 });

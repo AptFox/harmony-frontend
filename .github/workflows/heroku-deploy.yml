@@ -24,7 +24,6 @@ jobs:
         run: |
           docker build \
             --build-arg NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }} \
-            --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
 
       # Push the Docker image to Herkoku
@@ -38,6 +37,15 @@ jobs:
       # Authenticate with Heroku using the Heroku API key (GitHub secret)
       - name: Login to Heroku
         run: heroku container:login
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_AUTH_TOKEN }}
+          HEROKU_HEADERS: ${{ vars.HEROKU_HEADERS }}
+
+      - name: Set runtime environment variables
+        run: |
+          heroku config:set SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+          NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }} \
+          -a ${{ secrets.HEROKU_APP_NAME }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_AUTH_TOKEN }}
           HEROKU_HEADERS: ${{ vars.HEROKU_HEADERS }}
