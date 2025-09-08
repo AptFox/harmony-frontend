@@ -48,7 +48,9 @@ describe('DashboardHandler', () => {
       } as any);
 
       render(<DashboardHandler />);
-      expect(screen.getByAltText(`${testUser.displayName}'s avatar`)).toBeInTheDocument();
+      expect(
+        screen.getByAltText(`${testUser.displayName}'s avatar`)
+      ).toBeInTheDocument();
       expect(
         screen.getByText(`Hello, ${testUser.displayName}`, { exact: true })
       ).toBeInTheDocument();
@@ -82,7 +84,6 @@ describe('DashboardHandler', () => {
         isLoading: false,
         isError: undefined,
       } as any);
-
 
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({

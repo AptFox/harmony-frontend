@@ -11,14 +11,10 @@ const apiClient = axios.create({
   },
 });
 
-export async function getAccessTokenFromApi(
-  initialLogin: boolean = false
-): Promise<string> {
-  const requestArgs = {
+export async function getAccessTokenFromApi(): Promise<string> {
+  const response = await apiClient.post(REFRESH_TOKEN_URL, null, {
     withCredentials: true,
-    headers: { 'Initial-Login': `${initialLogin}` },
-  };
-  const response = await apiClient.post(REFRESH_TOKEN_URL, null, requestArgs);
+  });
   return response.data[ACCESS_TOKEN_STRING];
 }
 
