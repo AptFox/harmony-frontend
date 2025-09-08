@@ -43,11 +43,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = useCallback(async () => {
     await logoutOfApi();
-    setAccessToken(undefined);
     setHasLoggedOut(true);
+    setAccessToken(undefined);
 
     router.replace('/login');
-  }, [setAccessToken, router]);
+  }, [router]);
 
   const triggerDiscordOAuth = () => {
     const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
