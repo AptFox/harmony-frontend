@@ -59,9 +59,7 @@ describe('DashboardHandler', () => {
       );
     });
   });
-  // This test is skipped because I don't know how to test the toast component
-  //  and that's the only that should happen if an error is thrown while loading the user
-  describe.skip('when an error occurs while loading the user', () => {
+  describe('when an error occurs while loading the user', () => {
     it('displays a toast message', async () => {
       const error = { name: 'someError', message: 'someMessage' };
       useUserMock.mockReturnValue({
@@ -72,8 +70,8 @@ describe('DashboardHandler', () => {
       } as any);
 
       render(<DashboardHandler />);
-      // TODO: figure out how to test the toast error message
-      //  consider extracting the toast logic to useToast and mocking the call to it
+      expect(screen.getByText('Error loading user data')).toBeInTheDocument();
+      // TODO: figure out how to test the toast error message as well likely by mocking useToast
     });
   });
 
