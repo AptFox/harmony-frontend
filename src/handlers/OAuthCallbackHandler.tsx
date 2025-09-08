@@ -6,21 +6,16 @@ import { useRouter } from 'next/navigation';
 
 export default function OAuthCallbackHandler() {
   const router = useRouter();
-  const { getAccessToken, accessToken, accessTokenIsLoading } = useAuth();
+  const { accessToken } = useAuth();
 
   useEffect(() => {
-    if (!accessToken && accessTokenIsLoading) {
-      getAccessToken();
-    }
-    if (accessToken && !accessTokenIsLoading) {
-      router.replace('/dashboard');
-    }
-  }, [accessToken, accessTokenIsLoading, getAccessToken, router]);
+    if (accessToken) router.replace('/dashboard');
+  }, [accessToken, router]);
 
   return (
     <div>
-      {!accessToken && accessTokenIsLoading && <p>Logging you in...</p>}
-      {!accessToken && !accessTokenIsLoading && <p>Something went wrong</p>}
+      {accessToken && <p>Logging you in...</p>}
+      {!accessToken && <p>Something went wrong</p>}
     </div>
   );
 }

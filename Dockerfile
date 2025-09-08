@@ -5,9 +5,7 @@ WORKDIR /app
 
 # Set BACKEND API URL at build time
 ARG NEXT_PUBLIC_API_URL
-ARG SENTRY_AUTH_TOKEN
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 
 # Install dependencies separately for caching
 COPY package*.json ./

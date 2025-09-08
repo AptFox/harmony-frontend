@@ -1,30 +1,36 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "command": "npm run test",
-            "name": "Run tests",
-            "request": "launch",
-            "type": "node-terminal"
-        },
-        {
-            "type": "node-terminal",
-            "name": "Next.js: run dev",
-            "request": "launch",
-            "command": "npm run dev",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Next.js: debug in Chrome",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
-            "sourceMaps": true,
-            "trace": true
-        },
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "npm run test",
+      "name": "Run tests",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "type": "node-terminal",
+      "name": "run dev",
+      "request": "launch",
+      "command": "NODE_OPTIONS='--inspect' npm run dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "debug in Chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "trace": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run and Debug",
+      "configurations": ["run dev", "debug in Chrome"]
+    }
+  ]
 }
