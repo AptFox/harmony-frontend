@@ -39,7 +39,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-  }, [accessToken, hasLoggedOut, pathname, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, hasLoggedOut]);
 
   const logout = useCallback(async () => {
     await logoutOfApi();
