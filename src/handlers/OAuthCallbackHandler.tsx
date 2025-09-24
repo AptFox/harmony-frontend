@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context';
 import { useRouter } from 'next/navigation';
 
 export default function OAuthCallbackHandler() {

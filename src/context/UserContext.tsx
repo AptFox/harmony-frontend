@@ -1,44 +1,41 @@
 'use client';
 
-import { createContext, ReactNode, useMemo } from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 import useSWR from 'swr';
 import swrFetcher from '@/lib/api';
-import { User, UserContextType } from '@/types/User';
-import { useAuth } from '@/hooks/useAuth';
+import { User, UserContextType } from '@/types/UserTypes';
+import { useAuth } from '@/context';
 import {
   isForbiddenError,
   isBadRequestError,
   isNotFoundError,
-  isRateLimitError,
+  isApiRateLimitError,
+  isNoAccessTokenError,
 } from '@/lib/utils';
 
-export const UserContext = createContext<UserContextType | undefined>(
-  undefined
-);
+export const USER_SWR_KEY = '/api/user/@me';
 
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const DISCORD_CDN_URL = 'https://cdn.discordapp.com';
   const { accessToken } = useAuth();
-  const swrKey = useMemo(
-    () => (accessToken ? ['/api/user/@me', accessToken] : null),
-    [accessToken]
-  );
 
   const {
     data: user,
     error,
     isLoading,
-  } = useSWR<User>(swrKey, swrFetcher, {
+  } = useSWR<User>(USER_SWR_KEY, () => swrFetcher(USER_SWR_KEY, accessToken), {
     errorRetryCount: 3,
+    keepPreviousData: true,
     revalidateOnReconnect: true,
     revalidateOnFocus: false,
     shouldRetryOnError: true,
     onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
       if (!key) return;
+      if (isNoAccessTokenError(error)) return; // no access token in request
       if (isForbiddenError(error)) return; // forbidden request, don't retry
       if (isBadRequestError(error)) return; // bad request, don't retry
       if (isNotFoundError(error)) return; // user not found, don't retry
-      if (isRateLimitError(error)) return; // too many requests, don't retry
+      if (isApiRateLimitError(error)) return; // too many requests, don't retry
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
       console.warn(
@@ -73,4 +70,15 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </UserContext.Provider>
   );
+};
+
+export const UserContext = createContext<UserContextType | undefined>(
+  undefined
+);
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context)
+    throw new Error('useUser must be used within a UserContextProvider');
+  return context;
 };

@@ -1,4 +1,4 @@
-import { AuthContextProvider } from '@/context/AuthContext';
+import { AuthContextProvider } from '@/context';
 
 export default function AuthLayout({
   children,

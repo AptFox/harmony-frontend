@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, useUser } from '@/hooks';
+import { useAuth, useUser } from '@/context';
 import { mocked } from 'jest-mock';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-jest.mock('@/hooks');
+jest.mock('@/context');
 jest.mock('next/navigation');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
@@ -62,13 +62,18 @@ describe('DashboardHandler', () => {
     });
   });
   describe('when an error occurs while loading the user', () => {
-    it('displays a toast message', async () => {
-      const error = { name: 'someError', message: 'someMessage' };
+    it('displays a error message', async () => {
+      const error = new Error('test');
       useUserMock.mockReturnValue({
         user: undefined,
         avatarUrl: null,
         isLoading: false,
         isError: error,
+      } as any);
+
+      const logoutFn = jest.fn();
+      useAuthMock.mockReturnValue({
+        logout: logoutFn,
       } as any);
 
       render(<DashboardHandler />);

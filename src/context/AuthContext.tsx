@@ -1,27 +1,34 @@
 'use client';
 
-import { AuthContextType } from '@/types/auth';
+import { AuthContextType } from '@/types/AuthTypes';
 import {
   createContext,
   useCallback,
   useEffect,
   useState,
   ReactNode,
+  useContext,
 } from 'react';
 import {
-  isRateLimitError,
+  isApiRateLimitError,
   isUnauthorizedError,
   isBadRequestError,
   sendErrorToSentry,
+  isClientRateLimitError,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
+import { useToast } from '@/hooks/UseToast';
+import { useSWRConfig } from 'swr';
+import { USER_SWR_KEY } from '@/context';
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { tooManyRequestsToast } = useToast();
+  const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -32,20 +39,36 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       } catch (error: unknown) {
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
           sendErrorToSentry(error);
-        if (isRateLimitError(error)) return;
+        if (isApiRateLimitError(error) || isClientRateLimitError(error)) {
+          const rateLimitType = isClientRateLimitError(error)
+            ? 'client'
+            : 'api';
+          console.error(`${rateLimitType} rate limit triggered`);
+          if (pathname !== '/login') {
+            tooManyRequestsToast();
+          }
+          return;
+        }
 
         if (pathname !== '/login') router.replace('/login');
       }
     };
 
     initAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, hasLoggedOut]);
 
   const logout = useCallback(async () => {
+    // Clear all SWR keys and sessionStorage
+    const clearUserCache = () => {
+      cache.delete;
+      mutate(USER_SWR_KEY, null, { revalidate: false });
+    };
+
     await logoutOfApi();
     setHasLoggedOut(true);
     setAccessToken(undefined);
+    clearUserCache();
 
     router.replace('/login');
   }, [router]);
@@ -72,3 +95,10 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context)
+    throw new Error('useAuth must be used within AuthContextProvider');
+  return context;
+};

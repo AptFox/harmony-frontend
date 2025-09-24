@@ -1,6 +1,6 @@
 import { AxiosError, HttpStatusCode } from 'axios';
 
-export type RateLimitError = AxiosError & {
+export type ApiRateLimitError = AxiosError & {
   status: HttpStatusCode.TooManyRequests;
 };
 export type UnauthorizedError = AxiosError & {

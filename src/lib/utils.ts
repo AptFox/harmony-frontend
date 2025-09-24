@@ -3,12 +3,16 @@ import { twMerge } from 'tailwind-merge';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { captureException } from '@sentry/nextjs';
 import {
-  RateLimitError,
+  ApiRateLimitError,
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
   BadRequestError,
-} from '@/types/errors';
+} from '@/types/HarmonyErrorTypes';
+import {
+  ClientRateLimitError,
+  NoAccessTokenError,
+} from '@/lib/errors/HarmonyErrors';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,8 +22,22 @@ export function isAxiosError(error: unknown): error is AxiosError {
   return error instanceof AxiosError;
 }
 
-export function isRateLimitError(error: unknown): error is RateLimitError {
+export function isApiRateLimitError(
+  error: unknown
+): error is ApiRateLimitError {
   return isAxiosError(error) && error.status === HttpStatusCode.TooManyRequests;
+}
+
+export function isClientRateLimitError(
+  error: unknown
+): error is ClientRateLimitError {
+  return error instanceof ClientRateLimitError;
+}
+
+export function isNoAccessTokenError(
+  error: unknown
+): error is NoAccessTokenError {
+  return error instanceof NoAccessTokenError;
 }
 
 export function isUnauthorizedError(

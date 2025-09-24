@@ -1,4 +1,9 @@
 import axios from 'axios';
+import { authRateLimitExceeded } from '@/lib/RateLimiter';
+import {
+  ClientRateLimitError,
+  NoAccessTokenError,
+} from '@/lib/errors/HarmonyErrors';
 
 const ACCESS_TOKEN_STRING = 'harmony_access_token';
 const REFRESH_TOKEN_URL = '/auth/refresh_token';
@@ -12,6 +17,8 @@ const apiClient = axios.create({
 });
 
 export async function getAccessTokenFromApi(): Promise<string> {
+  if (authRateLimitExceeded()) throw new ClientRateLimitError();
+
   const response = await apiClient.post(REFRESH_TOKEN_URL, null, {
     withCredentials: true,
   });
@@ -22,8 +29,11 @@ export async function logoutOfApi(): Promise<void> {
   return await apiClient.post(LOGOUT_URL, null, { withCredentials: true });
 }
 
-export default async function swrFetcher<T>(args: string[]): Promise<T> {
-  const [url, accessToken] = args;
+export default async function swrFetcher<T>(
+  url: string,
+  accessToken: string | undefined
+): Promise<T> {
+  if (!accessToken) throw new NoAccessTokenError();
   const response = await apiClient.get<T>(url, {
     headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },
   });
