@@ -1,4 +1,9 @@
-import { authRateLimitExceeded, AUTH_RATE_LIMIT_KEY, RATE_LIMIT, RATE_LIMIT_TIMEOUT } from './RateLimiter';
+import {
+  authRateLimitExceeded,
+  AUTH_RATE_LIMIT_KEY,
+  RATE_LIMIT,
+  RATE_LIMIT_TIMEOUT,
+} from './RateLimiter';
 
 describe('authRateLimitExceeded', () => {
   let mockNow = 0;
@@ -41,7 +46,7 @@ describe('authRateLimitExceeded', () => {
   it('should initialize rate limit data if localStorage is empty', () => {
     expect(authRateLimitExceeded()).toBe(false);
     const data = JSON.parse(localStorage.getItem(AUTH_RATE_LIMIT_KEY) || '{}');
-    
+
     expect(data.requestCount).toBe(1);
     expect(data.windowStart).toBe(mockNow);
   });
