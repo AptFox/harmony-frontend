@@ -1,0 +1,41 @@
+# Node dependencies
+node_modules
+
+# Local env files
+.env
+.env.*.local
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.code-workspace
+*.pem
+
+# Build outputs
+.next
+out
+dist
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# GitHub
+.github
+
+# Tests & coverage
+coverage
+*.spec.ts
+*.test.ts
+__tests__/
+__mocks__/
+
+# Linting
+.eslint*
+.prettier*
+
+# Misc
+*.log
