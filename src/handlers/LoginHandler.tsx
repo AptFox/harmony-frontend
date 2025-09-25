@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context';
+import { useAuth } from '@/contexts';
 import { useEffect } from 'react';
 import LoginButton from '@/components/auth/LoginButton';
 

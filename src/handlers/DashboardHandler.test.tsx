@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, useUser } from '@/context';
+import { useAuth, useUser } from '@/contexts';
 import { mocked } from 'jest-mock';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-jest.mock('@/context');
+jest.mock('@/contexts');
 jest.mock('next/navigation');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });

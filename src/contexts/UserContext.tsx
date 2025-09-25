@@ -4,7 +4,7 @@ import { createContext, ReactNode, useContext } from 'react';
 import useSWR from 'swr';
 import swrFetcher from '@/lib/api';
 import { User, UserContextType } from '@/types/UserTypes';
-import { useAuth } from '@/context';
+import { useAuth } from '@/contexts';
 import {
   isForbiddenError,
   isBadRequestError,

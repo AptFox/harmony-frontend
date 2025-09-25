@@ -1,5 +1,5 @@
 'use client';
-import { useUser, useAuth } from '@/context';
+import { useUser, useAuth } from '@/contexts';
 import { useToast } from '@/hooks/UseToast';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';

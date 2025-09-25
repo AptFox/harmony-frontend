@@ -20,7 +20,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
 import { useToast } from '@/hooks/UseToast';
 import { useSWRConfig } from 'swr';
-import { USER_SWR_KEY } from '@/context';
+import { USER_SWR_KEY } from '@/contexts';
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
@@ -71,6 +71,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     clearUserCache();
 
     router.replace('/login');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const triggerDiscordOAuth = () => {

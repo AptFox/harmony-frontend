@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginHandler from './LoginHandler';
-import { useAuth } from '@/context';
+import { useAuth } from '@/contexts';
 import { useRouter } from 'next/navigation';
 import { mocked } from 'jest-mock';
 
@@ -9,7 +9,7 @@ const useAuthMock = mocked(useAuth, { shallow: true });
 const useRouterMock = mocked(useRouter, { shallow: true });
 const originalEnv = process.env;
 
-jest.mock('@/context');
+jest.mock('@/contexts');
 jest.mock('next/navigation');
 
 beforeEach(() => {
