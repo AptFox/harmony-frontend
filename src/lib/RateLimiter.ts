@@ -1,6 +1,6 @@
-const ONE_MINUTE_MS = 60000;
-const RATE_LIMIT = 10;
-const AUTH_RATE_LIMIT_KEY = 'authRequests';
+export const RATE_LIMIT_TIMEOUT = 60000; // one minute in milliseconds
+export const RATE_LIMIT = 10;
+export const AUTH_RATE_LIMIT_KEY = 'authRequests';
 
 type RateLimitData = {
   requestCount: number;
@@ -24,7 +24,7 @@ export function authRateLimitExceeded(): boolean {
   const rateLimitData: RateLimitData = getRateLimitData(currentTime);
 
   const rateLimitWindowExpired =
-    currentTime - rateLimitData.windowStart > ONE_MINUTE_MS;
+    currentTime - rateLimitData.windowStart > RATE_LIMIT_TIMEOUT;
   if (rateLimitWindowExpired) {
     // if rate limit has expired, reset rateLimitData
     rateLimitData.windowStart = currentTime;
