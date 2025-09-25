@@ -1,37 +1,32 @@
 'use client';
-import { useUser, useAuth } from '@/hooks';
-import { useToast } from '@/hooks/use-toast';
+import { useUser, useAuth } from '@/contexts';
+import { useToast } from '@/hooks/UseToast';
 import { useEffect } from 'react';
-import { isRateLimitError } from '@/lib/utils';
+import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 
 export default function DashboardHandler() {
   // TODO: split this file into components
   const { user, avatarUrl, isLoading, isError } = useUser();
   const { logout } = useAuth();
-  const { toast } = useToast();
+  const { toast, tooManyRequestsToast } = useToast();
 
   useEffect(() => {
     if (isLoading) return;
+    if (isNoAccessTokenError(isError)) return;
     if (isError) {
       // TODO: add logic that inspects the error and prints a standard pretty message
-      if (isRateLimitError(isError)) {
-        toast({
-          title: 'Too Many Requests',
-          description:
-            "You are refreshing the page too often. If it didn't work the first few times, it probably won't work now.",
-          variant: 'destructive',
-        });
+      if (isApiRateLimitError(isError)) {
+        tooManyRequestsToast();
         return;
-      } else {
-        toast({
-          title: isError.name,
-          description: isError.message,
-          variant: 'destructive',
-        });
       }
+      toast({
+        title: (isError as Error).name,
+        description: (isError as Error).message,
+        variant: 'destructive',
+      });
     }
-  }, [user, isLoading, isError, toast]);
+  }, [user, isLoading, isError, toast, tooManyRequestsToast]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -62,7 +57,7 @@ export default function DashboardHandler() {
             </div>
           </div>
         )}
-        {isError && (
+        {isError && !isNoAccessTokenError(isError) && (
           <div>
             <p>Error loading user data</p>
           </div>

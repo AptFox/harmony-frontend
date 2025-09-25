@@ -168,6 +168,16 @@ function toast({ ...props }: Toast) {
   };
 }
 
+// TODO: move this to a service or something and figure out if I can have my toasts be imported instead of declared
+function tooManyRequestsToast() {
+  toast({
+    title: 'Too Many Requests',
+    description:
+      "You are refreshing the page too often. If it didn't work the first few times, it probably won't work now.",
+    variant: 'destructive',
+  });
+}
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 
@@ -184,6 +194,7 @@ function useToast() {
   return {
     ...state,
     toast,
+    tooManyRequestsToast,
     dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
   };
 }

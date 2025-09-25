@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react';
 import OAuthCallbackHandler from './OAuthCallbackHandler';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts';
 import { useRouter } from 'next/navigation';
 import { mocked } from 'jest-mock';
 
@@ -9,7 +9,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-jest.mock('@/hooks/useAuth');
+jest.mock('@/contexts');
 jest.mock('next/navigation');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useRouterMock = mocked(useRouter, { shallow: true });
