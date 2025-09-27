@@ -10,7 +10,6 @@ import {
   isBadRequestError,
   isNotFoundError,
   isApiRateLimitError,
-  isNoAccessTokenError,
 } from '@/lib/utils';
 
 export const USER_SWR_KEY = '/api/user/@me';
@@ -31,7 +30,6 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     shouldRetryOnError: true,
     onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
       if (!key) return;
-      if (isNoAccessTokenError(error)) return; // no access token in request
       if (isForbiddenError(error)) return; // forbidden request, don't retry
       if (isBadRequestError(error)) return; // bad request, don't retry
       if (isNotFoundError(error)) return; // user not found, don't retry
