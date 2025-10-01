@@ -15,6 +15,7 @@ import {
   isBadRequestError,
   sendErrorToSentry,
   isClientRateLimitError,
+  logError,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
@@ -43,7 +44,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           const rateLimitType = isClientRateLimitError(error)
             ? 'client'
             : 'api';
-          console.error(`${rateLimitType} rate limit triggered`);
+          logError(error, `${rateLimitType} rate limit triggered`);
           if (pathname !== '/login') {
             tooManyRequestsToast();
           }

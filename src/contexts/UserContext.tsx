@@ -10,6 +10,7 @@ import {
   isBadRequestError,
   isNotFoundError,
   isApiRateLimitError,
+  logWarn,
 } from '@/lib/utils';
 
 export const USER_SWR_KEY = '/api/user/@me';
@@ -36,9 +37,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       if (isApiRateLimitError(error)) return; // too many requests, don't retry
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
-      console.warn(
-        `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`
-      );
+      logWarn(error, `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`);
       setTimeout(() => revalidate({ retryCount }), retryIn);
     },
   });
