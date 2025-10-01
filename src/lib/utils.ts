@@ -58,10 +58,24 @@ export function isBadRequestError(error: unknown): error is BadRequestError {
   return isAxiosError(error) && error.status === HttpStatusCode.BadRequest;
 }
 
-export function sendErrorToSentry(error: unknown): void {
-  const isProdEnv = process.env.NODE_ENV === 'production';
+export const isProdEnv = () => process.env.NODE_ENV === 'production';
 
-  if (!isProdEnv || isForbiddenError(error)) return;
+export function logWarn(error: Error, message: string): void {
+  if (!isProdEnv()) {
+    console.warn(error, message);
+  }
+}
+
+export function logError(error: Error, message: string): void {
+  if (!isProdEnv()) {
+    console.error(error, message);
+  }
+}
+
+export function sendErrorToSentry(error: unknown): void {
+
+  if (!isProdEnv()) return;
+  if (isForbiddenError(error)) return;
 
   captureException(error);
 }
