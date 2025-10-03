@@ -6,7 +6,7 @@
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
-    "generate:favicon": "png-to-ico ./src/assets/icon.png > ./public/favicon.ico",
+    "generate:favicon": "png-to-ico ./src/assets/icon.png > ./app/favicon.ico",
     "docker:build": "docker build -f Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:8080 --build-arg NODE_ENV=development -t harmony-frontend .",
     "docker:build:dev": "docker build -f Dockerfile.dev -t harmony-frontend-dev .",
     "docker:run": "docker run --env-file .env.local --name harmony-frontend --rm -p 3000:3000 -e PORT=3000 harmony-frontend:latest",
