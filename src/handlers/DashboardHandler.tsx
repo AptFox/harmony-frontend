@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/UseToast';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
+import { Button,  } from '@heroui/react';
 
 export default function DashboardHandler() {
   // TODO: split this file into components
@@ -64,7 +65,7 @@ export default function DashboardHandler() {
         )}
       </div>
       <div>
-        <button onClick={logout}>Logout</button>
+        <Button onPress={logout}>Logout</Button>
       </div>
     </main>
   );

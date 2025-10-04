@@ -16,8 +16,8 @@ export default function LoginHandler() {
   }, [accessToken, router]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="flex justify-center items-center h-screen lg:mb-0 lg:grid-cols-4 lg:text-center">
+    <main className="flex min-h-screen flex-col items-center p-24">
+      <div className="flex items-center">
         <LoginButton onClickFn={triggerDiscordOAuth} />
       </div>
     </main>
