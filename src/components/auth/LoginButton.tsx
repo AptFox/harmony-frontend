@@ -1,10 +1,9 @@
 'use client';
-
-import { Button } from '@heroui/react';
+import { Button } from '@/components/ui/button';
 
 export default function LoginButton({ onClickFn }: { onClickFn: () => void }) {
   return (
-    <Button color="primary" variant="shadow" size="lg" onPress={onClickFn}>
+    <Button color="primary" variant="default" size="lg" onClick={onClickFn}>
       Login
     </Button>
   );
