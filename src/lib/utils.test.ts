@@ -32,8 +32,8 @@ jest.mock('@sentry/nextjs', () => ({
 }));
 
 describe('utils', () => {
-  const updateNodeEnv = (env: "development" | "production" | "test") => {
-    process.env = { NODE_ENV: env }
+  const updateNodeEnv = (env: 'development' | 'production' | 'test') => {
+    process.env = { NODE_ENV: env };
   };
 
   describe('cn', () => {
@@ -205,7 +205,7 @@ describe('utils', () => {
 
   describe('sendErrorToSentry', () => {
     const OLD_ENV = process.env;
-    
+
     afterAll(() => {
       process.env = OLD_ENV;
     });

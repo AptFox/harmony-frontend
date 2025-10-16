@@ -1,0 +1,26 @@
+{
+  "name": "Harmony Scheduler",
+  "short_name": "Harmony",
+  "description": "An app for esports scheduling.",
+  "categories": ["productivity"],
+  "start_url": "/",
+  "background_color": "#09090b",
+  "theme_color": "#7f22fe",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

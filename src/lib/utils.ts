@@ -69,7 +69,6 @@ export function logError(error: Error, message: string): void {
 }
 
 export function sendErrorToSentry(error: unknown): void {
-
   if (!isProdEnv()) return;
   if (isForbiddenError(error)) return;
 
