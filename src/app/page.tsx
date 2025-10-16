@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import Link from 'next/link'
+import Link from 'next/link';
 
 export default function Home() {
   // TODO: split this file into components
@@ -11,10 +11,7 @@ export default function Home() {
       <div className="flex items-center">
         <div className="flex justify-center items-center">
           <Link href="/login" className="no-underline">
-            <Button
-              color="primary" variant="default"
-              size="lg"
-            >
+            <Button color="primary" variant="default" size="lg">
               Go to Login Page
             </Button>
           </Link>

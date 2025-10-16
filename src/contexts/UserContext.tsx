@@ -37,7 +37,10 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       if (isApiRateLimitError(error)) return; // too many requests, don't retry
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
-      logWarn(error, `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`);
+      logWarn(
+        error,
+        `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`
+      );
       setTimeout(() => revalidate({ retryCount }), retryIn);
     },
   });

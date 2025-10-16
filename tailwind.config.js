@@ -1,19 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export const content = [
-  "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-  "./components/**/*.{js,ts,jsx,tsx,mdx}",
+  './app/**/*.{js,ts,jsx,tsx,mdx}',
+  './pages/**/*.{js,ts,jsx,tsx,mdx}',
+  './components/**/*.{js,ts,jsx,tsx,mdx}',
 ];
 export const theme = {
   extend: {},
 };
-export const darkMode = "class";
-export const plugins = []
+export const darkMode = 'class';
+export const plugins = [];
 // heroui({
 //   themes: {
 //     light: {
 //       colors: {
-//         primary: { 
+//         primary: {
 //           DEFAULT: '#5d2452', // purple
 //           foreground: '#f3f3f2', // white
 //         },
