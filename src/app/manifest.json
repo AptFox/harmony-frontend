@@ -4,7 +4,6 @@
   "description": "An app for esports scheduling.",
   "categories": ["productivity"],
   "start_url": "/",
-  "display": "standalone",
   "background_color": "#09090b",
   "theme_color": "#7f22fe",
   "icons": [
