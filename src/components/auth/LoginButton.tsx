@@ -1,9 +1,10 @@
 'use client';
+import { Button } from '@/components/ui/button';
 
 export default function LoginButton({ onClickFn }: { onClickFn: () => void }) {
   return (
-    <button className="text-3xl text-center font-bold" onClick={onClickFn}>
+    <Button color="primary" variant="default" size="lg" onClick={onClickFn}>
       Login
-    </button>
+    </Button>
   );
 }
