@@ -45,7 +45,6 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     },
   });
 
-  // TODO: figure out where to put service level code like this
   function getDiscordAvatarUrl(user: User | undefined): string | null {
     if (!user) return null;
     if (!user.discordId) return null;
