@@ -37,7 +37,7 @@ describe('LoginHandler', () => {
       } as any);
 
       render(<LoginHandler />);
-      expect(screen.getByText(/Login/i)).toBeInTheDocument();
+      expect(screen.getByText(/Login with Discord/i)).toBeInTheDocument();
       expect(replaceFn).not.toHaveBeenCalled();
     });
 
@@ -55,7 +55,7 @@ describe('LoginHandler', () => {
 
       render(<LoginHandler />);
 
-      fireEvent.click(screen.getByText(/Login/i));
+      fireEvent.click(screen.getByText(/Login with Discord/i));
       expect(triggerDiscordOAuthFn).toHaveBeenCalled();
       expect(replaceFn).not.toHaveBeenCalled();
     });

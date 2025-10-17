@@ -10,6 +10,7 @@ beforeEach(() => {
 
 jest.mock('@/contexts');
 jest.mock('next/navigation');
+jest.mock('@/hooks/useInitialTimeZone');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 
@@ -34,7 +35,11 @@ describe('DashboardHandler', () => {
 
   describe('when user is loaded', () => {
     it('shows a welcome message, user avatar and user details', () => {
-      const testUser = { id: 'someId', displayName: 'someName' };
+      const testUser = {
+        id: 'someId',
+        displayName: 'someName',
+        timeZoneId: 'America/New_York',
+      };
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,
@@ -55,7 +60,7 @@ describe('DashboardHandler', () => {
         screen.getByText(`Hello, ${testUser.displayName}`, { exact: true })
       ).toBeInTheDocument();
       expect(
-        screen.getByText(`Details: ${JSON.stringify(testUser)}`, {
+        screen.getByText(`Timezone: ${testUser.timeZoneId}`, {
           exact: true,
         })
       );
