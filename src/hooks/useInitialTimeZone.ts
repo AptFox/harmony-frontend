@@ -23,14 +23,18 @@ export function useInitialTimeZone() {
 
       try {
         mutate(USER_SWR_KEY, userWithTz, false);
-        const updatedUser = apiUpdater<User>(USER_SWR_KEY, userWithTz, accessToken)
+        const updatedUser = apiUpdater<User>(
+          USER_SWR_KEY,
+          userWithTz,
+          accessToken
+        );
         mutate(USER_SWR_KEY, updatedUser, false);
       } catch (err: unknown) {
-          logWarn(err, 'Failed to update timeZoneId')
-          mutate(USER_SWR_KEY, staleUser, true);
-      };
+        logWarn(err, 'Failed to update timeZoneId');
+        mutate(USER_SWR_KEY, staleUser, true);
+      }
     };
 
     setInitialTimeZone();
-    }, [accessToken, mutate, user]);
+  }, [accessToken, mutate, user]);
 }

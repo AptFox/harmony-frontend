@@ -22,7 +22,11 @@ export async function logoutOfApi(): Promise<void> {
   return await post(LOGOUT_URL, null, { withCredentials: true });
 }
 
-export async function apiUpdater<T>(endpoint: string, obj: T, accessToken: string | undefined): Promise<T> {
+export async function apiUpdater<T>(
+  endpoint: string,
+  obj: T,
+  accessToken: string | undefined
+): Promise<T> {
   if (!accessToken) throw new NoAccessTokenError();
   const response = await put<T>(endpoint, obj, {
     headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },

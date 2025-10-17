@@ -13,14 +13,13 @@ jest.mock('@/contexts');
 jest.mock('@/lib/api');
 jest.mock('@/lib/utils');
 
-const useSWRConfigMock = mocked(useSWRConfig, {shallow: true })
-const useUserMock = mocked(useUser, {shallow: true })
-const useAuthMock = mocked(useAuth, {shallow: true })
-const apiUpdaterMock = mocked(apiUpdater<User>, {shallow: true })
-const logWarnMock = mocked(logWarn, {shallow: true })
+const useSWRConfigMock = mocked(useSWRConfig, { shallow: true });
+const useUserMock = mocked(useUser, { shallow: true });
+const useAuthMock = mocked(useAuth, { shallow: true });
+const apiUpdaterMock = mocked(apiUpdater<User>, { shallow: true });
+const logWarnMock = mocked(logWarn, { shallow: true });
 
 describe('useInitialTimeZone', () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
     useAuthMock.mockReturnValue({ accessToken: 'token-abc' } as any);
@@ -69,7 +68,7 @@ describe('useInitialTimeZone', () => {
     apiUpdaterMock.mockReturnValue(userWithTz as any);
 
     renderHook(() => useInitialTimeZone());
-    
+
     expect(mutate).toHaveBeenNthCalledWith(1, USER_SWR_KEY, userWithTz, false);
     expect(apiUpdater).toHaveBeenCalledWith(
       USER_SWR_KEY,

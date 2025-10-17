@@ -35,7 +35,11 @@ describe('DashboardHandler', () => {
 
   describe('when user is loaded', () => {
     it('shows a welcome message, user avatar and user details', () => {
-      const testUser = { id: 'someId', displayName: 'someName', timeZoneId: 'America/New_York' };
+      const testUser = {
+        id: 'someId',
+        displayName: 'someName',
+        timeZoneId: 'America/New_York',
+      };
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,

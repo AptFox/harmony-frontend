@@ -1,7 +1,14 @@
-import swrFetcher, { getAccessTokenFromApi, logoutOfApi, apiUpdater } from '@/lib/api';
+import swrFetcher, {
+  getAccessTokenFromApi,
+  logoutOfApi,
+  apiUpdater,
+} from '@/lib/api';
 import { authRateLimitExceeded } from '@/lib/RateLimiter';
-import {mocked} from 'jest-mock';
-import { ClientRateLimitError, NoAccessTokenError } from './errors/HarmonyErrors';
+import { mocked } from 'jest-mock';
+import {
+  ClientRateLimitError,
+  NoAccessTokenError,
+} from './errors/HarmonyErrors';
 import { post, get, put } from '@/lib/apiClient';
 
 jest.mock('@/lib/RateLimiter');
@@ -11,7 +18,9 @@ const mockApiClientPost = mocked(post, { shallow: true });
 const mockApiClientGet = mocked(get, { shallow: true });
 const mockApiClientPut = mocked(put, { shallow: true });
 
-const mockAuthRateLimitExceeded = mocked(authRateLimitExceeded, { shallow: true });
+const mockAuthRateLimitExceeded = mocked(authRateLimitExceeded, {
+  shallow: true,
+});
 
 describe('api', () => {
   describe('getAccessTokenFromApi', () => {
@@ -31,15 +40,21 @@ describe('api', () => {
 
     it('returns access token on success', async () => {
       mockAuthRateLimitExceeded.mockReturnValue(false);
-      
-      mockApiClientPost.mockResolvedValue({ data: { harmony_access_token: 'token-abc' } });
+
+      mockApiClientPost.mockResolvedValue({
+        data: { harmony_access_token: 'token-abc' },
+      });
 
       const token = await getAccessTokenFromApi();
       expect(token).toBe('token-abc');
       expect(mockAuthRateLimitExceeded).toHaveBeenCalledTimes(1);
-      expect(mockApiClientPost).toHaveBeenCalledWith('/auth/refresh_token', null, {
-        withCredentials: true,
-      });
+      expect(mockApiClientPost).toHaveBeenCalledWith(
+        '/auth/refresh_token',
+        null,
+        {
+          withCredentials: true,
+        }
+      );
     });
   });
 
@@ -62,7 +77,7 @@ describe('api', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
-    
+
     it('throws if no access token provided', async () => {
       try {
         await apiUpdater('/some-endpoint', { foo: 'bar' }, undefined);
@@ -75,13 +90,21 @@ describe('api', () => {
     it('sends PUT request when called with accessToken', async () => {
       mockApiClientPut.mockResolvedValue({ data: { foo: 'bar' } });
 
-      const result = await apiUpdater('/some-endpoint', {
-        foo: 'bar',
-      }, 'token-abc');
+      const result = await apiUpdater(
+        '/some-endpoint',
+        {
+          foo: 'bar',
+        },
+        'token-abc'
+      );
       expect(result).toEqual({ foo: 'bar' });
-      expect(mockApiClientPut).toHaveBeenCalledWith('/some-endpoint', { foo: 'bar' }, {
-        headers: { Authorization: 'Bearer token-abc' },
-      });
+      expect(mockApiClientPut).toHaveBeenCalledWith(
+        '/some-endpoint',
+        { foo: 'bar' },
+        {
+          headers: { Authorization: 'Bearer token-abc' },
+        }
+      );
     });
   });
 
@@ -92,7 +115,7 @@ describe('api', () => {
 
     it('throws if no access token provided', async () => {
       try {
-        await swrFetcher<{foo: string}>('/some-endpoint', undefined);
+        await swrFetcher<{ foo: string }>('/some-endpoint', undefined);
       } catch (e) {
         expect(e).toBeInstanceOf(NoAccessTokenError);
       }
@@ -102,7 +125,10 @@ describe('api', () => {
     it('sends GET request when called with accessToken', async () => {
       mockApiClientGet.mockResolvedValue({ data: { foo: 'bar' } });
 
-      const result = await swrFetcher<{foo: string}>('/some-endpoint', 'token-abc');
+      const result = await swrFetcher<{ foo: string }>(
+        '/some-endpoint',
+        'token-abc'
+      );
       expect(result).toEqual({ foo: 'bar' });
       expect(mockApiClientGet).toHaveBeenCalledWith('/some-endpoint', {
         headers: { Authorization: 'Bearer token-abc' },
