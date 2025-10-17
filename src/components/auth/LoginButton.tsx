@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 export default function LoginButton({ onClickFn }: { onClickFn: () => void }) {
   return (
     <Button color="primary" variant="default" size="lg" onClick={onClickFn}>
-      Login
+      Login with Discord
     </Button>
   );
 }

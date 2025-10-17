@@ -7,8 +7,9 @@ import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Harmony',
-  description: 'Scheduler',
+  title: 'Harmony Scheduler',
+  applicationName: 'Harmony Scheduler',
+  description: "An app for esports scheduling.",
   other: {
     ...Sentry.getTraceData(),
   },

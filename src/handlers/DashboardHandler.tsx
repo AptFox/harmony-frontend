@@ -5,12 +5,14 @@ import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
 
 export default function DashboardHandler() {
   // TODO: split this file into components
   const { user, avatarUrl, isLoading, isError } = useUser();
   const { logout } = useAuth();
   const { toast, tooManyRequestsToast } = useToast();
+  useInitialTimeZone();
 
   useEffect(() => {
     if (isLoading) return;
@@ -54,7 +56,7 @@ export default function DashboardHandler() {
               )}
             </div>
             <div>
-              <p>Details: {JSON.stringify(user)}</p>
+              <p>Timezone: {user.timeZoneId}</p>
             </div>
           </div>
         )}

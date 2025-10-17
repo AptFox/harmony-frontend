@@ -1,7 +1,7 @@
 export type User = {
   id: string;
   displayName: string;
-  timeZoneId: number;
+  timeZoneId: string | null;
   discordId: string;
   discordAvatarHash: string | null;
 };
