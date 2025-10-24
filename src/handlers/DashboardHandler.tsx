@@ -6,6 +6,8 @@ import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 
 export default function DashboardHandler() {
   // TODO: split this file into components
@@ -31,33 +33,52 @@ export default function DashboardHandler() {
     }
   }, [user, isLoading, isError, toast, tooManyRequestsToast]);
 
+  const dayOfWeek = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
+  ];
+
+  const hoursInDay = Array.from({ length: 24 }, (_, i) => {
+    const hour = i % 12 === 0 ? 12 : i % 12;
+    const ampm = i < 12 ? 'AM' : 'PM';
+    const hourString = hour > 9 ? hour.toString(): `0${i % 12}`;
+    return `${hourString}:00 ${ampm}`;
+  });
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="flex justify-center items-center lg:mb-0 lg:grid-cols-4 lg:text-center">
+    <div className="min-h-screen flex flex-col p-8">
+      <div className="flex flex-col justify-center space-y-2">
         {isLoading && (
           <div>
             <p>Dashboard loading...</p>
           </div>
         )}
         {user && (
-          <div>
-            <div>
-              <p>Hello, {user.displayName}</p>
+          <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
+            <div className="p-2 flex-row flex min-w-sm">
+              <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
+                {avatarUrl && (
+                  <Image
+                    src={avatarUrl}
+                    alt={`${user.displayName}'s avatar`}
+                    width={64}
+                    height={64}
+                    className="rounded-full"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col justify-center">
+                <p className="font-semibold">{user.displayName}</p>
+                <p className="text-sm">[team name]</p>
+                <p className="text-sm">[team role]</p>
+              </div>
             </div>
-            <div className="flex flex-col items-center">
-              {avatarUrl && (
-                <Image
-                  src={avatarUrl}
-                  alt={`${user.displayName}'s avatar`}
-                  width={64}
-                  height={64}
-                  className="rounded-full"
-                />
-              )}
-            </div>
-            <div>
-              <p>Timezone: {user.timeZoneId}</p>
-            </div>
+            <Button className="m-2" onClick={logout}>Logout</Button>
           </div>
         )}
         {isError && !isNoAccessTokenError(isError) && (
@@ -65,10 +86,51 @@ export default function DashboardHandler() {
             <p>Error loading user data</p>
           </div>
         )}
+        <div className="lg:flex lg:flex-row gap-2">
+          <div className="flex flex-col p-2 rounded-lg border bg-secondary shadow-md lg:flex-grow mb-2">
+            <div className="flex p-2 flex-row justify-between bg-secondary">
+              <div className="flex items-center">
+                <h2 className="text-xl font-semibold">Weekly Availability</h2>
+              </div>
+              <Button>Update</Button>
+            </div>
+            <Separator />
+            <div className="h-96 flex">
+              <Table>
+                <TableHeader className="flex h-6">
+                    <TableHead className="lg:w-22 h-6 text-center">Hour</TableHead>
+                    {dayOfWeek.map((day) => (
+                      <TableHead key={day} className="flex-grow h-6 text-center">{day}</TableHead>
+                    ))}
+                </TableHeader>
+                <Separator /> 
+                <TableBody>
+                  {hoursInDay.map((hour) => (
+                    <TableRow key={hour} className="flex h-6">
+                      <TableCell className="flex h-6 lg:w-22 text-center">{hour}</TableCell>
+                      {dayOfWeek.map((day) => (
+                        <TableCell key={day} className="flex-grow h-6 text-center rounded-lg border border-secondary bg-primary" />
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <div className="flex flex-col p-2 rounded-lg border bg-secondary shadow-md lg:min-w-sm mb-2">
+            <div className="flex p-2 flex-row justify-between bg-secondary">
+              <div className="flex items-center">
+                <h2 className="text-xl font-semibold">Time off</h2>
+              </div>
+              <Button>Add</Button>
+            </div>
+            <Separator />
+            <div className="h-96 flex items-center justify-center text-muted-foreground">
+              [Time off Placeholder]
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <Button onClick={logout}>Logout</Button>
-      </div>
-    </main>
+    </div>
   );
 }
