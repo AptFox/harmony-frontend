@@ -50,6 +50,21 @@ export default function DashboardHandler() {
     return `${hourString}:00 ${ampm}`;
   });
 
+  const userWeeklySchedule = [ // TODO: fetch user schedule from API
+    {
+      dayOfWeek: "Mon",
+      startTime: "13:45:30",
+      endTime: "23:59:59",
+      timeZoneId: "America/New_York"
+    },
+    {
+      dayOfWeek: "Sun",
+      startTime: "09:00:00",
+      endTime: "17:02:17",
+      timeZoneId: "America/New_York"
+    }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col p-8">
       <div className="flex flex-col justify-center space-y-2">
@@ -58,7 +73,13 @@ export default function DashboardHandler() {
             <p>Dashboard loading...</p>
           </div>
         )}
+        {isError && !isNoAccessTokenError(isError) && (
+          <div>
+            <p>Error loading user data</p>
+          </div>
+        )}
         {user && (
+          <div className="flex flex-col justify-center space-y-2">
           <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
             <div className="p-2 flex-row flex min-w-sm">
               <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
@@ -80,36 +101,38 @@ export default function DashboardHandler() {
             </div>
             <Button className="m-2" onClick={logout}>Logout</Button>
           </div>
-        )}
-        {isError && !isNoAccessTokenError(isError) && (
-          <div>
-            <p>Error loading user data</p>
-          </div>
-        )}
+        
         <div className="lg:flex lg:flex-row gap-2">
           <div className="flex flex-col p-2 rounded-lg border bg-secondary shadow-md lg:flex-grow mb-2">
             <div className="flex p-2 flex-row justify-between bg-secondary">
               <div className="flex items-center">
-                <h2 className="text-xl font-semibold">Weekly Availability</h2>
+                <h2 className="text-xl font-semibold">Schedule</h2>
               </div>
               <Button>Update</Button>
             </div>
             <Separator />
             <div className="h-96 flex">
-              <Table>
-                <TableHeader className="flex h-6">
-                    <TableHead className="lg:w-22 h-6 text-center">Hour</TableHead>
-                    {dayOfWeek.map((day) => (
-                      <TableHead key={day} className="flex-grow h-6 text-center">{day}</TableHead>
-                    ))}
-                </TableHeader>
+              <Table className="relative">
+                <TableRow className="sticky top-0">
+                  <TableHeader className="flex h-6 bg-secondary">
+                      {dayOfWeek.map((day) => (
+                        <TableHead key={day} className="flex-grow h-6 text-center">{day}</TableHead>
+                      ))}
+                  </TableHeader>
+                </TableRow>
                 <Separator /> 
                 <TableBody>
+                  { !userWeeklySchedule && (
+                    <div className="absolute inset-0 z-10 flex flex-col h-full w-full items-center justify-center backdrop-blur">
+                      <h2 className="text-xl font-semibold">No schedule found. Add one now.</h2>
+                    </div>
+                  )}  
                   {hoursInDay.map((hour) => (
-                    <TableRow key={hour} className="flex h-6">
-                      <TableCell className="flex h-6 lg:w-22 text-center">{hour}</TableCell>
+                    <TableRow key={hour} className="flex">
                       {dayOfWeek.map((day) => (
-                        <TableCell key={day} className="flex-grow h-6 text-center rounded-lg border border-secondary bg-primary" />
+                        <TableCell key={`${day}-${hour}`} className="flex-grow text-center bg-primary">
+                          <text className="text-sm text-primary-foreground">{hour}</text>
+                        </TableCell>
                       ))}
                     </TableRow>
                   ))}
@@ -130,6 +153,8 @@ export default function DashboardHandler() {
             </div>
           </div>
         </div>
+        </div>
+        )}
       </div>
     </div>
   );
