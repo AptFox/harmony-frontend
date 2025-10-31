@@ -1,3 +1,4 @@
+import { ScheduleContextProvider } from '@/contexts/ScheduleContext';
 import { UserContextProvider } from '@/contexts/UserContext';
 
 export default function AuthLayout({
@@ -5,5 +6,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <UserContextProvider>{children}</UserContextProvider>;
+  return <UserContextProvider><ScheduleContextProvider>{children}</ScheduleContextProvider></UserContextProvider>;
 }

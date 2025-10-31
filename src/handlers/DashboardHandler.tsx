@@ -1,5 +1,5 @@
 'use client';
-import { useUser, useAuth } from '@/contexts';
+import { useUser, useAuth, useSchedule } from '@/contexts';
 import { useToast } from '@/hooks/UseToast';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
@@ -11,68 +11,69 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCap
 
 export default function DashboardHandler() {
   // TODO: split this file into components
-  const { user, avatarUrl, isLoading, isError } = useUser();
+  const { user, avatarUrl, isLoading: isLoadingUser, isError: isErrorUser } = useUser();
   const { logout } = useAuth();
   const { toast, tooManyRequestsToast } = useToast();
+  const { availability, isLoading: isLoadingAvailability, isError: isErrorAvailability } = useSchedule();
   useInitialTimeZone();
 
   useEffect(() => {
-    if (isLoading) return;
-    if (isNoAccessTokenError(isError)) return;
-    if (isError) {
+    if (isLoadingUser) return;
+    if (isNoAccessTokenError(isErrorUser)) return;
+    if (isErrorUser) {
       // TODO: add logic that inspects the error and prints a standard pretty message
-      if (isApiRateLimitError(isError)) {
+      if (isApiRateLimitError(isErrorUser)) {
         tooManyRequestsToast();
         return;
       }
       toast({
-        title: (isError as Error).name,
-        description: (isError as Error).message,
+        title: (isErrorUser as Error).name,
+        description: (isErrorUser as Error).message,
         variant: 'destructive',
       });
     }
-  }, [user, isLoading, isError, toast, tooManyRequestsToast]);
+  }, [user, isLoadingUser, isErrorUser, toast, tooManyRequestsToast]);
 
 // gradient snippet for schedule cells
 // className="bg-[repeating-linear-gradient(45deg,#fafafa_0,#27272a_10px,#fafafa_10px,#fafafa_20px)]"
-  // const userWeeklySchedule = user?.weeklySchedule;
-  const userWeeklySchedule = [ // TODO: fetch user schedule from API
-    {
-      dayOfWeek: "Mon",
-      startTime: "13:00:30",
-      endTime: "23:59:59",
-      timeZoneId: "America/New_York",
-      twelveHourClock: false
-    },
-    {
-      dayOfWeek: "Tue",
-      startTime: "13:00:00",
-      endTime: "23:00:00",
-      timeZoneId: "America/New_York",
-      twelveHourClock: false
-    },
-    {
-      dayOfWeek: "Wed",
-      startTime: "00:00:00",
-      endTime: "05:00:00",
-      timeZoneId: "America/New_York",
-      twelveHourClock: false
-    },
-    {
-      dayOfWeek: "Thu",
-      startTime: "23:00:00",
-      endTime: "03:00:00",
-      timeZoneId: "America/New_York",
-      twelveHourClock: false
-    },
-    {
-      dayOfWeek: "Sun",
-      startTime: "09:00:00",
-      endTime: "17:02:17",
-      timeZoneId: "America/New_York",
-      twelveHourClock: false
-    }
-  ];
+  const userWeeklySchedule = availability?.weeklyAvailabilitySlots;
+  // const userWeeklySchedule = [ // TODO: fetch user schedule from API
+  //   {
+  //     dayOfWeek: "Mon",
+  //     startTime: "13:00:30",
+  //     endTime: "23:59:59",
+  //     timeZoneId: "America/New_York",
+  //     twelveHourClock: false
+  //   },
+  //   {
+  //     dayOfWeek: "Tue",
+  //     startTime: "13:00:00",
+  //     endTime: "23:00:00",
+  //     timeZoneId: "America/New_York",
+  //     twelveHourClock: false
+  //   },
+  //   {
+  //     dayOfWeek: "Wed",
+  //     startTime: "00:00:00",
+  //     endTime: "05:00:00",
+  //     timeZoneId: "America/New_York",
+  //     twelveHourClock: false
+  //   },
+  //   {
+  //     dayOfWeek: "Thu",
+  //     startTime: "23:00:00",
+  //     endTime: "03:00:00",
+  //     timeZoneId: "America/New_York",
+  //     twelveHourClock: false
+  //   },
+  //   {
+  //     dayOfWeek: "Sun",
+  //     startTime: "09:00:00",
+  //     endTime: "17:02:17",
+  //     timeZoneId: "America/New_York",
+  //     twelveHourClock: false
+  //   }
+  // ];
 
   const daysOfWeek = [
     "Mon",
@@ -158,12 +159,12 @@ export default function DashboardHandler() {
   return (
     <div className="min-h-screen flex flex-col p-8">
       <div className="flex flex-col justify-center space-y-2">
-        {isLoading && (
+        {isLoadingUser && (
           <div>
             <p>Dashboard loading...</p>
           </div>
         )}
-        {isError && !isNoAccessTokenError(isError) && (
+        {isErrorUser && !isNoAccessTokenError(isErrorUser) && (
           <div>
             <p>Error loading user data</p>
           </div>
