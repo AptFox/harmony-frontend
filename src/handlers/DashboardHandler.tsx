@@ -12,6 +12,7 @@ import TimeOffTable from '@/components/dashboard/timeOffTable'
 export default function DashboardHandler() {
   // TODO: split this file into components
   const { user, avatarUrl, isLoading: isLoadingUser, isError: isErrorUser } = useUser();
+  const twelveHourClock = true // TODO: get this from user object 
   const { logout } = useAuth();
   const { toast, tooManyRequestsToast } = useToast();
   const { availability, isLoading: isLoadingAvailability, isError: isErrorAvailability } = useSchedule();
@@ -71,8 +72,8 @@ export default function DashboardHandler() {
               <Button className="m-2" onClick={logout}>Logout</Button>
             </div>
             <div className="lg:flex lg:flex-row gap-2">
-              <ScheduleTable availability={availability} />
-              <TimeOffTable availability={availability} />
+              <ScheduleTable availability={availability} twelveHourClock={twelveHourClock} />
+              <TimeOffTable availability={availability} twelveHourClock={twelveHourClock}/>
             </div>
           </div>
         )}

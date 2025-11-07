@@ -44,7 +44,6 @@ export const ScheduleContextProvider = ({ children }: { children: ReactNode }) =
     },
   });
 
-
   return (
     <ScheduleContext.Provider
       value={{ availability, isLoading, isError: error }}

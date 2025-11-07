@@ -1,4 +1,4 @@
-export type Schedule = {
+export type ScheduleSlot = {
   id: string;
   userId: string;
   playerId: string;
@@ -19,9 +19,12 @@ export type TimeOff = {
 }
 
 export type Availability = {
-  weeklyAvailabilitySlots: Schedule[];
+  weeklyAvailabilitySlots: ScheduleSlot[];
   availabilityExceptions: TimeOff[]
 }
+
+export type HourOfDay = { absHourStr: string, twelveHourStr: string, hour: number }
+export type HourStatus = {isAvailable: boolean, isTimeOff: boolean}
 
 export type ScheduleContextType = {
   availability: Availability | undefined;

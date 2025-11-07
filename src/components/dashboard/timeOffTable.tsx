@@ -3,24 +3,8 @@ import DashboardCard from "@/components/dashboard/dashboardCard";
 import { Availability, TimeOff } from "@/types/ScheduleTypes";
 import { TimeOffIcon } from "@/components/ui/timeOffIcon";
 
-export default function TimeOffTable({ availability } : { availability: Availability | undefined} ){
-  const timeOff = [
-    {
-      id: 3,
-      userId: "2a15d87d-99a3-4611-80f3-d7efd27e53a1",
-      playerId: null,
-      startTime: "2025-11-09T12:00:00.421Z",
-      endTime: "2025-11-09T23:30:35.421Z",
-      comment: "endTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTimeendTime is 8 hours after startTime",
-    }
-  ]
-  for(let i = 0; i < 7; i++){
-    timeOff.push(timeOff[0])
-  }
-  // const scheduledTimeOff: TimeOff[] | undefined = timeOff
+export default function TimeOffTable({ availability, twelveHourClock } : { availability: Availability | undefined, twelveHourClock: boolean} ){
   const scheduledTimeOff: TimeOff[] | undefined = availability?.availabilityExceptions
-  const twelveHourClock = true // TODO: get this value from user object
-
   const formatDate = (startDateStr: string, endDateStr: string) => {
     const startDate = new Date(startDateStr)
     const endDate = new Date(endDateStr)
@@ -38,10 +22,7 @@ export default function TimeOffTable({ availability } : { availability: Availabi
     return (
       <div>
         <div>
-          <span className={`text-xs text-primary-foreground font-mono`}>{dayOfWeek}</span>
-        </div>
-        <div>
-          <span className={`text-xs text-primary-foreground font-mono`}>{date}</span>
+          <span className={`text-xs text-primary-foreground font-mono`}>{`${dayOfWeek}, ${date}`}</span>
         </div>
         <div>
           <span className={`text-xs text-primary-foreground font-mono`}>{timeRange}</span>
@@ -86,7 +67,7 @@ export default function TimeOffTable({ availability } : { availability: Availabi
                   <TableCell key={`${timeOff.id}-date-time`}>
                       {formatDate(timeOff.startTime, timeOff.endTime)}
                   </TableCell>
-                  <TableCell key={`${timeOff.id}-comment`} className="flex-grow">
+                  <TableCell key={`${timeOff.id}-comment`}>
                     <span className={`text-xs text-primary-foreground font-mono`}>
                       {formatComment(timeOff.comment)}
                     </span>
