@@ -6,8 +6,8 @@ import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
-import DashboardCard from '@/components/dashboard/dashboardCard';
 import ScheduleTable from '@/components/dashboard/scheduleTable';
+import TimeOffTable from '@/components/dashboard/timeOffTable'
 
 export default function DashboardHandler() {
   // TODO: split this file into components
@@ -35,11 +35,11 @@ export default function DashboardHandler() {
   }, [user, isLoadingUser, isErrorUser, toast, tooManyRequestsToast]);
 
   return (
-    <div className="min-h-screen flex flex-col p-8">
+    <div className="flex flex-col p-8 mx-auto w-full lg:max-w-9/10">
       <div className="flex flex-col justify-center space-y-2">
         {isLoadingUser && (
-          <div>
-            <p>Dashboard loading...</p>
+          <div className="flex flex-col justify-center items-center">
+            <p className="text-center">Dashboard loading...</p>
           </div>
         )}
         {isErrorUser && !isNoAccessTokenError(isErrorUser) && (
@@ -49,37 +49,32 @@ export default function DashboardHandler() {
         )}
         {user && (
           <div className="flex flex-col justify-center space-y-2">
-          <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
-            <div className="p-2 flex-row flex">
-              <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
-                {avatarUrl && (
-                  <Image
-                    src={avatarUrl}
-                    alt={`${user.displayName}'s avatar`}
-                    width={64}
-                    height={64}
-                    className="rounded-full"
-                  />
-                )}
+            <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
+              <div className="p-2 flex-row flex">
+                <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
+                  {avatarUrl && (
+                    <Image
+                      src={avatarUrl}
+                      alt={`${user.displayName}'s avatar`}
+                      width={64}
+                      height={64}
+                      className="rounded-full"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col justify-center">
+                  <p className="font-semibold">{user.displayName}</p>
+                  <p className="text-sm">[team name]</p>
+                  <p className="text-sm">[team role]</p>
+                </div>
               </div>
-              <div className="flex flex-col justify-center">
-                <p className="font-semibold">{user.displayName}</p>
-                <p className="text-sm">[team name]</p>
-                <p className="text-sm">[team role]</p>
-              </div>
+              <Button className="m-2" onClick={logout}>Logout</Button>
             </div>
-            <Button className="m-2" onClick={logout}>Logout</Button>
+            <div className="lg:flex lg:flex-row gap-2">
+              <ScheduleTable availability={availability} />
+              <TimeOffTable availability={availability} />
+            </div>
           </div>
-        
-          <div className="lg:flex lg:flex-row gap-2">
-            <ScheduleTable availability={availability} />
-            <DashboardCard title="Time off" buttonText="Add">
-              <span className="text-muted-foreground">
-                [Time off Placeholder]
-              </span>
-            </DashboardCard>
-          </div>
-        </div>
         )}
       </div>
     </div>

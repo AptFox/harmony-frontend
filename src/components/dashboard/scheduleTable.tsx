@@ -1,22 +1,22 @@
 import { Table, TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import DashboardCard from "@/components/dashboard/dashboardCard";
 import { Availability } from "@/types/ScheduleTypes";
-import { addDays } from 'date-fns';
 import { TimeOffIcon } from "@/components/ui/timeOffIcon";
 
 export default function ScheduleTable({ availability } : { availability: Availability | undefined} ){
   const userWeeklySchedule = availability?.weeklyAvailabilitySlots;
-  // const timeOff = availability?.availabilityExceptions;
-  const timeOff = [
-    {
-      id: 3,
-      userId: "2a15d87d-99a3-4611-80f3-d7efd27e53a1",
-      playerId: null,
-      startTime: "2025-11-09T12:00:00.421Z",
-      endTime: "2025-11-09T23:30:35.421Z",
-      comment: "endTime is 8 hours after startTime",
-    }
-  ]
+  // const userWeeklySchedule = undefined;
+  const timeOff = availability?.availabilityExceptions;
+  // const timeOff = [
+  //   {
+  //     id: 3,
+  //     userId: "2a15d87d-99a3-4611-80f3-d7efd27e53a1",
+  //     playerId: null,
+  //     startTime: "2025-11-09T12:00:00.421Z",
+  //     endTime: "2025-11-09T23:30:35.421Z",
+  //     comment: "endTime is 8 hours after startTime",
+  //   }
+  // ]
   // const userWeeklySchedule = [ // TODO: fetch user schedule from API
   //   {
   //     dayOfWeek: "Mon",
@@ -55,7 +55,7 @@ export default function ScheduleTable({ availability } : { availability: Availab
   //   }
   // ];
   const scheduleTimeZone = userWeeklySchedule ? userWeeklySchedule[0].timeZoneId : undefined
-  const twelveHourClock = userWeeklySchedule && userWeeklySchedule[0].twelveHourClock !== undefined ? userWeeklySchedule[0].twelveHourClock : true
+  const twelveHourClock = userWeeklySchedule && userWeeklySchedule[0].twelveHourClock !== undefined ? userWeeklySchedule[0].twelveHourClock : true // TODO: get this value from user object
   type HourOfDay = { absHourStr: string, twelveHourStr: string, hour: number }
   type HourStatus = {isAvailable: boolean, isTimeOff: boolean}
   const hoursInDay = Array.from({ length: 24 }, (_, i): HourOfDay => {
@@ -78,18 +78,19 @@ export default function ScheduleTable({ availability } : { availability: Availab
     "Sat",
   ];
 
-  // const daysOfWeekMap = new Map<number, string>([
-  //   [0, "Sun"],
-  //   [1, "Mon"],
-  //   [2, "Tue"],
-  //   [3, "Wed"],
-  //   [4, "Thu"],
-  //   [5, "Fri"],
-  //   [6, "Sat"],
-  // ]);
+  const daysOfWeekMap = new Map<number, string>([
+    [0, "Sun"],
+    [1, "Mon"],
+    [2, "Tue"],
+    [3, "Wed"],
+    [4, "Thu"],
+    [5, "Fri"],
+    [6, "Sat"],
+  ]);
+  const currentDate = new Date()
+  const currentDay = daysOfWeekMap.get(currentDate.getDay())
 
   function createDayOfWeekToDatesMap() {
-    const currentDate = new Date()
     const map = new Map<string, Date>();
     for(let i = 0; i < 7; i++){
       const dateForDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + i, currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
@@ -182,18 +183,17 @@ export default function ScheduleTable({ availability } : { availability: Availab
 
   const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
 
+  const formatDate = (date: Date | undefined) => {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    return formatter.format(date);
+  };
+
   return (
-    <DashboardCard title="Schedule" buttonText="Update">
-      { !userWeeklySchedule && (
-        <div className="w-full overflow-auto">
-          <div className="absolute inset-0 z-20 h-96 flex flex-col mb-4 items-center justify-center"> 
-            <h2 className="text-xl font-semibold">No schedule found</h2>
-            <h3 className="text-md font-semibold">Add one now!</h3>
-          </div>
-          <div className="absolute inset-0 z-10 flex flex-col h-full w-full items-center justify-center backdrop-blur" />
-        </div>
-      )}
-      { userWeeklySchedule && ( 
+    <DashboardCard title="Schedule" buttonText="Update" parentClassName="flex-auto" childrenClassName="max-h-96 min-h-48">
         <Table className="relative">
         { scheduleTimeZone && (
           <TableCaption>
@@ -202,17 +202,26 @@ export default function ScheduleTable({ availability } : { availability: Availab
         )}
         <TableHeader className="sticky top-0 bg-secondary">
           <TableRow className="h-6">
-            {userWeeklySchedule &&  daysOfWeek.map((day) => (
-              <TableHead key={day} className="h-6 text-center text-primary-foreground font-semibold font-mono">{day}</TableHead>
+            { daysOfWeek.map((day) => (
+              <TableHead key={day} className={`h-6 text-center text-primary-foreground font-semibold font-mono`}>
+                <div className={`flex-col ${ currentDay === day ? 'border-y-3 border-primary': '' }`}>
+                  <div><span className="text-xs text-muted-foreground font-extralight">{formatDate(dayOfWeekToDatesMap.get(day))}</span></div>
+                  <div>{day}</div>
+                </div>
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {userWeeklySchedule && availabilityMap && Array.from(availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
+          { availabilityMap && Array.from(availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
             <TableRow key={hourOfDay.absHourStr} className="border-0">
               {Array.from(dayOfWeekMap.entries().map( ([day, hourStatus]) => (
                 <TableCell key={`${day}-${hourOfDay.absHourStr}`} className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none' }`}>
-                  {!hourStatus.isTimeOff && (<span className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}>{twelveHourClock ? hourOfDay.twelveHourStr : hourOfDay.absHourStr}</span>)}
+                  {!hourStatus.isTimeOff && (
+                    <span className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}>
+                      {twelveHourClock ? hourOfDay.twelveHourStr : hourOfDay.absHourStr}
+                    </span>
+                  )}
                   {hourStatus.isTimeOff && (
                     <div className="flex w-full h-full justify-center items-center">
                       <TimeOffIcon className="w-4 h-4" />
@@ -224,6 +233,14 @@ export default function ScheduleTable({ availability } : { availability: Availab
           )))}
         </TableBody>
       </Table>
+      { !userWeeklySchedule && (
+        <div className="overflow-auto">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center"> 
+            <h2 className="text-xl font-semibold">No schedule found</h2>
+            <h3 className="text-md font-semibold">Add one now!</h3>
+          </div>
+          <div className="absolute inset-0 backdrop-blur h-84 mt-auto" />
+        </div>
       )}
     </DashboardCard>
   )
