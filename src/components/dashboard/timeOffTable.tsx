@@ -1,9 +1,11 @@
 import { Table, TableHeader, TableCaption, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import DashboardCard from "@/components/dashboard/dashboardCard";
-import { Availability, TimeOff } from "@/types/ScheduleTypes";
+import { TimeOff } from "@/types/ScheduleTypes";
+import { useSchedule } from '@/contexts';
 import { TimeOffIcon } from "@/components/ui/timeOffIcon";
 
-export default function TimeOffTable({ availability, twelveHourClock } : { availability: Availability | undefined, twelveHourClock: boolean} ){
+export default function TimeOffTable({ twelveHourClock } : { twelveHourClock: boolean } ){
+    const { availability, isLoading: isLoadingAvailability, isError: isErrorAvailability } = useSchedule();
   const scheduledTimeOff: TimeOff[] | undefined = availability?.availabilityExceptions
   const formatDate = (startDateStr: string, endDateStr: string) => {
     const startDate = new Date(startDateStr)

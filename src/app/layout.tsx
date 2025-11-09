@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/nextjs';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from "@/components/themeProvider";
 
 const inter = Inter({ subsets: ['latin'] });
@@ -41,8 +41,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
-        <Toaster />
       </body>
     </html>
   );

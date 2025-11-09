@@ -10,6 +10,7 @@ import {
   isBadRequestError,
   isNotFoundError,
   isApiRateLimitError,
+  isNoAccessTokenError,
   logWarn,
 } from '@/lib/utils';
 
@@ -35,6 +36,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       if (isBadRequestError(error)) return; // bad request, don't retry
       if (isNotFoundError(error)) return; // user not found, don't retry
       if (isApiRateLimitError(error)) return; // too many requests, don't retry
+      if (isNoAccessTokenError(error)) return;
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
       logWarn(

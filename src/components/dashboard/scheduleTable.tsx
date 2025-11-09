@@ -1,6 +1,7 @@
 import { Table, TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import DashboardCard from "@/components/dashboard/dashboardCard";
-import { Availability, HourOfDay, HourStatus, TimeOff } from "@/types/ScheduleTypes";
+import { HourOfDay, HourStatus, TimeOff } from "@/types/ScheduleTypes";
+import { useSchedule } from '@/contexts';
 import { TimeOffIcon } from "@/components/ui/timeOffIcon";
 
 function createHoursInDayArray(): HourOfDay[] {
@@ -51,7 +52,8 @@ function isTimeOff(timeOffSlots: TimeOff[] | undefined, dayOfWeekToDatesMap: Map
   return false
 } 
 
-export default function ScheduleTable({ availability, twelveHourClock } : { availability: Availability | undefined, twelveHourClock: boolean} ){
+export default function ScheduleTable({ twelveHourClock } : { twelveHourClock: boolean} ){
+  const { availability, isLoading: isLoadingAvailability, isError: isErrorAvailability } = useSchedule();
   const scheduleSlots = availability?.weeklyAvailabilitySlots;
   const timeOffSlots = availability?.availabilityExceptions;
   const scheduleTimeZone = scheduleSlots ? scheduleSlots[0].timeZoneId : undefined

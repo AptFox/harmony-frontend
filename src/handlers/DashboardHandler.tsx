@@ -1,6 +1,6 @@
 'use client';
-import { useUser, useAuth, useSchedule } from '@/contexts';
-import { useToast } from '@/hooks/UseToast';
+import { useUser, useAuth } from '@/contexts';
+import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
@@ -10,12 +10,9 @@ import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable'
 
 export default function DashboardHandler() {
-  // TODO: split this file into components
   const { user, avatarUrl, isLoading: isLoadingUser, isError: isErrorUser } = useUser();
   const twelveHourClock = true // TODO: get this from user object 
   const { logout } = useAuth();
-  const { toast, tooManyRequestsToast } = useToast();
-  const { availability, isLoading: isLoadingAvailability, isError: isErrorAvailability } = useSchedule();
   useInitialTimeZone();
 
   useEffect(() => {
@@ -24,32 +21,28 @@ export default function DashboardHandler() {
     if (isErrorUser) {
       // TODO: add logic that inspects the error and prints a standard pretty message
       if (isApiRateLimitError(isErrorUser)) {
-        tooManyRequestsToast();
+        toast.error("Something went wrong")
         return;
       }
-      toast({
-        title: (isErrorUser as Error).name,
-        description: (isErrorUser as Error).message,
-        variant: 'destructive',
-      });
+      toast.error(`${(isErrorUser as Error).name}: ${(isErrorUser as Error).message}`)
     }
-  }, [user, isLoadingUser, isErrorUser, toast, tooManyRequestsToast]);
+  }, [user, isLoadingUser, isErrorUser]);
 
   return (
-    <div className="flex flex-col p-8 mx-auto w-full lg:max-w-9/10">
-      <div className="flex flex-col justify-center space-y-2">
-        {isLoadingUser && (
-          <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col p-8 mx-auto h-lvh w-full lg:max-w-9/10">
+      <div className="flex flex-col h-full space-y-2">
+        { isLoadingUser && (
+          <div className="flex flex-col h-full justify-center">
             <p className="text-center">Dashboard loading...</p>
           </div>
         )}
-        {isErrorUser && !isNoAccessTokenError(isErrorUser) && (
-          <div>
-            <p>Error loading user data</p>
+        { isErrorUser && (
+          <div className="flex flex-col h-full justify-center">
+            <p className="text-center">Error loading user data</p>
           </div>
         )}
-        {user && (
-          <div className="flex flex-col justify-center space-y-2">
+        { user && (
+          <div className="flex flex-col justify-top space-y-2">
             <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
               <div className="p-2 flex-row flex">
                 <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
@@ -72,8 +65,8 @@ export default function DashboardHandler() {
               <Button className="m-2" onClick={logout}>Logout</Button>
             </div>
             <div className="lg:flex lg:flex-row gap-2">
-              <ScheduleTable availability={availability} twelveHourClock={twelveHourClock} />
-              <TimeOffTable availability={availability} twelveHourClock={twelveHourClock}/>
+              <ScheduleTable twelveHourClock={twelveHourClock} />
+              <TimeOffTable twelveHourClock={twelveHourClock}/>
             </div>
           </div>
         )}

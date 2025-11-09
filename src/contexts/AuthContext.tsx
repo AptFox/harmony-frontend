@@ -19,7 +19,7 @@ import {
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
-import { useToast } from '@/hooks/UseToast';
+import { toast } from 'sonner'
 import { useSWRConfig } from 'swr';
 import { USER_SWR_KEY } from '@/contexts';
 
@@ -28,7 +28,6 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { tooManyRequestsToast } = useToast();
   const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
@@ -46,7 +45,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             : 'api';
           logError(error, `${rateLimitType} rate limit triggered`);
           if (pathname !== '/login') {
-            tooManyRequestsToast();
+            toast.error("Too Many Requests: You are refreshing the page too often.")
           }
           return;
         }
