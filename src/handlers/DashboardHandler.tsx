@@ -11,7 +11,7 @@ import TimeOffTable from '@/components/dashboard/timeOffTable'
 
 export default function DashboardHandler() {
   const { user, avatarUrl, isLoading: isLoadingUser, isError: isErrorUser } = useUser();
-  const twelveHourClock = true // TODO: get this from user object 
+  const twelveHourClock = user?.twelveHourClock === undefined ? true : user?.twelveHourClock // TODO: get this from user object 
   const { logout } = useAuth();
   useInitialTimeZone();
 
