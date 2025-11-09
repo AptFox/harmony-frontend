@@ -6,7 +6,7 @@ export type ScheduleSlot = {
   startTime: string;
   endTime: string;
   timeZoneId: string;
-  twelveHourClock: boolean
+  twelveHourClock: boolean;
 };
 
 export type TimeOff = {
@@ -16,15 +16,19 @@ export type TimeOff = {
   startTime: string;
   endTime: string;
   comment: string;
-}
+};
 
 export type Availability = {
   weeklyAvailabilitySlots: ScheduleSlot[];
-  availabilityExceptions: TimeOff[]
-}
+  availabilityExceptions: TimeOff[];
+};
 
-export type HourOfDay = { absHourStr: string, twelveHourStr: string, hour: number }
-export type HourStatus = {isAvailable: boolean, isTimeOff: boolean}
+export type HourOfDay = {
+  absHourStr: string;
+  twelveHourStr: string;
+  hour: number;
+};
+export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
 export type ScheduleContextType = {
   availability: Availability | undefined;

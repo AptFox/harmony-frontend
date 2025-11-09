@@ -6,5 +6,9 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <UserContextProvider><ScheduleContextProvider>{children}</ScheduleContextProvider></UserContextProvider>;
+  return (
+    <UserContextProvider>
+      <ScheduleContextProvider>{children}</ScheduleContextProvider>
+    </UserContextProvider>
+  );
 }

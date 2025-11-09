@@ -16,35 +16,43 @@ import {
 
 export const SCHEDULE_SWR_KEY = '/api/availability/@me';
 
-export const ScheduleContextProvider = ({ children }: { children: ReactNode }) => {
+export const ScheduleContextProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
   const { accessToken } = useAuth();
 
   const {
     data: availability,
     error,
     isLoading,
-  } = useSWR<Availability>(SCHEDULE_SWR_KEY, () => swrFetcher(SCHEDULE_SWR_KEY, accessToken), {
-    errorRetryCount: 3,
-    keepPreviousData: true,
-    revalidateOnReconnect: true,
-    revalidateOnFocus: false,
-    shouldRetryOnError: true,
-    onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
-      if (!key) return;
-      if (isForbiddenError(error)) return; // forbidden request, don't retry
-      if (isBadRequestError(error)) return; // bad request, don't retry
-      if (isNotFoundError(error)) return; // schedule not found, don't retry
-      if (isApiRateLimitError(error)) return; // too many requests, don't retry
-      if (isNoAccessTokenError(error)) return;
+  } = useSWR<Availability>(
+    SCHEDULE_SWR_KEY,
+    () => swrFetcher(SCHEDULE_SWR_KEY, accessToken),
+    {
+      errorRetryCount: 3,
+      keepPreviousData: true,
+      revalidateOnReconnect: true,
+      revalidateOnFocus: false,
+      shouldRetryOnError: true,
+      onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+        if (!key) return;
+        if (isForbiddenError(error)) return; // forbidden request, don't retry
+        if (isBadRequestError(error)) return; // bad request, don't retry
+        if (isNotFoundError(error)) return; // schedule not found, don't retry
+        if (isApiRateLimitError(error)) return; // too many requests, don't retry
+        if (isNoAccessTokenError(error)) return;
 
-      const retryIn = 2 ** retryCount * 1000; // exponential backoff
-      logWarn(
-        error,
-        `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`
-      );
-      setTimeout(() => revalidate({ retryCount }), retryIn);
-    },
-  });
+        const retryIn = 2 ** retryCount * 1000; // exponential backoff
+        logWarn(
+          error,
+          `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`
+        );
+        setTimeout(() => revalidate({ retryCount }), retryIn);
+      },
+    }
+  );
 
   return (
     <ScheduleContext.Provider
@@ -62,6 +70,8 @@ export const ScheduleContext = createContext<ScheduleContextType | undefined>(
 export const useSchedule = () => {
   const context = useContext(ScheduleContext);
   if (!context)
-    throw new Error('useSchedule must be used within a ScheduleContextProvider');
+    throw new Error(
+      'useSchedule must be used within a ScheduleContextProvider'
+    );
   return context;
 };

@@ -7,11 +7,17 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
 import ScheduleTable from '@/components/dashboard/scheduleTable';
-import TimeOffTable from '@/components/dashboard/timeOffTable'
+import TimeOffTable from '@/components/dashboard/timeOffTable';
 
 export default function DashboardHandler() {
-  const { user, avatarUrl, isLoading: isLoadingUser, isError: isErrorUser } = useUser();
-  const twelveHourClock = user?.twelveHourClock === undefined ? true : user?.twelveHourClock // TODO: get this from user object 
+  const {
+    user,
+    avatarUrl,
+    isLoading: isLoadingUser,
+    isError: isErrorUser,
+  } = useUser();
+  const twelveHourClock =
+    user?.twelveHourClock === undefined ? true : user?.twelveHourClock; // TODO: get this from user object
   const { logout } = useAuth();
   useInitialTimeZone();
 
@@ -21,27 +27,29 @@ export default function DashboardHandler() {
     if (isErrorUser) {
       // TODO: add logic that inspects the error and prints a standard pretty message
       if (isApiRateLimitError(isErrorUser)) {
-        toast.error("Something went wrong")
+        toast.error('Something went wrong');
         return;
       }
-      toast.error(`${(isErrorUser as Error).name}: ${(isErrorUser as Error).message}`)
+      toast.error(
+        `${(isErrorUser as Error).name}: ${(isErrorUser as Error).message}`
+      );
     }
   }, [user, isLoadingUser, isErrorUser]);
 
   return (
     <div className="flex flex-col p-8 mx-auto h-lvh w-full lg:max-w-9/10">
       <div className="flex flex-col h-full space-y-2">
-        { isLoadingUser && (
+        {isLoadingUser && (
           <div className="flex flex-col h-full justify-center">
             <p className="text-center">Dashboard loading...</p>
           </div>
         )}
-        { isErrorUser && (
+        {isErrorUser && (
           <div className="flex flex-col h-full justify-center">
             <p className="text-center">Error loading user data</p>
           </div>
         )}
-        { user && (
+        {user && (
           <div className="flex flex-col justify-top space-y-2">
             <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
               <div className="p-2 flex-row flex">
@@ -62,11 +70,13 @@ export default function DashboardHandler() {
                   <p className="text-sm">[team role]</p>
                 </div>
               </div>
-              <Button className="m-2" onClick={logout}>Logout</Button>
+              <Button className="m-2" onClick={logout}>
+                Logout
+              </Button>
             </div>
             <div className="lg:flex lg:flex-row gap-2">
               <ScheduleTable twelveHourClock={twelveHourClock} />
-              <TimeOffTable twelveHourClock={twelveHourClock}/>
+              <TimeOffTable twelveHourClock={twelveHourClock} />
             </div>
           </div>
         )}

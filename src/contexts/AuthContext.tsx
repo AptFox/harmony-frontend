@@ -19,7 +19,7 @@ import {
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
-import { toast } from 'sonner'
+import { toast } from 'sonner';
 import { useSWRConfig } from 'swr';
 import { USER_SWR_KEY } from '@/contexts';
 
@@ -45,7 +45,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             : 'api';
           logError(error, `${rateLimitType} rate limit triggered`);
           if (pathname !== '/login') {
-            toast.error("Too Many Requests: You are refreshing the page too often.")
+            toast.error(
+              'Too Many Requests: You are refreshing the page too often.'
+            );
           }
           return;
         }

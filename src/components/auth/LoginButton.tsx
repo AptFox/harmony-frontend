@@ -1,14 +1,19 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import {DiscordIcon} from '@/components/ui/discordIcon';
+import { DiscordIcon } from '@/components/ui/discordIcon';
 
 export default function LoginButton({ onClickFn }: { onClickFn: () => void }) {
   return (
-    <Button className="bg-[#5865F2]" variant="default" size="lg" onClick={onClickFn}>
-      <span className="font-semibold font-[gg_sans, sans-serif] text-lg">Sign in with Discord</span>
-      <DiscordIcon 
-        className="text-white !w-6 !h-6 ml-2" 
-      />
+    <Button
+      className="bg-[#5865F2]"
+      variant="default"
+      size="lg"
+      onClick={onClickFn}
+    >
+      <span className="font-semibold font-[gg_sans, sans-serif] text-lg">
+        Sign in with Discord
+      </span>
+      <DiscordIcon className="text-white !w-6 !h-6 ml-2" />
     </Button>
   );
 }
