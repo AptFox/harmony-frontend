@@ -10,7 +10,6 @@ import {
   isBadRequestError,
   isNotFoundError,
   isApiRateLimitError,
-  isNoAccessTokenError,
   logWarn,
 } from '@/lib/utils';
 
@@ -19,12 +18,13 @@ export const USER_SWR_KEY = '/api/user/@me';
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const DISCORD_CDN_URL = 'https://cdn.discordapp.com';
   const { accessToken } = useAuth();
+  const key = accessToken ? USER_SWR_KEY : null;
 
   const {
     data: user,
     error,
     isLoading,
-  } = useSWR<User>(USER_SWR_KEY, () => swrFetcher(USER_SWR_KEY, accessToken), {
+  } = useSWR<User>(key, () => swrFetcher(USER_SWR_KEY, accessToken), {
     errorRetryCount: 3,
     keepPreviousData: true,
     revalidateOnReconnect: true,
@@ -36,7 +36,6 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       if (isBadRequestError(error)) return; // bad request, don't retry
       if (isNotFoundError(error)) return; // user not found, don't retry
       if (isApiRateLimitError(error)) return; // too many requests, don't retry
-      if (isNoAccessTokenError(error)) return;
 
       const retryIn = 2 ** retryCount * 1000; // exponential backoff
       logWarn(

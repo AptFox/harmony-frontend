@@ -25,7 +25,7 @@ export default function DashboardHandler() {
     if (isLoadingUser) return;
     if (isNoAccessTokenError(isErrorUser)) return;
     if (isErrorUser) {
-      // TODO: add logic that inspects the error and prints a standard pretty message
+      // TODO: centralize error to toasts logic
       if (isApiRateLimitError(isErrorUser)) {
         toast.error('Something went wrong');
         return;

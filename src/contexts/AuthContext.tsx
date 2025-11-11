@@ -31,10 +31,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
+    const controller = new AbortController();
     const initAuth = async () => {
       if (accessToken || hasLoggedOut) return; // Access token is present, no need to refresh
       try {
-        const token = await getAccessTokenFromApi();
+        const token = await getAccessTokenFromApi({signal: controller.signal});
         setAccessToken(token);
       } catch (error: unknown) {
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
@@ -51,12 +52,19 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           }
           return;
         }
+        if (error.name === 'CanceledError') {
+          console.log('Strict Mode cleanup: Request was cancelled successfully.');
+          return;
+        }
 
         if (pathname !== '/login') router.replace('/login');
       }
     };
 
     initAuth();
+    return () => {
+      controller.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, hasLoggedOut]);
 

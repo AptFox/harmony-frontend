@@ -4,15 +4,17 @@ import {
   ClientRateLimitError,
   NoAccessTokenError,
 } from '@/lib/errors/HarmonyErrors';
+import { AxiosRequestConfig } from 'axios';
 
 const ACCESS_TOKEN_STRING = 'harmony_access_token';
 const REFRESH_TOKEN_URL = '/auth/refresh_token';
 const LOGOUT_URL = '/auth/logout';
 
-export async function getAccessTokenFromApi(): Promise<string> {
+export async function getAccessTokenFromApi(axiosConfig: AxiosRequestConfig): Promise<string> {
   if (authRateLimitExceeded()) throw new ClientRateLimitError();
 
   const response = await post(REFRESH_TOKEN_URL, null, {
+    signal: axiosConfig.signal,
     withCredentials: true,
   });
   return response.data[ACCESS_TOKEN_STRING];

@@ -10,7 +10,6 @@ import {
   isBadRequestError,
   isNotFoundError,
   isApiRateLimitError,
-  isNoAccessTokenError,
   logWarn,
 } from '@/lib/utils';
 
@@ -22,13 +21,14 @@ export const ScheduleContextProvider = ({
   children: ReactNode;
 }) => {
   const { accessToken } = useAuth();
+    const key = accessToken ? SCHEDULE_SWR_KEY : null;
 
   const {
     data: availability,
     error,
     isLoading,
   } = useSWR<Availability>(
-    SCHEDULE_SWR_KEY,
+    key,
     () => swrFetcher(SCHEDULE_SWR_KEY, accessToken),
     {
       errorRetryCount: 3,
@@ -42,7 +42,6 @@ export const ScheduleContextProvider = ({
         if (isBadRequestError(error)) return; // bad request, don't retry
         if (isNotFoundError(error)) return; // schedule not found, don't retry
         if (isApiRateLimitError(error)) return; // too many requests, don't retry
-        if (isNoAccessTokenError(error)) return;
 
         const retryIn = 2 ** retryCount * 1000; // exponential backoff
         logWarn(
