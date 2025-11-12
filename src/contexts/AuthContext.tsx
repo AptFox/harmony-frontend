@@ -15,6 +15,7 @@ import {
   isBadRequestError,
   sendErrorToSentry,
   isClientRateLimitError,
+  isCanceledError,
   logError,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
@@ -52,7 +53,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           }
           return;
         }
-        if (error.name === 'CanceledError') {
+        if (isCanceledError(error)) {
           console.log('Strict Mode cleanup: Request was cancelled successfully.');
           return;
         }

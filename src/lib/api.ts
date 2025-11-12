@@ -5,6 +5,14 @@ import {
   NoAccessTokenError,
 } from '@/lib/errors/HarmonyErrors';
 import { AxiosRequestConfig } from 'axios';
+import { SWRConfiguration } from 'swr';
+import {
+  isForbiddenError,
+  isBadRequestError,
+  isNotFoundError,
+  isApiRateLimitError,
+  logWarn,
+} from '@/lib/utils';
 
 const ACCESS_TOKEN_STRING = 'harmony_access_token';
 const REFRESH_TOKEN_URL = '/auth/refresh_token';
@@ -36,7 +44,7 @@ export async function apiUpdater<T>(
   return response.data;
 }
 
-export default async function swrFetcher<T>(
+export async function swrFetcher<T>(
   url: string,
   accessToken: string | undefined
 ): Promise<T> {
@@ -45,4 +53,27 @@ export default async function swrFetcher<T>(
     headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },
   });
   return response.data;
+}
+
+export const swrConfig: SWRConfiguration = 
+{
+  errorRetryCount: 3,
+  keepPreviousData: true,
+  revalidateOnReconnect: true,
+  revalidateOnFocus: false,
+  shouldRetryOnError: true,
+  onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+    if (!key) return;
+    if (isForbiddenError(error)) return; // forbidden request, don't retry
+    if (isBadRequestError(error)) return; // bad request, don't retry
+    if (isNotFoundError(error)) return; // schedule not found, don't retry
+    if (isApiRateLimitError(error)) return; // too many requests, don't retry
+
+    const retryIn = 2 ** retryCount * 1000; // exponential backoff
+    logWarn(
+      error,
+      `Error fetching ${key}: ${error.message}. Retrying in ${retryIn}ms.`
+    );
+    setTimeout(() => revalidate({ retryCount }), retryIn);
+  },
 }

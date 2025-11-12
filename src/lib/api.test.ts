@@ -1,4 +1,4 @@
-import swrFetcher, {
+import { swrFetcher,
   getAccessTokenFromApi,
   logoutOfApi,
   apiUpdater,
