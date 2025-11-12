@@ -13,7 +13,7 @@ export default function Home() {
         </div>
         <h1 className="mt-4 mb-2 text-4xl font-bold">Harmony</h1>
         <p className="mb-8 text-lg text-center text-muted-foreground max-w-xl">
-          esports scheduling
+          eSports Scheduling
         </p>
         <div className="flex items-center">
           <div className="flex justify-center items-center">

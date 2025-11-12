@@ -181,7 +181,7 @@ export default function ScheduleTable({
             {daysOfWeek.map((day) => (
               <TableHead
                 key={day}
-                className={`h-6 text-center text-primary-foreground font-semibold font-mono`}
+                className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
               >
                 <div
                   className={`flex-col ${currentDay === day ? 'border-y-3 border-primary' : ''}`}

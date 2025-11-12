@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="any" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="any" />
@@ -34,12 +34,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           {children}
           <Toaster />
         </ThemeProvider>

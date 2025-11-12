@@ -18,6 +18,7 @@ import {
   isClientRateLimitError,
   logError,
   logInfo,
+  isProdEnv
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
@@ -34,8 +35,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && hasInitializedRef.current) {
-      logInfo('Strict Mode: Skipping duplicate auth initialization.');
+    if (!isProdEnv() && hasInitializedRef.current) {
+      logInfo('Strict Mode: Skipping duplicate auth call');
       return; 
     }
 
@@ -69,8 +70,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, hasLoggedOut]);
+    return () => { 
+      logInfo('AuthContext UNMOUNTED')
+      // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
+     };
+  }, [accessToken, hasLoggedOut, pathname, router]);
 
   const logout = useCallback(async () => {
     // Clear all SWR keys and sessionStorage
