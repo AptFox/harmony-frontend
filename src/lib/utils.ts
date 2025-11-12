@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { AxiosError, HttpStatusCode, CanceledError} from 'axios';
+import { AxiosError, HttpStatusCode, CanceledError } from 'axios';
 import { captureException } from '@sentry/nextjs';
 import {
   ApiRateLimitError,
@@ -22,7 +22,9 @@ export function isAxiosError(error: unknown): error is AxiosError {
   return error instanceof AxiosError;
 }
 
-export function isCanceledError(error: unknown): error is CanceledError<AxiosError> {
+export function isCanceledError(
+  error: unknown
+): error is CanceledError<AxiosError> {
   return error instanceof CanceledError;
 }
 

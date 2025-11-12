@@ -20,7 +20,11 @@ export const ScheduleContextProvider = ({
     data: availability,
     error,
     isLoading,
-  } = useSWR<Availability>(key, () => swrFetcher(SCHEDULE_SWR_KEY, accessToken), swrConfig);
+  } = useSWR<Availability>(
+    key,
+    () => swrFetcher(SCHEDULE_SWR_KEY, accessToken),
+    swrConfig
+  );
 
   return (
     <ScheduleContext.Provider

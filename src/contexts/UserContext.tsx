@@ -37,7 +37,12 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, avatarUrl: getDiscordAvatarUrl(user), isLoading, isError: error }}
+      value={{
+        user,
+        avatarUrl: getDiscordAvatarUrl(user),
+        isLoading,
+        isError: error,
+      }}
     >
       {children}
     </UserContext.Provider>

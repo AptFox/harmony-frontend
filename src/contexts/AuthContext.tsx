@@ -36,7 +36,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     const initAuth = async () => {
       if (accessToken || hasLoggedOut) return; // Access token is present, no need to refresh
       try {
-        const token = await getAccessTokenFromApi({signal: controller.signal});
+        const token = await getAccessTokenFromApi({
+          signal: controller.signal,
+        });
         setAccessToken(token);
       } catch (error: unknown) {
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
@@ -54,7 +56,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
         if (isCanceledError(error)) {
-          console.log('Strict Mode cleanup: Request was cancelled successfully.');
+          console.log(
+            'Strict Mode cleanup: Request was cancelled successfully.'
+          );
           return;
         }
 

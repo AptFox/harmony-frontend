@@ -18,7 +18,9 @@ const ACCESS_TOKEN_STRING = 'harmony_access_token';
 const REFRESH_TOKEN_URL = '/auth/refresh_token';
 const LOGOUT_URL = '/auth/logout';
 
-export async function getAccessTokenFromApi(axiosConfig: AxiosRequestConfig): Promise<string> {
+export async function getAccessTokenFromApi(
+  axiosConfig: AxiosRequestConfig
+): Promise<string> {
   if (authRateLimitExceeded()) throw new ClientRateLimitError();
 
   const response = await post(REFRESH_TOKEN_URL, null, {
@@ -55,8 +57,7 @@ export async function swrFetcher<T>(
   return response.data;
 }
 
-export const swrConfig: SWRConfiguration = 
-{
+export const swrConfig: SWRConfiguration = {
   errorRetryCount: 3,
   keepPreviousData: true,
   revalidateOnReconnect: true,
@@ -76,4 +77,4 @@ export const swrConfig: SWRConfiguration =
     );
     setTimeout(() => revalidate({ retryCount }), retryIn);
   },
-}
+};
