@@ -8,6 +8,7 @@ import {
   useState,
   ReactNode,
   useContext,
+  useRef
 } from 'react';
 import {
   isApiRateLimitError,
@@ -15,8 +16,8 @@ import {
   isBadRequestError,
   sendErrorToSentry,
   isClientRateLimitError,
-  isCanceledError,
   logError,
+  logInfo,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
@@ -27,11 +28,18 @@ import { USER_SWR_KEY } from '@/contexts';
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
+  const hasInitializedRef = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
   const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && hasInitializedRef.current) {
+      logInfo('Strict Mode: Skipping duplicate auth initialization.');
+      return; 
+    }
+
+    hasInitializedRef.current = true;
     const controller = new AbortController();
     const initAuth = async () => {
       if (accessToken || hasLoggedOut) return; // Access token is present, no need to refresh
@@ -55,21 +63,12 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           }
           return;
         }
-        if (isCanceledError(error)) {
-          console.log(
-            'Strict Mode cleanup: Request was cancelled successfully.'
-          );
-          return;
-        }
 
         if (pathname !== '/login') router.replace('/login');
       }
     };
 
     initAuth();
-    return () => {
-      controller.abort();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, hasLoggedOut]);
 

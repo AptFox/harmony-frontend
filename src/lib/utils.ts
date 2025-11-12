@@ -66,6 +66,10 @@ export function isBadRequestError(error: unknown): error is BadRequestError {
 
 export const isProdEnv = () => process.env.NODE_ENV === 'production';
 
+export function logInfo(message: string): void {
+  if (!isProdEnv()) console.info(message);
+}
+
 export function logWarn(error: Error | unknown, message: string): void {
   if (!isProdEnv()) console.warn(error, message);
 }
