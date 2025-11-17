@@ -44,7 +44,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       mutate(USER_SWR_KEY, staleUser, true);
       throw err;
     }
-  }
+  };
 
   return (
     <UserContext.Provider

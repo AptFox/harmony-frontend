@@ -10,13 +10,19 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
-import {ScheduleTableDialog} from '@/components/dashboard/scheduleTableDialog'
+import { ScheduleTableDialog } from '@/components/dashboard/scheduleTableDialog';
 import { HourOfDay, HourStatus, TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 import { CalendarX2 } from 'lucide-react';
 import React, { Dispatch, SetStateAction } from 'react';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '../ui/empty';
 
 function createHoursInDayArray(): HourOfDay[] {
   return Array.from({ length: 24 }, (_, i): HourOfDay => {
@@ -71,18 +77,18 @@ function isTimeOff(
 }
 
 export default function ScheduleTable() {
-  const {
-    user
-  } = useUser();
+  const { user } = useUser();
   const {
     availability,
     isLoading: isLoadingAvailability,
     isError: isErrorAvailability,
   } = useSchedule();
-  const twelveHourClock = user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
+  const twelveHourClock =
+    user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const scheduleSlots = availability?.weeklyAvailabilitySlots ?? [];
   const timeOffSlots = availability?.availabilityExceptions;
-  const scheduleTimeZone = scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
+  const scheduleTimeZone =
+    scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
 
@@ -169,7 +175,8 @@ export default function ScheduleTable() {
     return formatter.format(date);
   };
 
-  const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>> ) => ScheduleTableDialog({hoursInDay, daysOfWeek, setDialogOpen})
+  const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
+    ScheduleTableDialog({ hoursInDay, daysOfWeek, setDialogOpen });
 
   return (
     <DashboardCard
@@ -179,7 +186,7 @@ export default function ScheduleTable() {
       parentClassName="flex-auto"
       childrenClassName="max-h-96 min-h-48"
     >
-      { scheduleSlots.length > 0 && (
+      {scheduleSlots.length > 0 && (
         <Table className="relative">
           {scheduleTimeZone && (
             <TableCaption>TZ: {scheduleTimeZone}</TableCaption>
@@ -246,9 +253,7 @@ export default function ScheduleTable() {
               <CalendarX2 />
             </EmptyMedia>
             <EmptyTitle>No Schedule set</EmptyTitle>
-            <EmptyDescription>
-              You will appear as unavailable.
-            </EmptyDescription>
+            <EmptyDescription>You will appear as unavailable.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}

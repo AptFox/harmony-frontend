@@ -8,7 +8,7 @@ import {
   useState,
   ReactNode,
   useContext,
-  useRef
+  useRef,
 } from 'react';
 import {
   isApiRateLimitError,
@@ -18,7 +18,7 @@ import {
   isClientRateLimitError,
   logError,
   logInfo,
-  isProdEnv
+  isProdEnv,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
@@ -37,7 +37,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!isProdEnv() && hasInitializedRef.current) {
       logInfo('Strict Mode: Skipping duplicate auth call');
-      return; 
+      return;
     }
 
     hasInitializedRef.current = true;
@@ -70,10 +70,10 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-    return () => { 
-      logInfo('AuthContext UNMOUNTED')
+    return () => {
+      logInfo('AuthContext UNMOUNTED');
       // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
-     };
+    };
   }, [accessToken, hasLoggedOut, pathname, router]);
 
   const logout = useCallback(async () => {

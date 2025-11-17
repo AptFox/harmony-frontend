@@ -20,7 +20,7 @@ export function useInitialTimeZone() {
       const userWithTz: User = { ...user, timeZoneId: tz };
 
       try {
-        updateUser(userWithTz)
+        updateUser(userWithTz);
       } catch (err: unknown) {
         logWarn(err, 'Failed to update timeZoneId');
       }

@@ -60,7 +60,7 @@ export async function apiPost<T>(
 
 export async function apiDelete<T>(
   endpoint: string,
-  accessToken: string | undefined,
+  accessToken: string | undefined
 ): Promise<T> {
   if (!accessToken) throw new NoAccessTokenError();
   const response = await apiClientDelete<T>(endpoint, {

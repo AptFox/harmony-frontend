@@ -4,7 +4,7 @@ export type User = {
   timeZoneId: string | null;
   discordId: string;
   discordAvatarHash: string | null;
-  twelveHourClock: boolean
+  twelveHourClock: boolean;
 };
 
 export type UserContextType = {

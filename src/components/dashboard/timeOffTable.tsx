@@ -13,15 +13,13 @@ import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 
 export default function TimeOffTable() {
-  const {
-    user
-  } = useUser();
+  const { user } = useUser();
   const {
     availability,
     isLoading: isLoadingAvailability,
     isError: isErrorAvailability,
   } = useSchedule();
-  const twelveHourClock =  user?.twelveHourClock || true;
+  const twelveHourClock = user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined =
     availability?.availabilityExceptions;
   const formatDate = (startDateStr: string, endDateStr: string) => {

@@ -40,8 +40,8 @@ export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
 export type ScheduleContextType = {
   availability: Availability | undefined;
-  overwriteSchedule: (slots: ScheduleSlotRequest[]) => void
-  deleteSchedule: () => void
+  overwriteSchedule: (slots: ScheduleSlotRequest[]) => void;
+  deleteSchedule: () => void;
   isLoading: boolean;
   isError: Error | undefined;
 };

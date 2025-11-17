@@ -17,12 +17,14 @@ export default function DashboardCard({
 }: {
   title: string;
   buttonText: string;
-  dialogContent?: (setDialogOpen: Dispatch<SetStateAction<boolean>> ) => React.ReactNode;
+  dialogContent?: (
+    setDialogOpen: Dispatch<SetStateAction<boolean>>
+  ) => React.ReactNode;
   parentClassName?: ClassValue;
   childrenClassName?: ClassValue;
   children: React.ReactNode;
 }) {
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
     <div
       className={cn(
