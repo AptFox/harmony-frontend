@@ -459,6 +459,7 @@ export function ScheduleTableDialog({
           <div className="flex flex-col h-full w-fit justify-center">
             <div className="flex flex-row items-start justify-center">
               <Checkbox
+                checked={everyDayChecked}
                 onCheckedChange={checkEveryDay}
                 id="toggle"
                 className="h-8 w-8 border-secondary-foreground"
