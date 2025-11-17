@@ -2,7 +2,7 @@ import {
   swrFetcher,
   getAccessTokenFromApi,
   logoutOfApi,
-  apiUpdater,
+  apiPut,
 } from '@/lib/api';
 import { authRateLimitExceeded } from '@/lib/RateLimiter';
 import { mocked } from 'jest-mock';
@@ -74,14 +74,14 @@ describe('api', () => {
     });
   });
 
-  describe('apiUpdater', () => {
+  describe('apiPut', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
 
     it('throws if no access token provided', async () => {
       try {
-        await apiUpdater('/some-endpoint', { foo: 'bar' }, undefined);
+        await apiPut('/some-endpoint', { foo: 'bar' }, undefined);
       } catch (e) {
         expect(e).toBeInstanceOf(NoAccessTokenError);
       }
@@ -91,7 +91,7 @@ describe('api', () => {
     it('sends PUT request when called with accessToken', async () => {
       mockApiClientPut.mockResolvedValue({ data: { foo: 'bar' } });
 
-      const result = await apiUpdater(
+      const result = await apiPut(
         '/some-endpoint',
         {
           foo: 'bar',

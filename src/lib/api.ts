@@ -1,4 +1,4 @@
-import { post, get, put } from '@/lib/apiClient';
+import { post, get, put, apiClientDelete } from '@/lib/apiClient';
 import { authRateLimitExceeded } from '@/lib/RateLimiter';
 import {
   ClientRateLimitError,
@@ -34,13 +34,36 @@ export async function logoutOfApi(): Promise<void> {
   return await post(LOGOUT_URL, null, { withCredentials: true });
 }
 
-export async function apiUpdater<T>(
+export async function apiPut<T>(
   endpoint: string,
-  obj: T,
-  accessToken: string | undefined
+  accessToken: string | undefined,
+  obj: T
 ): Promise<T> {
   if (!accessToken) throw new NoAccessTokenError();
   const response = await put<T>(endpoint, obj, {
+    headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },
+  });
+  return response.data;
+}
+
+export async function apiPost<T>(
+  endpoint: string,
+  accessToken: string | undefined,
+  obj: T
+): Promise<T> {
+  if (!accessToken) throw new NoAccessTokenError();
+  const response = await post<T>(endpoint, obj, {
+    headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },
+  });
+  return response.data;
+}
+
+export async function apiDelete<T>(
+  endpoint: string,
+  accessToken: string | undefined,
+): Promise<T> {
+  if (!accessToken) throw new NoAccessTokenError();
+  const response = await apiClientDelete<T>(endpoint, {
     headers: { ...(accessToken && { Authorization: `Bearer ${accessToken}` }) },
   });
   return response.data;

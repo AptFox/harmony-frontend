@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useInitialTimeZone } from './useInitialTimeZone';
 import { useSWRConfig } from 'swr';
 import { useUser, useAuth, USER_SWR_KEY } from '@/contexts';
-import { apiUpdater } from '@/lib/api';
+import { apiPut } from '@/lib/api';
 import { logWarn } from '@/lib/utils';
 import { mocked } from 'jest-mock';
 import { User } from '@/types/UserTypes';
@@ -16,7 +16,7 @@ jest.mock('@/lib/utils');
 const useSWRConfigMock = mocked(useSWRConfig, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 const useAuthMock = mocked(useAuth, { shallow: true });
-const apiUpdaterMock = mocked(apiUpdater<User>, { shallow: true });
+const apiPutMock = mocked(apiPut<User>, { shallow: true });
 const logWarnMock = mocked(logWarn, { shallow: true });
 
 describe('useInitialTimeZone', () => {
@@ -33,7 +33,7 @@ describe('useInitialTimeZone', () => {
     renderHook(() => useInitialTimeZone());
 
     expect(mutate).not.toHaveBeenCalled();
-    expect(apiUpdaterMock).not.toHaveBeenCalled();
+    expect(apiPutMock).not.toHaveBeenCalled();
     expect(logWarnMock).not.toHaveBeenCalled();
   });
 
@@ -46,7 +46,7 @@ describe('useInitialTimeZone', () => {
     renderHook(() => useInitialTimeZone());
 
     expect(mutate).not.toHaveBeenCalled();
-    expect(apiUpdaterMock).not.toHaveBeenCalled();
+    expect(apiPutMock).not.toHaveBeenCalled();
     expect(logWarnMock).not.toHaveBeenCalled();
   });
 
@@ -65,21 +65,17 @@ describe('useInitialTimeZone', () => {
     };
 
     const userWithTz = { ...user, timeZoneId: 'America/Los_Angeles' };
-    apiUpdaterMock.mockReturnValue(userWithTz as any);
+    apiPutMock.mockReturnValue(userWithTz as any);
 
     renderHook(() => useInitialTimeZone());
 
     expect(mutate).toHaveBeenNthCalledWith(1, USER_SWR_KEY, userWithTz, false);
-    expect(apiUpdater).toHaveBeenCalledWith(
-      USER_SWR_KEY,
-      userWithTz,
-      'token-abc'
-    );
+    expect(apiPut).toHaveBeenCalledWith(USER_SWR_KEY, userWithTz, 'token-abc');
     // figure out why this mutate call fails, I think it's because of a failing mock
     expect(mutate).toHaveBeenNthCalledWith(2, USER_SWR_KEY, userWithTz, false);
   });
 
-  it('reverts and logs when apiUpdater throws', () => {
+  it('reverts and logs when apiPut throws', () => {
     const mutate = jest.fn();
     useSWRConfigMock.mockReturnValue({ mutate } as any);
 
@@ -93,7 +89,7 @@ describe('useInitialTimeZone', () => {
     };
 
     const error = new Error('network');
-    apiUpdaterMock.mockImplementation(() => {
+    apiPutMock.mockImplementation(() => {
       throw error;
     });
 

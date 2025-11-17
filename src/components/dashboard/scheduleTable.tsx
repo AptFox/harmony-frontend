@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableCaption,
@@ -8,9 +10,13 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
+import {ScheduleTableDialog} from '@/components/dashboard/scheduleTableDialog'
 import { HourOfDay, HourStatus, TimeOff } from '@/types/ScheduleTypes';
-import { useSchedule } from '@/contexts';
+import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
+import { CalendarX2 } from 'lucide-react';
+import React, { Dispatch, SetStateAction } from 'react';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../ui/empty';
 
 function createHoursInDayArray(): HourOfDay[] {
   return Array.from({ length: 24 }, (_, i): HourOfDay => {
@@ -64,21 +70,19 @@ function isTimeOff(
   return false;
 }
 
-export default function ScheduleTable({
-  twelveHourClock,
-}: {
-  twelveHourClock: boolean;
-}) {
+export default function ScheduleTable() {
+  const {
+    user
+  } = useUser();
   const {
     availability,
     isLoading: isLoadingAvailability,
     isError: isErrorAvailability,
   } = useSchedule();
-  const scheduleSlots = availability?.weeklyAvailabilitySlots;
+  const twelveHourClock = user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
+  const scheduleSlots = availability?.weeklyAvailabilitySlots ?? [];
   const timeOffSlots = availability?.availabilityExceptions;
-  const scheduleTimeZone = scheduleSlots
-    ? scheduleSlots[0].timeZoneId
-    : undefined;
+  const scheduleTimeZone = scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
 
@@ -165,79 +169,88 @@ export default function ScheduleTable({
     return formatter.format(date);
   };
 
+  const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>> ) => ScheduleTableDialog({hoursInDay, daysOfWeek, setDialogOpen})
+
   return (
     <DashboardCard
       title="Schedule"
       buttonText="Update"
+      dialogContent={dialogContent}
       parentClassName="flex-auto"
       childrenClassName="max-h-96 min-h-48"
     >
-      <Table className="relative">
-        {scheduleTimeZone && (
-          <TableCaption>TZ: {scheduleTimeZone}</TableCaption>
-        )}
-        <TableHeader className="sticky top-0 bg-secondary">
-          <TableRow className="h-6">
-            {daysOfWeek.map((day) => (
-              <TableHead
-                key={day}
-                className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
-              >
-                <div
-                  className={`flex-col ${currentDay === day ? 'border-y-3 border-primary' : ''}`}
+      { scheduleSlots.length > 0 && (
+        <Table className="relative">
+          {scheduleTimeZone && (
+            <TableCaption>TZ: {scheduleTimeZone}</TableCaption>
+          )}
+          <TableHeader className="sticky top-0 bg-secondary">
+            <TableRow className="h-6">
+              {daysOfWeek.map((day) => (
+                <TableHead
+                  key={day}
+                  className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
-                  <div>
-                    <span className="text-xs text-muted-foreground font-extralight">
-                      {formatDate(dayOfWeekToDatesMap.get(day))}
-                    </span>
+                  <div
+                    className={`flex-col ${currentDay === day ? 'border-y-3 border-primary' : ''}`}
+                  >
+                    <div>
+                      <span className="text-xs text-muted-foreground font-extralight">
+                        {formatDate(dayOfWeekToDatesMap.get(day))}
+                      </span>
+                    </div>
+                    <div>{day}</div>
                   </div>
-                  <div>{day}</div>
-                </div>
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {availabilityMap &&
-            Array.from(
-              availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
-                <TableRow key={hourOfDay.absHourStr} className="border-0">
-                  {Array.from(
-                    dayOfWeekMap.entries().map(([day, hourStatus]) => (
-                      <TableCell
-                        key={`${day}-${hourOfDay.absHourStr}`}
-                        className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                      >
-                        {!hourStatus.isTimeOff && (
-                          <span
-                            className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
-                          >
-                            {twelveHourClock
-                              ? hourOfDay.twelveHourStr
-                              : hourOfDay.absHourStr}
-                          </span>
-                        )}
-                        {hourStatus.isTimeOff && (
-                          <div className="flex w-full h-full justify-center items-center">
-                            <TimeOffIcon className="w-4 h-4" />
-                          </div>
-                        )}
-                      </TableCell>
-                    ))
-                  )}
-                </TableRow>
-              ))
-            )}
-        </TableBody>
-      </Table>
-      {!scheduleSlots && (
-        <div className="overflow-auto">
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-            <h2 className="text-xl font-semibold">No schedule found</h2>
-            <h3 className="text-md font-semibold">Add one now!</h3>
-          </div>
-          <div className="absolute inset-0 backdrop-blur h-84 mt-auto" />
-        </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {availabilityMap &&
+              Array.from(
+                availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
+                  <TableRow key={hourOfDay.absHourStr} className="border-0">
+                    {Array.from(
+                      dayOfWeekMap.entries().map(([day, hourStatus]) => (
+                        <TableCell
+                          key={`${day}-${hourOfDay.absHourStr}`}
+                          className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                        >
+                          {!hourStatus.isTimeOff && (
+                            <span
+                              className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
+                            >
+                              {twelveHourClock
+                                ? hourOfDay.twelveHourStr
+                                : hourOfDay.absHourStr}
+                            </span>
+                          )}
+                          {hourStatus.isTimeOff && (
+                            <div className="flex w-full h-full justify-center items-center">
+                              <TimeOffIcon className="w-4 h-4" />
+                            </div>
+                          )}
+                        </TableCell>
+                      ))
+                    )}
+                  </TableRow>
+                ))
+              )}
+          </TableBody>
+        </Table>
+      )}
+      {scheduleSlots.length === 0 && (
+        <Empty className="h-full w-full">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarX2 />
+            </EmptyMedia>
+            <EmptyTitle>No Schedule set</EmptyTitle>
+            <EmptyDescription>
+              You will appear as unavailable.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
     </DashboardCard>
   );

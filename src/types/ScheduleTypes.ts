@@ -6,7 +6,15 @@ export type ScheduleSlot = {
   startTime: string;
   endTime: string;
   timeZoneId: string;
-  twelveHourClock: boolean;
+};
+
+export type ScheduleSlotRequest = {
+  id: string;
+  rank: number;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  timeZoneId: string;
 };
 
 export type TimeOff = {
@@ -32,6 +40,8 @@ export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
 export type ScheduleContextType = {
   availability: Availability | undefined;
+  overwriteSchedule: (slots: ScheduleSlotRequest[]) => void
+  deleteSchedule: () => void
   isLoading: boolean;
   isError: Error | undefined;
 };

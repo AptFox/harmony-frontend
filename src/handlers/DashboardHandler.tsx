@@ -16,8 +16,6 @@ export default function DashboardHandler() {
     isLoading: isLoadingUser,
     isError: isErrorUser,
   } = useUser();
-  const twelveHourClock =
-    user?.twelveHourClock === undefined ? true : user?.twelveHourClock; // TODO: get this from user object
   const { logout } = useAuth();
   useInitialTimeZone();
 
@@ -75,8 +73,8 @@ export default function DashboardHandler() {
               </Button>
             </div>
             <div className="lg:flex lg:flex-row gap-2">
-              <ScheduleTable twelveHourClock={twelveHourClock} />
-              <TimeOffTable twelveHourClock={twelveHourClock} />
+              <ScheduleTable />
+              <TimeOffTable />
             </div>
           </div>
         )}

@@ -10,3 +10,4 @@ const apiClient = axios.create({
 export const post = apiClient.post;
 export const get = apiClient.get;
 export const put = apiClient.put;
+export const apiClientDelete = apiClient.delete;

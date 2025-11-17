@@ -9,19 +9,19 @@ import {
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import { TimeOff } from '@/types/ScheduleTypes';
-import { useSchedule } from '@/contexts';
+import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 
-export default function TimeOffTable({
-  twelveHourClock,
-}: {
-  twelveHourClock: boolean;
-}) {
+export default function TimeOffTable() {
+  const {
+    user
+  } = useUser();
   const {
     availability,
     isLoading: isLoadingAvailability,
     isError: isErrorAvailability,
   } = useSchedule();
+  const twelveHourClock =  user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined =
     availability?.availabilityExceptions;
   const formatDate = (startDateStr: string, endDateStr: string) => {
