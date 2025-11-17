@@ -115,7 +115,7 @@ export function ScheduleTableDialog({
   const [scheduleModified, setScheduleModified] = useState<boolean>(false);
   const [everyDayChecked, setEveryDayChecked] = useState<
     boolean | 'indeterminate'
-  >('indeterminate');
+  >(false);
   const addButtonDisabled =
     selectedDays.length < 1 ||
     selectedStartTime === '' ||
@@ -150,6 +150,7 @@ export function ScheduleTableDialog({
     setSelectedDays([]);
     setSelectedStartTime('');
     setSelectedEndTime('');
+    setEveryDayChecked(false)
   };
 
   const resetDialog = () => {

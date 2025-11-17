@@ -20,6 +20,7 @@ const apiPutMock = mocked(apiPut<User>, { shallow: true });
 const logWarnMock = mocked(logWarn, { shallow: true });
 
 describe('useInitialTimeZone', () => {
+  // TODO: rewrite this test
   beforeEach(() => {
     jest.clearAllMocks();
     useAuthMock.mockReturnValue({ accessToken: 'token-abc' } as any);
