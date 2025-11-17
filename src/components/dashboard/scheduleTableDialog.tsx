@@ -435,7 +435,7 @@ export function ScheduleTableDialog({
                 <Minus />
               </span>
               <Select
-                disabled={isLoadingAvailability}
+                disabled={ isLoadingAvailability || selectedStartTime === '' }
                 value={selectedEndTime}
                 onValueChange={(value) => setSelectedEndTime(value)}
               >
