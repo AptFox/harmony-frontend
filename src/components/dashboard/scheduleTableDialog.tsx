@@ -300,7 +300,7 @@ export function ScheduleTableDialog({
   const getSelectedDaysString = (): string => {
     if (selectedDays.length > 0) {
       if (selectedDays.length === 7) return 'Every day';
-      return selectedDays.toString();
+      return selectedDays.sort((a, b) => (dayRank.get(a) ?? 1) - (dayRank.get(b) ?? 0)).toString();
     }
     return 'Select days';
   };
