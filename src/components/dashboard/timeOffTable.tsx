@@ -18,7 +18,6 @@ import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -37,12 +36,12 @@ export default function TimeOffTable() {
   const twelveHourClock = user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined =
     availability?.availabilityExceptions;
-  const [deleteMode, setDeleteMode] = useState(false)
+  const [deleteMode, setDeleteMode] = useState(false);
   useEffect(() => {
-    if(scheduledTimeOff && scheduledTimeOff.length === 0){
-      setDeleteMode(false)
+    if (scheduledTimeOff && scheduledTimeOff.length === 0) {
+      setDeleteMode(false);
     }
-  }, [scheduledTimeOff])
+  }, [scheduledTimeOff]);
   const getDateCell = (startDateStr: string, endDateStr: string) => {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
@@ -106,7 +105,7 @@ export default function TimeOffTable() {
   };
 
   const trimComment = (comment: string | undefined) => {
-    if (!comment) return "..."
+    if (!comment) return '...';
     if (comment && comment.length > 100) {
       return `${comment.slice(0, 100)}...`;
     }
@@ -115,19 +114,20 @@ export default function TimeOffTable() {
 
   // allows adding timeOff
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
-      TimeOffTableDialog({ setDialogOpen });
+    TimeOffTableDialog({ setDialogOpen });
 
   const toggleDeleteMode = () => {
-    setDeleteMode(!deleteMode)
-  }
+    setDeleteMode(!deleteMode);
+  };
 
   const deleteModeButton = (): React.ReactNode => {
-    const buttonText = deleteMode ? <PencilOff /> : <Pencil />
+    const buttonText = deleteMode ? <PencilOff /> : <Pencil />;
     return (
-      <Button size="icon" onClick={toggleDeleteMode}>{buttonText}</Button>
-    )
-  }
-
+      <Button size="icon" onClick={toggleDeleteMode}>
+        {buttonText}
+      </Button>
+    );
+  };
 
   // TODO: configure DashboardCard to have an edit button that triggers x's next to time slots, add onclick events that delete timeOff
   return (
@@ -160,7 +160,10 @@ export default function TimeOffTable() {
           <TableBody>
             {scheduledTimeOff.map((timeOff: TimeOff) => (
               <TableRow className="flex flex-row" key={timeOff.id}>
-                <TableCell className="basis-1/3" key={`${timeOff.id}-date-time`}>
+                <TableCell
+                  className="basis-1/3"
+                  key={`${timeOff.id}-date-time`}
+                >
                   {getDateCell(timeOff.startTime, timeOff.endTime)}
                 </TableCell>
                 <TableCell className="basis-2/3" key={`${timeOff.id}-comment`}>
@@ -168,28 +171,35 @@ export default function TimeOffTable() {
                     <span className="text-xs text-primary-foreground font-mono text-wrap">
                       {trimComment(timeOff.comment)}
                     </span>
-                    {!deleteMode && timeOff.comment && timeOff.comment.length > 100 && (
-                      <div>
-                        <Dialog>
-                          <DialogTrigger>
-                            <Button size="icon" variant="outline">
-                              <Maximize2 />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Selected time off comment</DialogTitle>
-                            </DialogHeader>
-                            <span className="flex text-wrap">
-                              {timeOff.comment}
-                            </span>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    )}
-                    { deleteMode && (
+                    {!deleteMode &&
+                      timeOff.comment &&
+                      timeOff.comment.length > 100 && (
+                        <div>
+                          <Dialog>
+                            <DialogTrigger>
+                              <Button size="icon" variant="outline">
+                                <Maximize2 />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Selected time off comment
+                                </DialogTitle>
+                              </DialogHeader>
+                              <span className="flex text-wrap">
+                                {timeOff.comment}
+                              </span>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      )}
+                    {deleteMode && (
                       <div className="flex flex-row justify-center">
-                        <Button size="icon" onClick={() => deleteTimeOff(timeOff)}>
+                        <Button
+                          size="icon"
+                          onClick={() => deleteTimeOff(timeOff)}
+                        >
                           <X className="bg-primary" />
                         </Button>
                       </div>

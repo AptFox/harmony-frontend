@@ -147,7 +147,7 @@ export function ScheduleTableDialog({
     setSelectedDays([]);
     setSelectedStartTime('');
     setSelectedEndTime('');
-    setEveryDayChecked(false)
+    setEveryDayChecked(false);
   };
 
   const resetDialog = () => {
@@ -297,7 +297,9 @@ export function ScheduleTableDialog({
   const getSelectedDaysString = (): string => {
     if (selectedDays.length > 0) {
       if (selectedDays.length === 7) return 'Every day';
-      return selectedDays.sort((a, b) => (dayRank.get(a) ?? 1) - (dayRank.get(b) ?? 0)).toString();
+      return selectedDays
+        .sort((a, b) => (dayRank.get(a) ?? 1) - (dayRank.get(b) ?? 0))
+        .toString();
     }
     return 'Select days';
   };
@@ -432,7 +434,7 @@ export function ScheduleTableDialog({
                 <Minus />
               </span>
               <Select
-                disabled={ isLoadingAvailability || selectedStartTime === '' }
+                disabled={isLoadingAvailability || selectedStartTime === ''}
                 value={selectedEndTime}
                 onValueChange={(value) => setSelectedEndTime(value)}
               >

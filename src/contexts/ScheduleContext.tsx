@@ -68,18 +68,18 @@ export const ScheduleContextProvider = ({
       logError(err?.response?.data?.errors, 'Adding timeOff failed.');
       throw err;
     }
-  }
+  };
 
   const deleteTimeOff = async (timeOff: TimeOff) => {
     try {
-      const deleteUrl: string = `${EXCEPTION_URL}\\${timeOff.id}`
+      const deleteUrl: string = `${EXCEPTION_URL}\\${timeOff.id}`;
       await apiDelete(deleteUrl, accessToken);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
       logError(err?.response?.data?.errors, 'Deleting timeOff failed.');
       throw err;
     }
-  }
+  };
 
   return (
     <ScheduleContext.Provider

@@ -18,12 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Minus } from 'lucide-react';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Spinner } from '../ui/spinner';
@@ -50,7 +45,7 @@ function createHoursInDayArray(): HourOfDay[] {
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);
   newDate.setDate(newDate.getDate() + daysToAdd);
-  
+
   return newDate;
 }
 
@@ -61,8 +56,8 @@ export function TimeOffTableDialog({
 }: {
   setDialogOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-  const currentDate = new Date()
-  const ninetyDaysFromToday = addDaysToDate(currentDate, 90)
+  const currentDate = new Date();
+  const ninetyDaysFromToday = addDaysToDate(currentDate, 90);
   const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const { user } = useUser();
   const {
@@ -94,28 +89,33 @@ export function TimeOffTableDialog({
     ''
   );
   const [isSendingToApi, setIsSendingToApi] = useState<boolean>(false);
-  const [allDayChecked, setAllDayChecked] = useState<boolean | 'indeterminate'>(false)
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-  const [comment, setComment] = useState<string | undefined>(undefined)
+  const [allDayChecked, setAllDayChecked] = useState<boolean | 'indeterminate'>(
+    false
+  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [comment, setComment] = useState<string | undefined>(undefined);
 
   const clearInputFields = () => {
     setSelectedStartTime('');
     setSelectedEndTime('');
-    setSelectedDate(undefined)
-    setAllDayChecked(false)
-    setComment(undefined)
+    setSelectedDate(undefined);
+    setAllDayChecked(false);
+    setComment(undefined);
   };
-
 
   function timeOffAlreadyScheduled(
     newRequest: TimeOffRequest,
     preExistingRequests: TimeOffRequest[]
   ): boolean {
-    const preExistingRequest = preExistingRequests.find((request) => request.id === newRequest.id);
-    return !!preExistingRequest
+    const preExistingRequest = preExistingRequests.find(
+      (request) => request.id === newRequest.id
+    );
+    return !!preExistingRequest;
   }
 
-  const getSelectedHourOfDay = (selectedTime: string | undefined): HourOfDay => {
+  const getSelectedHourOfDay = (
+    selectedTime: string | undefined
+  ): HourOfDay => {
     const hod = hoursInDay.find(
       (hour) => hour.hour.toString() === selectedTime
     );
@@ -131,26 +131,26 @@ export function TimeOffTableDialog({
     return hoursInDay.filter((hour) => hour.hour > compareValue);
   };
 
-  const isMissingRequiredFields = ():boolean => {
+  const isMissingRequiredFields = (): boolean => {
     [selectedDate, selectedStartTime, selectedEndTime].forEach((val) => {
-      if(val === undefined || val === '') return true
-    })
+      if (val === undefined || val === '') return true;
+    });
     return false;
-  }
+  };
 
   const save = async () => {
-    if (isMissingRequiredFields()){
+    if (isMissingRequiredFields()) {
       toast.error('You are missing required fields.');
-      return
+      return;
     }
-    const selectedStartHour = Number.parseInt(selectedStartTime)
+    const selectedStartHour = Number.parseInt(selectedStartTime);
     const selectedEndHour = Number.parseInt(selectedEndTime);
-    selectedDate.setHours(selectedStartHour)
-    const startTime = selectedDate.toISOString()
-    console.error(startTime)
-    selectedDate.setHours(selectedEndHour)
-    const endTime = selectedDate.toISOString()
-    console.error(endTime)
+    selectedDate.setHours(selectedStartHour);
+    const startTime = selectedDate.toISOString();
+    console.error(startTime);
+    selectedDate.setHours(selectedEndHour);
+    const endTime = selectedDate.toISOString();
+    console.error(endTime);
     // startTime needs to look like this: "2025-10-31T13:00:00.421Z"
     const fields = {
       startTime,
@@ -161,7 +161,7 @@ export function TimeOffTableDialog({
       ...fields,
       id: id,
       comment,
-    }
+    };
     if (timeOffAlreadyScheduled(newRequest, oldTimeOffRequests)) {
       toast.error('Duplicate time off found. Skipping...');
       clearInputFields();
@@ -203,22 +203,26 @@ export function TimeOffTableDialog({
       month: '2-digit',
       day: '2-digit',
     });
-    let formattedDateStr = 'N/A'
+    let formattedDateStr = 'N/A';
     if (selectedDate) {
-      formattedDateStr = formatter.format(selectedDate)
+      formattedDateStr = formatter.format(selectedDate);
     }
 
-    return `Selected Date: ${formattedDateStr}`
+    return `Selected Date: ${formattedDateStr}`;
   };
 
   const saveButtonDisabled = () => {
-    return selectedDate === undefined || selectedStartTime === '' || selectedEndTime === ''
-  }
+    return (
+      selectedDate === undefined ||
+      selectedStartTime === '' ||
+      selectedEndTime === ''
+    );
+  };
 
   const disabledDaysMatcher: Matcher[] = [
     { before: currentDate },
-    { after: ninetyDaysFromToday }
-  ]
+    { after: ninetyDaysFromToday },
+  ];
 
   return (
     <DialogContent className="lg:max-w-[425px] sm:max-w-[425px] bg-secondary">
@@ -232,8 +236,15 @@ export function TimeOffTableDialog({
             disabled={disabledDaysMatcher}
             mode="single" // TODO: consider switching this to a range
             selected={selectedDate}
-            startMonth={new Date(currentDate.getFullYear(), currentDate.getMonth())}
-            endMonth={new Date(ninetyDaysFromToday.getFullYear(), ninetyDaysFromToday.getMonth())}
+            startMonth={
+              new Date(currentDate.getFullYear(), currentDate.getMonth())
+            }
+            endMonth={
+              new Date(
+                ninetyDaysFromToday.getFullYear(),
+                ninetyDaysFromToday.getMonth()
+              )
+            }
             captionLayout="dropdown-months"
             timeZone={currentTimeZone}
             onSelect={setSelectedDate}
@@ -270,7 +281,11 @@ export function TimeOffTableDialog({
                 <Minus />
               </span>
               <Select
-                disabled={ isLoadingAvailability || selectedStartTime === '' || allDayChecked === true }
+                disabled={
+                  isLoadingAvailability ||
+                  selectedStartTime === '' ||
+                  allDayChecked === true
+                }
                 value={selectedEndTime}
                 onValueChange={(value) => setSelectedEndTime(value)}
               >
@@ -308,7 +323,12 @@ export function TimeOffTableDialog({
         </div>
         <div className="grid w-full gap-3">
           <Label htmlFor="message">Add comment:</Label>
-          <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Add your notes about this time off here" id="comment" />
+          <Textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Add your notes about this time off here"
+            id="comment"
+          />
         </div>
       </div>
 

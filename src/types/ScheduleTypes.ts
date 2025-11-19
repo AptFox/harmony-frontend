@@ -49,8 +49,8 @@ export type ScheduleContextType = {
   availability: Availability | undefined;
   overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<void>;
   deleteSchedule: () => Promise<void>;
-  addTimeOff: (timeOff: TimeOffRequest) => Promise<void>
-  deleteTimeOff: (timeOff: TimeOff) => Promise<void>
+  addTimeOff: (timeOff: TimeOffRequest) => Promise<void>;
+  deleteTimeOff: (timeOff: TimeOff) => Promise<void>;
   isLoading: boolean;
   isError: Error | undefined;
 };
