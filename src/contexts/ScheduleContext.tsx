@@ -7,12 +7,14 @@ import {
   Availability,
   ScheduleContextType,
   ScheduleSlotRequest,
+  TimeOffRequest,
 } from '@/types/ScheduleTypes';
 import { useAuth } from '@/contexts';
 import { logError } from '@/lib/utils';
 
 export const SCHEDULE_SWR_KEY = '/api/availability/@me';
 const WEEKLY_SCHEDULE_URL = '/api/availability/weekly';
+const EXCEPTION_URL = '/api/availability/exceptions';
 
 export const ScheduleContextProvider = ({
   children,
@@ -56,12 +58,23 @@ export const ScheduleContextProvider = ({
     }
   };
 
+  const addTimeOff = async (timeOff: TimeOffRequest) => {
+    try {
+      await apiPost(EXCEPTION_URL, accessToken, timeOff);
+      mutate(SCHEDULE_SWR_KEY, null, true);
+    } catch (err: unknown) {
+      logError(err, 'Adding timeOff failed.');
+      throw err;
+    }
+  }
+
   return (
     <ScheduleContext.Provider
       value={{
         availability,
         overwriteSchedule,
         deleteSchedule,
+        addTimeOff,
         isLoading,
         isError: error,
       }}

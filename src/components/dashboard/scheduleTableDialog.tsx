@@ -125,9 +125,6 @@ export function ScheduleTableDialog({
     setUpdatedScheduleSlots(oldScheduleSlots);
   }, [oldScheduleSlots, setUpdatedScheduleSlots]);
 
-  // scheduleSlots = scheduleSlots?.concat(scheduleSlots).concat(scheduleSlots).concat(scheduleSlots)
-  // twelveHourClock = false
-
   const toggleSelection = (day: string) => {
     setSelectedDays((currentDays) => {
       if (currentDays.includes(day)) {
@@ -353,7 +350,7 @@ export function ScheduleTableDialog({
                     </div>
                   </ItemContent>
                   <ItemActions>
-                    <Button size={`sm`} onClick={() => removeSlot(slot)}>
+                    <Button size="sm" onClick={() => removeSlot(slot)}>
                       <X className="bg-primary" />
                     </Button>
                   </ItemActions>

@@ -26,6 +26,13 @@ export type TimeOff = {
   comment: string;
 };
 
+export type TimeOffRequest = {
+  id: string | undefined;
+  startTime: string | undefined;
+  endTime: string | undefined;
+  comment: string | undefined;
+};
+
 export type Availability = {
   weeklyAvailabilitySlots: ScheduleSlot[];
   availabilityExceptions: TimeOff[];
@@ -40,8 +47,9 @@ export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
 export type ScheduleContextType = {
   availability: Availability | undefined;
-  overwriteSchedule: (slots: ScheduleSlotRequest[]) => void;
-  deleteSchedule: () => void;
+  overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<void>;
+  deleteSchedule: () => Promise<void>;
+  addTimeOff: (timeOff: TimeOffRequest) => Promise<void>
   isLoading: boolean;
   isError: Error | undefined;
 };

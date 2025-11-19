@@ -15,7 +15,13 @@ import { HourOfDay, HourStatus, TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 import { CalendarX2 } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Empty,
   EmptyDescription,
@@ -91,21 +97,25 @@ export default function ScheduleTable() {
     scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
-  const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] = useState<string | undefined>(undefined);
+  const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
+    useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
   const hasFirstAvailableSlotBeenSetRef = useRef(false);
   const setFirstAvailableSlot = (coordinate: string) => {
-    if (hasFirstAvailableSlotBeenSetRef.current) return
+    if (hasFirstAvailableSlotBeenSetRef.current) return;
     if (firstAvailableSlotCoordinate !== undefined) return;
-    setFirstAvailableSlotCoordinate(coordinate)
+    setFirstAvailableSlotCoordinate(coordinate);
     hasFirstAvailableSlotBeenSetRef.current = true;
-  }
+  };
 
   useEffect(() => {
     if (scheduleSlots && firstAvailableSlotCoordinate) {
-      firstAvailableHourRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstAvailableHourRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
     }
-  },[firstAvailableSlotCoordinate, scheduleSlots])
+  }, [firstAvailableSlotCoordinate, scheduleSlots]);
 
   const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(currentDate);
 
@@ -146,7 +156,7 @@ export default function ScheduleTable() {
           dayOfWeek,
           hourOfDay
         );
-        setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`)
+        setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
         map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
       });
   }
@@ -192,7 +202,7 @@ export default function ScheduleTable() {
   };
 
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
-      ScheduleTableDialog({ hoursInDay, setDialogOpen });
+    ScheduleTableDialog({ hoursInDay, setDialogOpen });
 
   return (
     <DashboardCard
@@ -235,11 +245,15 @@ export default function ScheduleTable() {
                   <TableRow key={hourOfDay.absHourStr} className="border-0">
                     {Array.from(
                       dayOfWeekMap.entries().map(([day, hourStatus]) => {
-                        const slotCoordinate = `${day}-${hourOfDay.absHourStr}`
+                        const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
                         return (
                           <TableCell
                             key={slotCoordinate}
-                            ref={slotCoordinate === firstAvailableSlotCoordinate ? firstAvailableHourRef : undefined}
+                            ref={
+                              slotCoordinate === firstAvailableSlotCoordinate
+                                ? firstAvailableHourRef
+                                : undefined
+                            }
                             className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
                           >
                             {!hourStatus.isTimeOff && (
@@ -257,7 +271,8 @@ export default function ScheduleTable() {
                               </div>
                             )}
                           </TableCell>
-                      )})
+                        );
+                      })
                     )}
                   </TableRow>
                 ))
