@@ -7,6 +7,7 @@ import {
   Availability,
   ScheduleContextType,
   ScheduleSlotRequest,
+  TimeOff,
   TimeOffRequest,
 } from '@/types/ScheduleTypes';
 import { useAuth } from '@/contexts';
@@ -21,6 +22,7 @@ export const ScheduleContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  // TODO: separate timeOff into it's own context to simplify this logic and prevent UI refreshes on every delete
   const { accessToken } = useAuth();
   const key = accessToken ? SCHEDULE_SWR_KEY : null;
 
@@ -63,7 +65,18 @@ export const ScheduleContextProvider = ({
       await apiPost(EXCEPTION_URL, accessToken, timeOff);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      logError(err, 'Adding timeOff failed.');
+      logError(err?.response?.data?.errors, 'Adding timeOff failed.');
+      throw err;
+    }
+  }
+
+  const deleteTimeOff = async (timeOff: TimeOff) => {
+    try {
+      const deleteUrl: string = `${EXCEPTION_URL}\\${timeOff.id}`
+      await apiDelete(deleteUrl, accessToken);
+      mutate(SCHEDULE_SWR_KEY, null, true);
+    } catch (err: unknown) {
+      logError(err?.response?.data?.errors, 'Deleting timeOff failed.');
       throw err;
     }
   }
@@ -75,6 +88,7 @@ export const ScheduleContextProvider = ({
         overwriteSchedule,
         deleteSchedule,
         addTimeOff,
+        deleteTimeOff,
         isLoading,
         isError: error,
       }}

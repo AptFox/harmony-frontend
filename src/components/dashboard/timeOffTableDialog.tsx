@@ -76,14 +76,14 @@ export function TimeOffTableDialog({
     const timeOff = availability?.availabilityExceptions ?? [];
     return timeOff.map((timeOff) => {
       const fields = {
-        startTime: timeOff.startTime,
-        endTime: timeOff.endTime,
-        comment: timeOff.comment,
+        startTime: new Date(timeOff.startTime).toISOString(),
+        endTime: new Date(timeOff.endTime).toISOString(),
       };
       const id = Object.values(fields).toString();
       return {
         ...fields,
         id: id,
+        comment: timeOff.comment,
       };
     });
   }, [availability]);
@@ -131,26 +131,39 @@ export function TimeOffTableDialog({
     return hoursInDay.filter((hour) => hour.hour > compareValue);
   };
 
+  const isMissingRequiredFields = ():boolean => {
+    [selectedDate, selectedStartTime, selectedEndTime].forEach((val) => {
+      if(val === undefined || val === '') return true
+    })
+    return false;
+  }
+
   const save = async () => {
-    const selectedStartHour = getSelectedHourOfDay(selectedStartTime);
-    const selectedEndHour = getSelectedHourOfDay(selectedEndTime);
-    selectedDate?.setHours(selectedStartHour.hour)
-    const startTime = selectedDate?.toISOString()
-    selectedDate?.setHours(selectedEndHour.hour)
-    const endTime = selectedDate?.toISOString()
+    if (isMissingRequiredFields()){
+      toast.error('You are missing required fields.');
+      return
+    }
+    const selectedStartHour = Number.parseInt(selectedStartTime)
+    const selectedEndHour = Number.parseInt(selectedEndTime);
+    selectedDate.setHours(selectedStartHour)
+    const startTime = selectedDate.toISOString()
+    console.error(startTime)
+    selectedDate.setHours(selectedEndHour)
+    const endTime = selectedDate.toISOString()
+    console.error(endTime)
     // startTime needs to look like this: "2025-10-31T13:00:00.421Z"
     const fields = {
       startTime,
       endTime,
-      comment,
     };
     const id = Object.values(fields).toString();
     const newRequest: TimeOffRequest = {
       ...fields,
-      id: id
+      id: id,
+      comment,
     }
     if (timeOffAlreadyScheduled(newRequest, oldTimeOffRequests)) {
-      toast.info('Time off unchanged.');
+      toast.error('Duplicate time off found. Skipping...');
       clearInputFields();
       setDialogOpen(false);
       return;
@@ -158,9 +171,10 @@ export function TimeOffTableDialog({
     setIsSendingToApi(true);
     try {
       await addTimeOff(newRequest);
+      clearInputFields();
       setDialogOpen(false);
     } catch (error: unknown) {
-      toast.error('TimeOff changes failed');
+      toast.error('Adding new timeOff failed');
     }
     setIsSendingToApi(false);
   };

@@ -11,7 +11,7 @@ import DashboardCard from '@/components/dashboard/dashboardCard';
 import { TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
-import { Maximize2, X } from 'lucide-react';
+import { Maximize2, X, Pencil, PencilOff } from 'lucide-react';
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '../ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '../ui/button';
@@ -23,20 +23,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
 
 export default function TimeOffTable() {
   const { user } = useUser();
   const {
     availability,
+    deleteTimeOff,
     isLoading: isLoadingAvailability,
     isError: isErrorAvailability,
   } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined =
-    availability?.availabilityExceptions ?? [];
+    availability?.availabilityExceptions;
   const [deleteMode, setDeleteMode] = useState(false)
+  useEffect(() => {
+    if(scheduledTimeOff && scheduledTimeOff.length === 0){
+      setDeleteMode(false)
+    }
+  }, [scheduledTimeOff])
   const getDateCell = (startDateStr: string, endDateStr: string) => {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
@@ -99,8 +105,9 @@ export default function TimeOffTable() {
     );
   };
 
-  const trimComment = (comment: string) => {
-    if (comment.length > 100) {
+  const trimComment = (comment: string | undefined) => {
+    if (!comment) return "..."
+    if (comment && comment.length > 100) {
       return `${comment.slice(0, 100)}...`;
     }
     return comment;
@@ -110,6 +117,17 @@ export default function TimeOffTable() {
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
       TimeOffTableDialog({ setDialogOpen });
 
+  const toggleDeleteMode = () => {
+    setDeleteMode(!deleteMode)
+  }
+
+  const deleteModeButton = (): React.ReactNode => {
+    const buttonText = deleteMode ? <PencilOff /> : <Pencil />
+    return (
+      <Button size="icon" onClick={toggleDeleteMode}>{buttonText}</Button>
+    )
+  }
+
 
   // TODO: configure DashboardCard to have an edit button that triggers x's next to time slots, add onclick events that delete timeOff
   return (
@@ -117,22 +135,23 @@ export default function TimeOffTable() {
       title="Time off"
       buttonText="Add"
       dialogContent={dialogContent}
+      secondaryButton={deleteModeButton}
       parentClassName="flex-auto"
       childrenClassName="max-h-96 min-h-48"
     >
-      {scheduledTimeOff.length > 0 && (
+      {scheduledTimeOff && scheduledTimeOff.length > 0 && (
         <Table className="relative">
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
-            <TableRow className="h-6">
+            <TableRow className="h-6 flex flex-row">
               <TableHead
-                key="startTime"
-                className={`h-6 text-primary-foreground font-semibold font-mono`}
+                key="dateTime"
+                className={`h-6 basis-1/3 text-primary-foreground font-semibold font-mono`}
               >
                 <span>Date/Time</span>
               </TableHead>
               <TableHead
                 key="comment"
-                className={`h-6 text-primary-foreground font-semibold font-mono`}
+                className={`h-6 basis-2/3 text-primary-foreground font-semibold font-mono`}
               >
                 <span>Comment</span>
               </TableHead>
@@ -140,19 +159,16 @@ export default function TimeOffTable() {
           </TableHeader>
           <TableBody>
             {scheduledTimeOff.map((timeOff: TimeOff) => (
-              <TableRow key={timeOff.id}>
-                {/* <TableCell>
-                    
-                  </TableCell> */}
-                <TableCell key={`${timeOff.id}-date-time`}>
+              <TableRow className="flex flex-row" key={timeOff.id}>
+                <TableCell className="basis-1/3" key={`${timeOff.id}-date-time`}>
                   {getDateCell(timeOff.startTime, timeOff.endTime)}
                 </TableCell>
-                <TableCell key={`${timeOff.id}-comment`}>
+                <TableCell className="basis-2/3" key={`${timeOff.id}-comment`}>
                   <div className="flex flex-row justify-between">
-                    <span className="text-xs text-primary-foreground font-mono">
+                    <span className="text-xs text-primary-foreground font-mono text-wrap">
                       {trimComment(timeOff.comment)}
                     </span>
-                    {timeOff.comment.length > 100 && (
+                    {!deleteMode && timeOff.comment && timeOff.comment.length > 100 && (
                       <div>
                         <Dialog>
                           <DialogTrigger>
@@ -163,10 +179,10 @@ export default function TimeOffTable() {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>Selected time off comment</DialogTitle>
-                              <DialogDescription>
-                                {timeOff.comment}
-                              </DialogDescription>
                             </DialogHeader>
+                            <span className="flex text-wrap">
+                              {timeOff.comment}
+                            </span>
                           </DialogContent>
                         </Dialog>
                       </div>
@@ -186,7 +202,7 @@ export default function TimeOffTable() {
           <TableCaption>Date format: MM/DD/YY</TableCaption>
         </Table>
       )}
-      {scheduledTimeOff.length === 0 && (
+      {!scheduledTimeOff && (
         <Empty className="h-full w-full">
           <EmptyHeader>
             <EmptyMedia variant="icon">

@@ -11,6 +11,7 @@ export default function DashboardCard({
   title,
   buttonText,
   dialogContent,
+  secondaryButton,
   parentClassName,
   childrenClassName,
   children,
@@ -20,6 +21,7 @@ export default function DashboardCard({
   dialogContent?: (
     setDialogOpen: Dispatch<SetStateAction<boolean>>
   ) => React.ReactNode;
+  secondaryButton?: () => React.ReactNode;
   parentClassName?: ClassValue;
   childrenClassName?: ClassValue;
   children: React.ReactNode;
@@ -38,14 +40,17 @@ export default function DashboardCard({
             <h2 className="text-xl font-semibold">{title}</h2>
           </div>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <form>
-            <DialogTrigger asChild>
-              <Button>{buttonText}</Button>
-            </DialogTrigger>
-            {dialogContent && dialogContent(setDialogOpen)}
-          </form>
-        </Dialog>
+        <div className="flex flex-row gap-2">
+          {secondaryButton && secondaryButton()}
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <form>
+              <DialogTrigger asChild>
+                <Button>{buttonText}</Button>
+              </DialogTrigger>
+              {dialogContent && dialogContent(setDialogOpen)}
+            </form>
+          </Dialog>
+        </div>
       </div>
       <Separator />
       <div className={cn('relative flex ', childrenClassName)}>{children}</div>

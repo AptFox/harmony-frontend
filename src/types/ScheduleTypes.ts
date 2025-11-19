@@ -20,10 +20,10 @@ export type ScheduleSlotRequest = {
 export type TimeOff = {
   id: string;
   userId: string;
-  playerId: string;
+  playerId: string | undefined;
   startTime: string;
   endTime: string;
-  comment: string;
+  comment: string | undefined;
 };
 
 export type TimeOffRequest = {
@@ -50,6 +50,7 @@ export type ScheduleContextType = {
   overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<void>;
   deleteSchedule: () => Promise<void>;
   addTimeOff: (timeOff: TimeOffRequest) => Promise<void>
+  deleteTimeOff: (timeOff: TimeOff) => Promise<void>
   isLoading: boolean;
   isError: Error | undefined;
 };
