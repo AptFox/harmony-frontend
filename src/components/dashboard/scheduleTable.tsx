@@ -29,18 +29,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '../ui/empty';
-
-function createHoursInDayArray(): HourOfDay[] {
-  return Array.from({ length: 24 }, (_, i): HourOfDay => {
-    const hourString = i < 10 ? `0${i}` : `${i}`;
-    const absHourStr = `${hourString}h`;
-    const ampm = i < 12 ? 'am' : 'pm';
-    let twelveHour = i > 12 ? i % 12 : i;
-    if (twelveHour === 0) twelveHour = 12;
-    const twelveHourStr = `${twelveHour}${ampm}`;
-    return { absHourStr, twelveHourStr, hour: i };
-  });
-}
+import { createHoursInDayArray } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -62,24 +51,28 @@ function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
   return map;
 }
 
-function isTimeOff(
+function isTimeOffFn(
   timeOffSlots: TimeOff[] | undefined,
   dayOfWeekToDatesMap: Map<string, Date>,
   day: string,
   hourOfDay: HourOfDay
 ): boolean {
   if (timeOffSlots === undefined) return false;
-  timeOffSlots.forEach((timeOff) => {
-    const startDate = new Date(timeOff.startTime);
-    const endDate = new Date(timeOff.endTime);
-    const dayDate = dayOfWeekToDatesMap.get(day);
-    if (dayDate && dayDate >= startDate && dayDate <= endDate) {
-      const startHour = startDate.getHours();
-      const endHour = endDate.getHours();
-      return hourOfDay.hour >= startHour && hourOfDay.hour <= endHour;
-    }
+  
+  const dayDate = dayOfWeekToDatesMap.get(day)?.getDate();
+  if (!dayDate) return false;
+
+  const timeOffForDay = timeOffSlots.filter((timeOff) => {
+    const startDate = new Date(timeOff.startTime).getDate();
+    const endDate = new Date(timeOff.endTime).getDate();
+    return dayDate >= startDate && dayDate <= endDate
+  })
+  
+  return timeOffForDay.some((timeOff) => {
+    const startHour = new Date(timeOff.startTime).getHours();
+    const endHour = timeOff.endTime.endsWith(':59:59.999Z') ? 24 : new Date(timeOff.endTime).getHours();
+    return hourOfDay.hour >= startHour && hourOfDay.hour <= endHour;
   });
-  return false;
 }
 
 export default function ScheduleTable() {
@@ -91,10 +84,10 @@ export default function ScheduleTable() {
   } = useSchedule();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
-  const scheduleSlots = availability?.weeklyAvailabilitySlots ?? [];
+  const scheduleSlots = availability?.weeklyAvailabilitySlots;
   const timeOffSlots = availability?.availabilityExceptions;
   const scheduleTimeZone =
-    scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
+    scheduleSlots && scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
@@ -149,13 +142,14 @@ export default function ScheduleTable() {
           isAvailable: false,
           isTimeOff: false,
         };
-        hourStatus.isAvailable = true;
-        hourStatus.isTimeOff = isTimeOff(
+        const isTimeOff = isTimeOffFn(
           timeOffSlots,
           dayOfWeekToDatesMap,
           dayOfWeek,
           hourOfDay
         );
+        hourStatus.isTimeOff = isTimeOff
+        hourStatus.isAvailable = !isTimeOff;
         setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
         map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
       });
@@ -170,7 +164,7 @@ export default function ScheduleTable() {
         slotsForDay.forEach((slot) => {
           const { startTime, endTime } = slot;
           const startHour = startTime.split(':').map(Number)[0];
-          const endHour = endTime.split(':').map(Number)[0];
+          const endHour = endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
           const overnight = endHour < startHour;
           if (!overnight) {
             setHourStatusInMap(map, day, startHour, endHour);
@@ -209,10 +203,10 @@ export default function ScheduleTable() {
       title="Schedule"
       buttonText="Update"
       dialogContent={dialogContent}
-      parentClassName="flex-auto"
+      parentClassName="flex-auto basis-xs"
       childrenClassName="max-h-96 min-h-48"
     >
-      {scheduleSlots.length > 0 && (
+      {scheduleSlots && scheduleSlots.length > 0 && (
         <Table className="relative">
           {scheduleTimeZone && (
             <TableCaption>TZ: {scheduleTimeZone}</TableCaption>
@@ -280,7 +274,7 @@ export default function ScheduleTable() {
           </TableBody>
         </Table>
       )}
-      {scheduleSlots.length === 0 && (
+      {scheduleSlots && scheduleSlots.length === 0 && (
         <Empty className="h-full w-full">
           <EmptyHeader>
             <EmptyMedia variant="icon">

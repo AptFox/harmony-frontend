@@ -61,11 +61,10 @@ export default function TimeOffTable() {
     const multiDay = startDate.getDay() !== endDate.getDay();
     const [dayOfWeek, date, timeRange] = formatter
       .formatRange(startDate, endDate)
-      .split(',');
+      .split(',').map((str) => str.trim() );
     topString = `${dayOfWeek}, ${date}`;
-    bottomString = timeRange;
-    if (multiDay) {
-      // "Mon, 10/27/25, 6:00 PM – Tue, 10/28/25, 12:30 AM"
+    bottomString = timeRange.replace(/\s/g, '') === '12:00AM–11:59PM' ? 'All day' : timeRange;
+      if (multiDay) {
       const [startStr, endStr] = formatter
         .formatRange(startDate, endDate)
         .split('–');
@@ -129,14 +128,13 @@ export default function TimeOffTable() {
     );
   };
 
-  // TODO: configure DashboardCard to have an edit button that triggers x's next to time slots, add onclick events that delete timeOff
   return (
     <DashboardCard
       title="Time off"
       buttonText="Add"
       dialogContent={dialogContent}
       secondaryButton={deleteModeButton}
-      parentClassName="flex-auto"
+      parentClassName="flex-auto basis-lg"
       childrenClassName="max-h-96 min-h-48"
     >
       {scheduledTimeOff && scheduledTimeOff.length > 0 && (
@@ -212,7 +210,7 @@ export default function TimeOffTable() {
           <TableCaption>Date format: MM/DD/YY</TableCaption>
         </Table>
       )}
-      {!scheduledTimeOff && (
+      {!scheduledTimeOff || scheduledTimeOff.length === 0 && (
         <Empty className="h-full w-full">
           <EmptyHeader>
             <EmptyMedia variant="icon">

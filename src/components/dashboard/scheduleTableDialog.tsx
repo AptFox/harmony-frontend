@@ -54,6 +54,7 @@ import { useSchedule, useUser } from '@/contexts';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '../ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
+import { getPossibleEndTimes, getPossibleStartTimes, getSelectedHourOfDay } from '@/lib/scheduleUtils';
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const dayRank: Map<string, number> = new Map<string, number>([
@@ -135,14 +136,6 @@ export function ScheduleTableDialog({
     });
   };
 
-  const getSelectedHourOfDay = (selectedTime: string | null): HourOfDay => {
-    const hod = hoursInDay.find(
-      (hour) => hour.hour.toString() === selectedTime
-    );
-    if (hod === undefined) throw Error('No hour of day matches selection.');
-    return hod;
-  };
-
   const clearInputFields = () => {
     setSelectedDays([]);
     setSelectedStartTime('');
@@ -156,22 +149,30 @@ export function ScheduleTableDialog({
     setUpdatedScheduleSlots(oldScheduleSlots);
   };
 
+  const generateSelectedTimeString = (selectedTime: string): string => {
+    if (selectedTime === '24'){
+      return `23:59:59`
+    }
+
+    const hourOfDay = getSelectedHourOfDay(selectedTime, hoursInDay);
+    const hourStr = hourOfDay.absHourStr.slice(0, 2)
+    return `${hourStr}:00:00`
+  }
+
   const addScheduleSlot = () => {
     if (selectedDays.length === 0 || !selectedStartTime || !selectedEndTime) {
       toast.error('You are missing required fields');
       return;
     }
     const newScheduleSlots: ScheduleSlotRequest[] = [];
-    selectedDays.forEach((day) => {
-      const selectedStartHour = getSelectedHourOfDay(selectedStartTime);
-      const selectedEndHour = getSelectedHourOfDay(selectedEndTime);
-      const startHourStr = selectedStartHour.absHourStr.slice(0, 2);
-      const endHourStr = selectedEndHour.absHourStr.slice(0, 2);
+    selectedDays.forEach((dayOfWeek) => {
+      const startTime = generateSelectedTimeString(selectedStartTime)
+      const endTime = generateSelectedTimeString(selectedEndTime)
       const fields = {
-        rank: dayRank.get(day) || 0,
-        dayOfWeek: day,
-        startTime: `${startHourStr}:00:00`,
-        endTime: `${endHourStr}:00:00`,
+        rank: dayRank.get(dayOfWeek) || 0,
+        dayOfWeek,
+        startTime,
+        endTime,
         timeZoneId: currentTimeZone,
       };
       const id = Object.values(fields).toString();
@@ -182,14 +183,16 @@ export function ScheduleTableDialog({
         });
         setScheduleModified(true);
       } else {
-        const selectedStartHourStr = twelveHourClock
-          ? selectedStartHour.twelveHourStr
-          : selectedStartHour.absHourStr;
-        const selectedEndHourStr = twelveHourClock
-          ? selectedEndHour.twelveHourStr
-          : selectedEndHour.absHourStr;
+        const startHour = getSelectedHourOfDay(selectedStartTime, hoursInDay);
+        const endHour = getSelectedHourOfDay(selectedEndTime, hoursInDay);
+        const startHourStr = twelveHourClock
+          ? startHour.twelveHourStr
+          : startHour.absHourStr;
+        const endHourStr = twelveHourClock
+          ? endHour.twelveHourStr
+          : endHour.absHourStr;
         toast.error(
-          `Duplicate(s) detected. ${day}, (${selectedStartHourStr} - ${selectedEndHourStr}) already in schedule.`
+          `Duplicate(s) detected. ${dayOfWeek}, (${startHourStr} - ${endHourStr}) already in schedule.`
         );
       }
     });
@@ -221,14 +224,6 @@ export function ScheduleTableDialog({
       });
     return aStr === bStr;
   }
-
-  const getPossibleEndTimes = (): HourOfDay[] => {
-    const selectedHourOfDay = selectedStartTime
-      ? getSelectedHourOfDay(selectedStartTime)
-      : hoursInDay[0];
-    const compareValue = selectedHourOfDay.hour;
-    return hoursInDay.filter((hour) => hour.hour > compareValue);
-  };
 
   const save = async () => {
     if (scheduleSlotsAreEqual(oldScheduleSlots, updatedScheduleSlots)) {
@@ -264,7 +259,7 @@ export function ScheduleTableDialog({
   function getFormattedTimeSlot(slot: ScheduleSlotRequest): string {
     const { startTime, endTime } = slot;
     const startHour = startTime.split(':').map(Number)[0];
-    const endHour = endTime.split(':').map(Number)[0];
+    const endHour = endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
     const startHourOfDay = hoursInDay.find((hour) => hour.hour === startHour);
     const endHourOfDay = hoursInDay.find((hour) => hour.hour === endHour);
 
@@ -422,7 +417,7 @@ export function ScheduleTableDialog({
                   className="max-h-[325px] overflow-y-auto"
                 >
                   <SelectGroup>
-                    {hoursInDay.map((hour, i) => (
+                    {getPossibleStartTimes(hoursInDay).map((hour, i) => (
                       <SelectItem key={i} value={hour.hour.toString()}>
                         {getFormattedHour(hour)}
                       </SelectItem>
@@ -446,7 +441,7 @@ export function ScheduleTableDialog({
                   className="max-h-[325px] max-w-fit overflow-y-auto"
                 >
                   <SelectGroup>
-                    {getPossibleEndTimes().map((hour, i) => (
+                    {getPossibleEndTimes(selectedStartTime, hoursInDay).map((hour, i) => (
                       <SelectItem key={i} value={hour.hour.toString()}>
                         {getFormattedHour(hour)}
                       </SelectItem>

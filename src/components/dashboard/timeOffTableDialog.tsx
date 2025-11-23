@@ -29,18 +29,7 @@ import { CheckedState } from '@radix-ui/react-checkbox';
 import { Calendar } from '../ui/calendar';
 import { Textarea } from '../ui/textarea';
 import { Matcher } from 'react-day-picker';
-
-function createHoursInDayArray(): HourOfDay[] {
-  return Array.from({ length: 24 }, (_, i): HourOfDay => {
-    const hourString = i < 10 ? `0${i}` : `${i}`;
-    const absHourStr = `${hourString}h`;
-    const ampm = i < 12 ? 'am' : 'pm';
-    let twelveHour = i > 12 ? i % 12 : i;
-    if (twelveHour === 0) twelveHour = 12;
-    const twelveHourStr = `${twelveHour}${ampm}`;
-    return { absHourStr, twelveHourStr, hour: i };
-  });
-}
+import { createHoursInDayArray, getPossibleEndTimes, getPossibleStartTimes } from '@/lib/scheduleUtils';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);
@@ -113,45 +102,30 @@ export function TimeOffTableDialog({
     return !!preExistingRequest;
   }
 
-  const getSelectedHourOfDay = (
-    selectedTime: string | undefined
-  ): HourOfDay => {
-    const hod = hoursInDay.find(
-      (hour) => hour.hour.toString() === selectedTime
-    );
-    if (hod === undefined) throw Error('No hour of day matches selection.');
-    return hod;
-  };
-
-  const getPossibleEndTimes = (): HourOfDay[] => {
-    const selectedHourOfDay = selectedStartTime
-      ? getSelectedHourOfDay(selectedStartTime)
-      : hoursInDay[0];
-    const compareValue = selectedHourOfDay.hour;
-    return hoursInDay.filter((hour) => hour.hour > compareValue);
-  };
-
-  const isMissingRequiredFields = (): boolean => {
-    [selectedDate, selectedStartTime, selectedEndTime].forEach((val) => {
-      if (val === undefined || val === '') return true;
-    });
+  const isDefined = (value: unknown): value is Date | string  => {
+    if (typeof value === 'string') return true
+    if (value instanceof Date) return true
     return false;
   };
 
+  const getSelectedTime = (selectedTime: string, initialDate: Date): string => {
+    const selectedHour = Number.parseInt(selectedTime);  
+    const newDate = new Date(initialDate);
+    if (selectedHour === 24){
+      newDate.setHours(23, 59, 59, 999);
+    } else {
+      newDate.setHours(selectedHour, 0, 0, 0);
+    }
+    return newDate.toISOString();
+  }
+
   const save = async () => {
-    if (isMissingRequiredFields()) {
+    if (!isDefined(selectedStartTime) || !isDefined(selectedEndTime) || !isDefined(selectedDate)) {
       toast.error('You are missing required fields.');
       return;
     }
-    const selectedStartHour = Number.parseInt(selectedStartTime);
-    const selectedEndHour = Number.parseInt(selectedEndTime);
-    selectedDate.setHours(selectedStartHour);
-    const startTime = selectedDate.toISOString();
-    console.error(startTime);
-    selectedDate.setHours(selectedEndHour);
-    const endTime = selectedDate.toISOString();
-    console.error(endTime);
-    // startTime needs to look like this: "2025-10-31T13:00:00.421Z"
+    const startTime = getSelectedTime(selectedStartTime, selectedDate);
+    const endTime = getSelectedTime(selectedEndTime, selectedDate);
     const fields = {
       startTime,
       endTime,
@@ -189,7 +163,7 @@ export function TimeOffTableDialog({
   const checkAllDay = (checked: CheckedState) => {
     if (checked === true) {
       setSelectedStartTime('0');
-      setSelectedEndTime('23');
+      setSelectedEndTime('24');
     } else {
       setSelectedStartTime('');
       setSelectedEndTime('');
@@ -269,7 +243,7 @@ export function TimeOffTableDialog({
                   className="max-h-[325px] overflow-y-auto"
                 >
                   <SelectGroup>
-                    {hoursInDay.map((hour, i) => (
+                    {getPossibleStartTimes(hoursInDay).map((hour, i) => (
                       <SelectItem key={i} value={hour.hour.toString()}>
                         {getFormattedHour(hour)}
                       </SelectItem>
@@ -297,7 +271,7 @@ export function TimeOffTableDialog({
                   className="max-h-[325px] max-w-fit overflow-y-auto"
                 >
                   <SelectGroup>
-                    {getPossibleEndTimes().map((hour, i) => (
+                    {getPossibleEndTimes(selectedStartTime, hoursInDay).map((hour, i) => (
                       <SelectItem key={i} value={hour.hour.toString()}>
                         {getFormattedHour(hour)}
                       </SelectItem>
