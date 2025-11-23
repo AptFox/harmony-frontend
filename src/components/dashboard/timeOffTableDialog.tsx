@@ -144,9 +144,13 @@ export function TimeOffTableDialog({
     }
     setIsSendingToApi(true);
     try {
-      await addTimeOff(newRequest);
-      clearInputFields();
-      setDialogOpen(false);
+      const response = await addTimeOff(newRequest);
+      if (response) {
+        toast.error(response.toString())
+      } else {
+        clearInputFields();
+        setDialogOpen(false);
+      }
     } catch (error: unknown) {
       toast.error('Adding new timeOff failed');
     }

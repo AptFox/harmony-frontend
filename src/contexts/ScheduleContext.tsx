@@ -36,7 +36,7 @@ export const ScheduleContextProvider = ({
     swrConfig
   );
 
-  const overwriteSchedule = async (slots: ScheduleSlotRequest[]) => {
+  const overwriteSchedule = async (slots: ScheduleSlotRequest[]): Promise<string[] | void> => {
     try {
       const updatedSchedule = await apiPost<ScheduleSlotRequest[]>(
         WEEKLY_SCHEDULE_URL,
@@ -45,7 +45,11 @@ export const ScheduleContextProvider = ({
       );
       mutate(SCHEDULE_SWR_KEY, updatedSchedule, true);
     } catch (err: unknown) {
-      logError(err, 'Schedule overwrite failed.');
+      const apiErrors: undefined | string[] = err?.response?.data?.errors
+      if (apiErrors){
+        logError(apiErrors, 'Schedule overwrite failed.');
+        return apiErrors
+      }
       throw err;
     }
   };
@@ -60,23 +64,33 @@ export const ScheduleContextProvider = ({
     }
   };
 
-  const addTimeOff = async (timeOff: TimeOffRequest) => {
+  const addTimeOff = async (timeOff: TimeOffRequest): Promise<string[] | void> => {
     try {
       await apiPost(EXCEPTION_URL, accessToken, timeOff);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      logError(err?.response?.data?.errors, 'Adding timeOff failed.');
+      const apiErrors: undefined | string[] = err?.response?.data?.errors
+      if (apiErrors){
+        logError(apiErrors, 'Adding timeOff failed.');
+        return apiErrors
+      }
+      
       throw err;
     }
   };
 
-  const deleteTimeOff = async (timeOff: TimeOff) => {
+  const deleteTimeOff = async (timeOff: TimeOff): Promise<string[] | void> => {
     try {
       const deleteUrl: string = `${EXCEPTION_URL}\\${timeOff.id}`;
       await apiDelete(deleteUrl, accessToken);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      logError(err?.response?.data?.errors, 'Deleting timeOff failed.');
+      const apiErrors: undefined | string[] = err?.response?.data?.errors
+      if (apiErrors){
+        logError(apiErrors, 'Deleting timeOff failed.');
+        return apiErrors
+      }
+
       throw err;
     }
   };

@@ -237,9 +237,13 @@ export function ScheduleTableDialog({
       if (updatedScheduleSlots.length === 0) {
         await deleteSchedule();
       } else {
-        await overwriteSchedule(updatedScheduleSlots);
+        const response = await overwriteSchedule(updatedScheduleSlots);
+        if (response) {
+          toast.error(response.toString())
+        } else {
+          setDialogOpen(false);
+        }
       }
-      setDialogOpen(false);
     } catch (error: unknown) {
       toast.error('Schedule update failed');
     }

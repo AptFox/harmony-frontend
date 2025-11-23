@@ -103,14 +103,6 @@ export default function TimeOffTable() {
     );
   };
 
-  const trimComment = (comment: string | undefined) => {
-    if (!comment) return '...';
-    if (comment && comment.length > 100) {
-      return `${comment.slice(0, 100)}...`;
-    }
-    return comment;
-  };
-
   // allows adding timeOff
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
     TimeOffTableDialog({ setDialogOpen });
@@ -140,16 +132,16 @@ export default function TimeOffTable() {
       {scheduledTimeOff && scheduledTimeOff.length > 0 && (
         <Table className="relative">
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
-            <TableRow className="h-6 flex flex-row">
+            <TableRow className="h-6">
               <TableHead
                 key="dateTime"
-                className={`h-6 basis-1/3 text-primary-foreground font-semibold font-mono`}
+                className={`h-6 text-primary-foreground font-semibold font-mono`}
               >
                 <span>Date/Time</span>
               </TableHead>
               <TableHead
                 key="comment"
-                className={`h-6 basis-2/3 text-primary-foreground font-semibold font-mono`}
+                className={`h-6 text-primary-foreground font-semibold font-mono`}
               >
                 <span>Comment</span>
               </TableHead>
@@ -157,17 +149,18 @@ export default function TimeOffTable() {
           </TableHeader>
           <TableBody>
             {scheduledTimeOff.map((timeOff: TimeOff) => (
-              <TableRow className="flex flex-row" key={timeOff.id}>
+              <TableRow className="max-w-full" key={timeOff.id}>
                 <TableCell
-                  className="basis-1/3"
+                  className="max-w-1/3"
                   key={`${timeOff.id}-date-time`}
                 >
                   {getDateCell(timeOff.startTime, timeOff.endTime)}
                 </TableCell>
-                <TableCell className="basis-2/3" key={`${timeOff.id}-comment`}>
-                  <div className="flex flex-row justify-between">
-                    <span className="text-xs text-primary-foreground font-mono text-wrap">
-                      {trimComment(timeOff.comment)}
+                <TableCell className="max-w-2/3" key={`${timeOff.id}-comment`}>
+                  <div className="flex flex-row max-w-2/3 justify-between">
+                    <span className="text-xs text-primary-foreground font-mono truncate max-w-full">
+                      {timeOff.comment && (timeOff.comment)}
+                      {!timeOff.comment && ('...')}
                     </span>
                     {!deleteMode &&
                       timeOff.comment &&
@@ -185,15 +178,17 @@ export default function TimeOffTable() {
                                   Selected time off comment
                                 </DialogTitle>
                               </DialogHeader>
-                              <span className="flex text-wrap">
-                                {timeOff.comment}
-                              </span>
+                              <div>
+                                <span className="flex text-wrap min-w-0 max-w-md">
+                                  {timeOff.comment}
+                                </span>
+                              </div>
                             </DialogContent>
                           </Dialog>
                         </div>
                       )}
                     {deleteMode && (
-                      <div className="flex flex-row justify-center">
+                      <div>
                         <Button
                           size="icon"
                           onClick={() => deleteTimeOff(timeOff)}

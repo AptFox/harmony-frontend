@@ -47,10 +47,10 @@ export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
 export type ScheduleContextType = {
   availability: Availability | undefined;
-  overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<void>;
+  overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<string[] | void>;
   deleteSchedule: () => Promise<void>;
-  addTimeOff: (timeOff: TimeOffRequest) => Promise<void>;
-  deleteTimeOff: (timeOff: TimeOff) => Promise<void>;
+  addTimeOff: (timeOff: TimeOffRequest) => Promise<string[] | void>;
+  deleteTimeOff: (timeOff: TimeOff) => Promise<string[] | void>;
   isLoading: boolean;
   isError: Error | undefined;
 };
