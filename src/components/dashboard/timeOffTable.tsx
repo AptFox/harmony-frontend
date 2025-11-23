@@ -126,7 +126,7 @@ export default function TimeOffTable() {
       buttonText="Add"
       dialogContent={dialogContent}
       secondaryButton={deleteModeButton}
-      parentClassName="flex-auto basis-lg"
+      parentClassName="flex-auto basis-2xl"
       childrenClassName="max-h-96 min-h-48"
     >
       {scheduledTimeOff && scheduledTimeOff.length > 0 && (
@@ -149,16 +149,17 @@ export default function TimeOffTable() {
           </TableHeader>
           <TableBody>
             {scheduledTimeOff.map((timeOff: TimeOff) => (
-              <TableRow className="max-w-full" key={timeOff.id}>
+              <TableRow key={timeOff.id}>
                 <TableCell
-                  className="max-w-1/3"
                   key={`${timeOff.id}-date-time`}
                 >
-                  {getDateCell(timeOff.startTime, timeOff.endTime)}
+                  <span className="">
+                    {getDateCell(timeOff.startTime, timeOff.endTime)}
+                  </span>
                 </TableCell>
-                <TableCell className="max-w-2/3" key={`${timeOff.id}-comment`}>
-                  <div className="flex flex-row max-w-2/3 justify-between">
-                    <span className="text-xs text-primary-foreground font-mono truncate max-w-full">
+                <TableCell key={`${timeOff.id}-comment`}>
+                  <div className="grid grid-cols-2 w-full h-full">
+                    <span className="text-xs text-primary-foreground font-mono truncate">
                       {timeOff.comment && (timeOff.comment)}
                       {!timeOff.comment && ('...')}
                     </span>
