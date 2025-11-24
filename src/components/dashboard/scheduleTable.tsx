@@ -59,12 +59,12 @@ function isTimeOffFn(
 ): boolean {
   if (timeOffSlots === undefined) return false;
   
-  const dayDate = dayOfWeekToDatesMap.get(day)?.getDate();
+  const dayDate = dayOfWeekToDatesMap.get(day);
   if (!dayDate) return false;
 
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
-    const startDate = new Date(timeOff.startTime).getDate();
-    const endDate = new Date(timeOff.endTime).getDate();
+    const startDate = new Date(timeOff.startTime);
+    const endDate = new Date(timeOff.endTime);
     return dayDate >= startDate && dayDate <= endDate
   })
   

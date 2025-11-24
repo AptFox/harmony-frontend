@@ -158,15 +158,16 @@ export default function TimeOffTable() {
                   </span>
                 </TableCell>
                 <TableCell key={`${timeOff.id}-comment`}>
-                  <div className="grid grid-cols-2 w-full h-full">
-                    <span className="text-xs text-primary-foreground font-mono truncate">
-                      {timeOff.comment && (timeOff.comment)}
-                      {!timeOff.comment && ('...')}
-                    </span>
-                    {!deleteMode &&
-                      timeOff.comment &&
-                      timeOff.comment.length > 100 && (
-                        <div>
+                  <div className="grid grid-rows-1">
+                    <div className="flex flex-row justify-between overflow-hidden overflow-ellipsis">
+                      <div className="text-xs text-primary-foreground font-mono truncate">
+                        {timeOff.comment && (timeOff.comment)}
+                        {!timeOff.comment && ('...')}
+                      </div>
+                      {!deleteMode &&
+                        timeOff.comment &&
+                        timeOff.comment.length > 100 && (
+                        <div className="p-2">
                           <Dialog>
                             <DialogTrigger>
                               <Button size="icon" variant="outline">
@@ -188,16 +189,17 @@ export default function TimeOffTable() {
                           </Dialog>
                         </div>
                       )}
-                    {deleteMode && (
-                      <div>
-                        <Button
-                          size="icon"
-                          onClick={() => deleteTimeOff(timeOff)}
-                        >
-                          <X className="bg-primary" />
-                        </Button>
-                      </div>
-                    )}
+                      {deleteMode && (
+                        <div>
+                          <Button
+                            size="icon"
+                            onClick={() => deleteTimeOff(timeOff)}
+                          >
+                            <X className="bg-primary" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
