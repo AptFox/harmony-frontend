@@ -18,9 +18,7 @@ export default function Home() {
         <div className="flex items-center">
           <Link href="/login" className="no-underline">
             <Button color="primary" variant="default" size="lg">
-              <span className="font-semibold text-lg">
-                Login
-              </span>
+              <span className="font-semibold text-lg">Login</span>
             </Button>
           </Link>
         </div>

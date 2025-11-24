@@ -58,36 +58,36 @@ function isTimeOffFn(
   hourOfDay: HourOfDay
 ): boolean {
   if (timeOffSlots === undefined) return false;
-  
+
   const dayDate = dayOfWeekToDatesMap.get(day);
   if (!dayDate) return false;
 
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
     const startDate = new Date(timeOff.startTime);
     const endDate = new Date(timeOff.endTime);
-    return dayDate >= startDate && dayDate <= endDate
-  })
-  
+    return dayDate >= startDate && dayDate <= endDate;
+  });
+
   return timeOffForDay.some((timeOff) => {
     const startHour = new Date(timeOff.startTime).getHours();
-    const endHour = timeOff.endTime.endsWith(':59:59.999Z') ? 24 : new Date(timeOff.endTime).getHours();
+    const endHour = timeOff.endTime.endsWith(':59:59.999Z')
+      ? 24
+      : new Date(timeOff.endTime).getHours();
     return hourOfDay.hour >= startHour && hourOfDay.hour <= endHour;
   });
 }
 
 export default function ScheduleTable() {
   const { user } = useUser();
-  const {
-    availability,
-    isLoading: isLoadingAvailability,
-    isError: isErrorAvailability,
-  } = useSchedule();
+  const { availability } = useSchedule();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const scheduleSlots = availability?.weeklyAvailabilitySlots;
   const timeOffSlots = availability?.availabilityExceptions;
   const scheduleTimeZone =
-    scheduleSlots && scheduleSlots.length > 0 ? scheduleSlots[0].timeZoneId : undefined;
+    scheduleSlots && scheduleSlots.length > 0
+      ? scheduleSlots[0].timeZoneId
+      : undefined;
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
@@ -148,7 +148,7 @@ export default function ScheduleTable() {
           dayOfWeek,
           hourOfDay
         );
-        hourStatus.isTimeOff = isTimeOff
+        hourStatus.isTimeOff = isTimeOff;
         hourStatus.isAvailable = !isTimeOff;
         setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
         map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
@@ -164,7 +164,8 @@ export default function ScheduleTable() {
         slotsForDay.forEach((slot) => {
           const { startTime, endTime } = slot;
           const startHour = startTime.split(':').map(Number)[0];
-          const endHour = endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
+          const endHour =
+            endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
           const overnight = endHour < startHour;
           if (!overnight) {
             setHourStatusInMap(map, day, startHour, endHour);

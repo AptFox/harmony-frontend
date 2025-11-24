@@ -29,7 +29,11 @@ import { CheckedState } from '@radix-ui/react-checkbox';
 import { Calendar } from '../ui/calendar';
 import { Textarea } from '../ui/textarea';
 import { Matcher } from 'react-day-picker';
-import { createHoursInDayArray, getPossibleEndTimes, getPossibleStartTimes } from '@/lib/scheduleUtils';
+import {
+  createHoursInDayArray,
+  getPossibleEndTimes,
+  getPossibleStartTimes,
+} from '@/lib/scheduleUtils';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);
@@ -53,7 +57,6 @@ export function TimeOffTableDialog({
     availability,
     addTimeOff,
     isLoading: isLoadingAvailability,
-    isError: isErrorAvailability,
   } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
   const oldTimeOffRequests: TimeOffRequest[] = useMemo(() => {
@@ -102,25 +105,29 @@ export function TimeOffTableDialog({
     return !!preExistingRequest;
   }
 
-  const isDefined = (value: unknown): value is Date | string  => {
-    if (typeof value === 'string') return true
-    if (value instanceof Date) return true
+  const isDefined = (value: unknown): value is Date | string => {
+    if (typeof value === 'string') return true;
+    if (value instanceof Date) return true;
     return false;
   };
 
   const getSelectedTime = (selectedTime: string, initialDate: Date): string => {
-    const selectedHour = Number.parseInt(selectedTime);  
+    const selectedHour = Number.parseInt(selectedTime);
     const newDate = new Date(initialDate);
-    if (selectedHour === 24){
+    if (selectedHour === 24) {
       newDate.setHours(23, 59, 59, 999);
     } else {
       newDate.setHours(selectedHour, 0, 0, 0);
     }
     return newDate.toISOString();
-  }
+  };
 
   const save = async () => {
-    if (!isDefined(selectedStartTime) || !isDefined(selectedEndTime) || !isDefined(selectedDate)) {
+    if (
+      !isDefined(selectedStartTime) ||
+      !isDefined(selectedEndTime) ||
+      !isDefined(selectedDate)
+    ) {
       toast.error('You are missing required fields.');
       return;
     }
@@ -146,7 +153,7 @@ export function TimeOffTableDialog({
     try {
       const response = await addTimeOff(newRequest);
       if (response) {
-        toast.error(response.toString())
+        toast.error(response.toString());
       } else {
         clearInputFields();
         setDialogOpen(false);
@@ -275,11 +282,13 @@ export function TimeOffTableDialog({
                   className="max-h-[325px] max-w-fit overflow-y-auto"
                 >
                   <SelectGroup>
-                    {getPossibleEndTimes(selectedStartTime, hoursInDay).map((hour, i) => (
-                      <SelectItem key={i} value={hour.hour.toString()}>
-                        {getFormattedHour(hour)}
-                      </SelectItem>
-                    ))}
+                    {getPossibleEndTimes(selectedStartTime, hoursInDay).map(
+                      (hour, i) => (
+                        <SelectItem key={i} value={hour.hour.toString()}>
+                          {getFormattedHour(hour)}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>

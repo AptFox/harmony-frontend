@@ -27,12 +27,7 @@ import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
 
 export default function TimeOffTable() {
   const { user } = useUser();
-  const {
-    availability,
-    deleteTimeOff,
-    isLoading: isLoadingAvailability,
-    isError: isErrorAvailability,
-  } = useSchedule();
+  const { availability, deleteTimeOff } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined =
     availability?.availabilityExceptions;
@@ -61,10 +56,14 @@ export default function TimeOffTable() {
     const multiDay = startDate.getDay() !== endDate.getDay();
     const [dayOfWeek, date, timeRange] = formatter
       .formatRange(startDate, endDate)
-      .split(',').map((str) => str.trim() );
+      .split(',')
+      .map((str) => str.trim());
     topString = `${dayOfWeek}, ${date}`;
-    bottomString = timeRange.replace(/\s/g, '') === '12:00AM–11:59PM' ? 'All day' : timeRange;
-      if (multiDay) {
+    bottomString =
+      timeRange.replace(/\s/g, '') === '12:00AM–11:59PM'
+        ? 'All day'
+        : timeRange;
+    if (multiDay) {
       const [startStr, endStr] = formatter
         .formatRange(startDate, endDate)
         .split('–');
@@ -121,10 +120,10 @@ export default function TimeOffTable() {
   };
 
   const timeOffSortFn = (a: TimeOff, b: TimeOff): number => {
-    const timeA = new Date(a.startTime).getTime()
-    const timeB = new Date(b.startTime).getTime()
-    return  timeA - timeB
-  }
+    const timeA = new Date(a.startTime).getTime();
+    const timeB = new Date(b.startTime).getTime();
+    return timeA - timeB;
+  };
 
   return (
     <DashboardCard
@@ -154,76 +153,77 @@ export default function TimeOffTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {scheduledTimeOff.sort((a,b) => timeOffSortFn(a,b)).map((timeOff: TimeOff) => (
-              <TableRow key={timeOff.id}>
-                <TableCell
-                  key={`${timeOff.id}-date-time`}
-                >
-                  <span className="">
-                    {getDateCell(timeOff.startTime, timeOff.endTime)}
-                  </span>
-                </TableCell>
-                <TableCell key={`${timeOff.id}-comment`}>
-                  <div className="grid grid-rows-1">
-                    <div className="flex flex-row justify-between overflow-hidden overflow-ellipsis">
-                      <div className="text-xs text-primary-foreground font-mono truncate">
-                        {timeOff.comment && (timeOff.comment)}
-                        {!timeOff.comment && ('...')}
+            {scheduledTimeOff
+              .sort((a, b) => timeOffSortFn(a, b))
+              .map((timeOff: TimeOff) => (
+                <TableRow key={timeOff.id}>
+                  <TableCell key={`${timeOff.id}-date-time`}>
+                    <span className="">
+                      {getDateCell(timeOff.startTime, timeOff.endTime)}
+                    </span>
+                  </TableCell>
+                  <TableCell key={`${timeOff.id}-comment`}>
+                    <div className="grid grid-rows-1">
+                      <div className="flex flex-row justify-between overflow-hidden overflow-ellipsis">
+                        <div className="text-xs text-primary-foreground font-mono truncate">
+                          {timeOff.comment && timeOff.comment}
+                          {!timeOff.comment && '...'}
+                        </div>
+                        {!deleteMode &&
+                          timeOff.comment &&
+                          timeOff.comment.length > 100 && (
+                            <div className="p-2">
+                              <Dialog>
+                                <DialogTrigger>
+                                  <Button size="icon" variant="outline">
+                                    <Maximize2 />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Selected time off comment
+                                    </DialogTitle>
+                                  </DialogHeader>
+                                  <div>
+                                    <span className="flex text-wrap min-w-0 max-w-md">
+                                      {timeOff.comment}
+                                    </span>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          )}
+                        {deleteMode && (
+                          <div>
+                            <Button
+                              size="icon"
+                              onClick={() => deleteTimeOff(timeOff)}
+                            >
+                              <X className="bg-primary" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {!deleteMode &&
-                        timeOff.comment &&
-                        timeOff.comment.length > 100 && (
-                        <div className="p-2">
-                          <Dialog>
-                            <DialogTrigger>
-                              <Button size="icon" variant="outline">
-                                <Maximize2 />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>
-                                  Selected time off comment
-                                </DialogTitle>
-                              </DialogHeader>
-                              <div>
-                                <span className="flex text-wrap min-w-0 max-w-md">
-                                  {timeOff.comment}
-                                </span>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      )}
-                      {deleteMode && (
-                        <div>
-                          <Button
-                            size="icon"
-                            onClick={() => deleteTimeOff(timeOff)}
-                          >
-                            <X className="bg-primary" />
-                          </Button>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
           <TableCaption>Date format: MM/DD/YY</TableCaption>
         </Table>
       )}
-      {!scheduledTimeOff || scheduledTimeOff.length === 0 && (
-        <Empty className="h-full w-full">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <TimeOffIcon />
-            </EmptyMedia>
-            <EmptyTitle>No time off scheduled</EmptyTitle>
-          </EmptyHeader>
-        </Empty>
-      )}
+      {!scheduledTimeOff ||
+        (scheduledTimeOff.length === 0 && (
+          <Empty className="h-full w-full">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <TimeOffIcon />
+              </EmptyMedia>
+              <EmptyTitle>No time off scheduled</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        ))}
     </DashboardCard>
   );
 }

@@ -42,7 +42,7 @@ export default function DashboardHandler() {
           <div className="flex flex-col h-full justify-center">
             <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
               <span className="text-xl font-bold">Dashboard loading...</span>
-              <Spinner className="ml-4 size-8"/>
+              <Spinner className="ml-4 size-8" />
             </div>
           </div>
         )}
