@@ -120,6 +120,12 @@ export default function TimeOffTable() {
     );
   };
 
+  const timeOffSortFn = (a: TimeOff, b: TimeOff): number => {
+    const timeA = new Date(a.startTime).getTime()
+    const timeB = new Date(b.startTime).getTime()
+    return  timeA - timeB
+  }
+
   return (
     <DashboardCard
       title="Time off"
@@ -148,7 +154,7 @@ export default function TimeOffTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {scheduledTimeOff.map((timeOff: TimeOff) => (
+            {scheduledTimeOff.sort((a,b) => timeOffSortFn(a,b)).map((timeOff: TimeOff) => (
               <TableRow key={timeOff.id}>
                 <TableCell
                   key={`${timeOff.id}-date-time`}

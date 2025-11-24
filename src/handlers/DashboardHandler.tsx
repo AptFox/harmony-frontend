@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
 import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function DashboardHandler() {
   const {
@@ -39,12 +40,17 @@ export default function DashboardHandler() {
       <div className="flex flex-col h-full space-y-2">
         {isLoadingUser && (
           <div className="flex flex-col h-full justify-center">
-            <p className="text-center">Dashboard loading...</p>
+            <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
+              <span className="text-xl font-bold">Dashboard loading...</span>
+              <Spinner className="ml-4 size-8"/>
+            </div>
           </div>
         )}
         {isErrorUser && (
           <div className="flex flex-col h-full justify-center">
-            <p className="text-center">Error loading user data</p>
+            <div className="flex flex-row justify-center bg-red-800 rounded-lg p-8 border">
+              <span className="text-xl font-bold">Error loading user data</span>
+            </div>
           </div>
         )}
         {user && (
