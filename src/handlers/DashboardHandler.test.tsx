@@ -13,7 +13,7 @@ jest.mock('next/navigation');
 jest.mock('@/hooks/useInitialTimeZone');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
-const useScheduleMock = mocked(useSchedule, { shallow: true })
+const useScheduleMock = mocked(useSchedule, { shallow: true });
 
 describe('DashboardHandler', () => {
   describe('user is loading', () => {
@@ -42,8 +42,11 @@ describe('DashboardHandler', () => {
         timeZoneId: 'America/New_York',
       };
       useScheduleMock.mockReturnValue({
-        availability: { weeklyAvailabilitySlots: [], availabilityExceptions: []}
-      } as any)
+        availability: {
+          weeklyAvailabilitySlots: [],
+          availabilityExceptions: [],
+        },
+      } as any);
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,
@@ -62,7 +65,7 @@ describe('DashboardHandler', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(testUser.displayName, { exact: true })
-      ).toBeInTheDocument();;
+      ).toBeInTheDocument();
     });
   });
   describe('when an error occurs while loading the user', () => {
@@ -92,7 +95,7 @@ describe('DashboardHandler', () => {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
-      }
+      };
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,
