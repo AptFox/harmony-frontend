@@ -81,7 +81,7 @@ describe('api', () => {
 
     it('throws if no access token provided', async () => {
       try {
-        await apiPut('/some-endpoint', { foo: 'bar' }, undefined);
+        await apiPut('/some-endpoint', undefined, { foo: 'bar' });
       } catch (e) {
         expect(e).toBeInstanceOf(NoAccessTokenError);
       }
@@ -93,10 +93,10 @@ describe('api', () => {
 
       const result = await apiPut(
         '/some-endpoint',
+        'token-abc',
         {
           foo: 'bar',
         },
-        'token-abc'
       );
       expect(result).toEqual({ foo: 'bar' });
       expect(mockApiClientPut).toHaveBeenCalledWith(

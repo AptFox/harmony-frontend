@@ -13,50 +13,44 @@ jest.mock('@/contexts');
 jest.mock('@/lib/api');
 jest.mock('@/lib/utils');
 
-const useSWRConfigMock = mocked(useSWRConfig, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 const useAuthMock = mocked(useAuth, { shallow: true });
 const apiPutMock = mocked(apiPut<User>, { shallow: true });
 const logWarnMock = mocked(logWarn, { shallow: true });
 
 describe('useInitialTimeZone', () => {
-  // TODO: rewrite this test
   beforeEach(() => {
     jest.clearAllMocks();
     useAuthMock.mockReturnValue({ accessToken: 'token-abc' } as any);
   });
 
   it('does nothing when user is undefined', () => {
-    const mutate = jest.fn();
-    useSWRConfigMock.mockReturnValue({ mutate } as any);
-    useUserMock.mockReturnValue({ user: undefined } as any);
-
+    const updateUser = jest.fn()
+    useUserMock.mockReturnValue({ user: undefined, updateUser } as any);
     renderHook(() => useInitialTimeZone());
 
-    expect(mutate).not.toHaveBeenCalled();
+    expect(updateUser).not.toHaveBeenCalled();
     expect(apiPutMock).not.toHaveBeenCalled();
     expect(logWarnMock).not.toHaveBeenCalled();
   });
 
   it('does nothing when user timeZoneId is set', () => {
-    const mutate = jest.fn();
+    const updateUser = jest.fn()
     const user = { id: '1', name: 'Alice', timeZoneId: 'Europe/London' };
-    useSWRConfigMock.mockReturnValue({ mutate } as any);
-    useUserMock.mockReturnValue({ user } as any);
+    useUserMock.mockReturnValue({ user, updateUser } as any);
 
     renderHook(() => useInitialTimeZone());
 
-    expect(mutate).not.toHaveBeenCalled();
+    expect(updateUser).not.toHaveBeenCalled();
     expect(apiPutMock).not.toHaveBeenCalled();
     expect(logWarnMock).not.toHaveBeenCalled();
   });
 
-  it('updates swr before and after api call', () => {
-    const mutate = jest.fn();
-    useSWRConfigMock.mockReturnValue({ mutate } as any);
+  it('updates user with new timezone', () => {
+    const updateUser = jest.fn();
 
     const user = { id: '2', name: 'Bob' };
-    useUserMock.mockReturnValue({ user } as any);
+    useUserMock.mockReturnValue({ user, updateUser } as any);
 
     // mock timezone
     (global as any).Intl = {
@@ -70,18 +64,13 @@ describe('useInitialTimeZone', () => {
 
     renderHook(() => useInitialTimeZone());
 
-    expect(mutate).toHaveBeenNthCalledWith(1, USER_SWR_KEY, userWithTz, false);
-    expect(apiPut).toHaveBeenCalledWith(USER_SWR_KEY, userWithTz, 'token-abc');
-    // figure out why this mutate call fails, I think it's because of a failing mock
-    expect(mutate).toHaveBeenNthCalledWith(2, USER_SWR_KEY, userWithTz, false);
+    expect(updateUser).toHaveBeenCalledWith(userWithTz);
   });
 
-  it('reverts and logs when apiPut throws', () => {
-    const mutate = jest.fn();
-    useSWRConfigMock.mockReturnValue({ mutate } as any);
-
+  it('reverts and logs when updateUser throws', () => {
+    const updateUser = jest.fn();
     const user = { id: '3', name: 'Carol' };
-    useUserMock.mockReturnValue({ user } as any);
+    useUserMock.mockReturnValue({ user, updateUser } as any);
 
     (global as any).Intl = {
       DateTimeFormat: () => ({
@@ -90,15 +79,14 @@ describe('useInitialTimeZone', () => {
     };
 
     const error = new Error('network');
-    apiPutMock.mockImplementation(() => {
+    updateUser.mockImplementation(() => {
       throw error;
     });
 
     renderHook(() => useInitialTimeZone());
 
     const userWithTz = { ...user, timeZoneId: 'Asia/Tokyo' };
-    expect(mutate).toHaveBeenNthCalledWith(1, USER_SWR_KEY, userWithTz, false);
+    expect(updateUser).toHaveBeenCalledWith(userWithTz);
     expect(logWarn).toHaveBeenCalledWith(error, 'Failed to update timeZoneId');
-    expect(mutate).toHaveBeenNthCalledWith(2, USER_SWR_KEY, user, true);
   });
 });

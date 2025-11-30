@@ -19,12 +19,12 @@ const REFRESH_TOKEN_URL = '/auth/refresh_token';
 const LOGOUT_URL = '/auth/logout';
 
 export async function getAccessTokenFromApi(
-  axiosConfig: AxiosRequestConfig
+  axiosConfig?: AxiosRequestConfig
 ): Promise<string> {
   if (authRateLimitExceeded()) throw new ClientRateLimitError();
 
   const response = await post(REFRESH_TOKEN_URL, null, {
-    signal: axiosConfig.signal,
+    signal: axiosConfig?.signal,
     withCredentials: true,
   });
   return response.data[ACCESS_TOKEN_STRING];

@@ -15,16 +15,14 @@ export default function OAuthCallbackHandler() {
 
   return (
     <div>
-      {accessToken && (
-        <div className="flex flex-col h-dvh w-dvw justify-center">
-          <div className="flex flex-row justify-center">
-            <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
-              <span className="text-xl font-bold">Logging you in...</span>
-              <Spinner className="ml-4 size-8" />
-            </div>
+      <div className="flex flex-col h-dvh w-dvw justify-center">
+        <div className="flex flex-row justify-center">
+          <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
+            <span className="text-xl font-bold">Logging you in...</span>
+            <Spinner className="ml-4 size-8" />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
