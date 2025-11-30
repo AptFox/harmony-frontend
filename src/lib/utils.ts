@@ -22,6 +22,10 @@ export function isAxiosError(error: unknown): error is AxiosError {
   return error instanceof AxiosError;
 }
 
+export function isScheduleError(error: unknown): error is AxiosError<{errors: string[]}> {
+  return isAxiosError(error);
+}
+
 export function isCanceledError(
   error: unknown
 ): error is CanceledError<AxiosError> {

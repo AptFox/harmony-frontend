@@ -91,13 +91,9 @@ describe('api', () => {
     it('sends PUT request when called with accessToken', async () => {
       mockApiClientPut.mockResolvedValue({ data: { foo: 'bar' } });
 
-      const result = await apiPut(
-        '/some-endpoint',
-        'token-abc',
-        {
-          foo: 'bar',
-        },
-      );
+      const result = await apiPut('/some-endpoint', 'token-abc', {
+        foo: 'bar',
+      });
       expect(result).toEqual({ foo: 'bar' });
       expect(mockApiClientPut).toHaveBeenCalledWith(
         '/some-endpoint',
