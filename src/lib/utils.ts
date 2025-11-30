@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { AxiosError, HttpStatusCode, CanceledError } from 'axios';
 import { captureException } from '@sentry/nextjs';
 import {
   ApiRateLimitError,
@@ -20,6 +20,12 @@ export function cn(...inputs: ClassValue[]) {
 
 export function isAxiosError(error: unknown): error is AxiosError {
   return error instanceof AxiosError;
+}
+
+export function isCanceledError(
+  error: unknown
+): error is CanceledError<AxiosError> {
+  return error instanceof CanceledError;
 }
 
 export function isApiRateLimitError(
@@ -59,6 +65,10 @@ export function isBadRequestError(error: unknown): error is BadRequestError {
 }
 
 export const isProdEnv = () => process.env.NODE_ENV === 'production';
+
+export function logInfo(message: string): void {
+  if (!isProdEnv()) console.info(message);
+}
 
 export function logWarn(error: Error | unknown, message: string): void {
   if (!isProdEnv()) console.warn(error, message);

@@ -1,74 +1,90 @@
 'use client';
 import { useUser, useAuth } from '@/contexts';
-import { useToast } from '@/hooks/UseToast';
+import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
+import ScheduleTable from '@/components/dashboard/scheduleTable';
+import TimeOffTable from '@/components/dashboard/timeOffTable';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function DashboardHandler() {
-  // TODO: split this file into components
-  const { user, avatarUrl, isLoading, isError } = useUser();
+  const {
+    user,
+    avatarUrl,
+    isLoading: isLoadingUser,
+    isError: isErrorUser,
+  } = useUser();
   const { logout } = useAuth();
-  const { toast, tooManyRequestsToast } = useToast();
   useInitialTimeZone();
 
   useEffect(() => {
-    if (isLoading) return;
-    if (isNoAccessTokenError(isError)) return;
-    if (isError) {
-      // TODO: add logic that inspects the error and prints a standard pretty message
-      if (isApiRateLimitError(isError)) {
-        tooManyRequestsToast();
+    if (isLoadingUser) return;
+    if (isNoAccessTokenError(isErrorUser)) return;
+    if (isErrorUser) {
+      // TODO: centralize error to toasts logic
+      if (isApiRateLimitError(isErrorUser)) {
+        toast.error('Something went wrong');
         return;
       }
-      toast({
-        title: (isError as Error).name,
-        description: (isError as Error).message,
-        variant: 'destructive',
-      });
+      toast.error(
+        `${(isErrorUser as Error).name}: ${(isErrorUser as Error).message}`
+      );
     }
-  }, [user, isLoading, isError, toast, tooManyRequestsToast]);
+  }, [user, isLoadingUser, isErrorUser]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="flex justify-center items-center lg:mb-0 lg:grid-cols-4 lg:text-center">
-        {isLoading && (
-          <div>
-            <p>Dashboard loading...</p>
+    <div className="flex flex-col p-8 mx-auto h-lvh w-full lg:max-w-9/10">
+      <div className="flex flex-col h-full space-y-2">
+        {isLoadingUser && (
+          <div className="flex flex-col h-full justify-center">
+            <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
+              <span className="text-xl font-bold">Dashboard loading...</span>
+              <Spinner className="ml-4 size-8" />
+            </div>
+          </div>
+        )}
+        {isErrorUser && (
+          <div className="flex flex-col h-full justify-center">
+            <div className="flex flex-row justify-center bg-red-800 rounded-lg p-8 border">
+              <span className="text-xl font-bold">Error loading user data</span>
+            </div>
           </div>
         )}
         {user && (
-          <div>
-            <div>
-              <p>Hello, {user.displayName}</p>
+          <div className="flex flex-col justify-top space-y-2">
+            <div className="flex justify-between items-center border rounded-lg bg-secondary shadow-md">
+              <div className="p-2 flex-row flex">
+                <div className="my-2 mr-3 rounded-full border-primary-foreground border-3 max-w-fit">
+                  {avatarUrl && (
+                    <Image
+                      src={avatarUrl}
+                      alt={`${user.displayName}'s avatar`}
+                      width={64}
+                      height={64}
+                      className="rounded-full"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col justify-center">
+                  <p className="font-semibold">{user.displayName}</p>
+                  <p className="text-sm">[team name]</p>
+                  <p className="text-sm">[team role]</p>
+                </div>
+              </div>
+              <Button className="m-2" onClick={logout}>
+                Logout
+              </Button>
             </div>
-            <div className="flex flex-col items-center">
-              {avatarUrl && (
-                <Image
-                  src={avatarUrl}
-                  alt={`${user.displayName}'s avatar`}
-                  width={64}
-                  height={64}
-                  className="rounded-full"
-                />
-              )}
-            </div>
-            <div>
-              <p>Timezone: {user.timeZoneId}</p>
+            <div className="lg:flex lg:flex-row gap-2">
+              <ScheduleTable />
+              <TimeOffTable />
             </div>
           </div>
         )}
-        {isError && !isNoAccessTokenError(isError) && (
-          <div>
-            <p>Error loading user data</p>
-          </div>
-        )}
       </div>
-      <div>
-        <Button onClick={logout}>Logout</Button>
-      </div>
-    </main>
+    </div>
   );
 }

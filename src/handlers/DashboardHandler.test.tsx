@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, useUser } from '@/contexts';
+import { useAuth, useSchedule, useUser } from '@/contexts';
 import { mocked } from 'jest-mock';
 
 beforeEach(() => {
@@ -13,6 +13,7 @@ jest.mock('next/navigation');
 jest.mock('@/hooks/useInitialTimeZone');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
+const useScheduleMock = mocked(useSchedule, { shallow: true })
 
 describe('DashboardHandler', () => {
   describe('user is loading', () => {
@@ -34,12 +35,15 @@ describe('DashboardHandler', () => {
   });
 
   describe('when user is loaded', () => {
-    it('shows a welcome message, user avatar and user details', () => {
+    it('shows user details', () => {
       const testUser = {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
       };
+      useScheduleMock.mockReturnValue({
+        availability: { weeklyAvailabilitySlots: [], availabilityExceptions: []}
+      } as any)
       useUserMock.mockReturnValue({
         user: testUser,
         isLoading: false,
@@ -57,13 +61,8 @@ describe('DashboardHandler', () => {
         screen.getByAltText(`${testUser.displayName}'s avatar`)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(`Hello, ${testUser.displayName}`, { exact: true })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`Timezone: ${testUser.timeZoneId}`, {
-          exact: true,
-        })
-      );
+        screen.getByText(testUser.displayName, { exact: true })
+      ).toBeInTheDocument();;
     });
   });
   describe('when an error occurs while loading the user', () => {
@@ -89,8 +88,13 @@ describe('DashboardHandler', () => {
 
   describe('when logout button is clicked', () => {
     it('redirects to the login page', () => {
+      const testUser = {
+        id: 'someId',
+        displayName: 'someName',
+        timeZoneId: 'America/New_York',
+      }
       useUserMock.mockReturnValue({
-        user: undefined,
+        user: testUser,
         isLoading: false,
         isError: undefined,
       } as any);
@@ -101,7 +105,7 @@ describe('DashboardHandler', () => {
       } as any);
 
       render(<DashboardHandler />);
-      fireEvent.click(screen.getByText('Logout', { exact: true }));
+      fireEvent.click(screen.getByText(/Logout/, { exact: true }));
       expect(logoutFn).toHaveBeenCalled();
     });
   });
