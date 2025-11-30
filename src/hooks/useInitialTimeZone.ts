@@ -5,7 +5,6 @@ import { useUser } from '@/contexts';
 import { logWarn } from '@/lib/utils';
 import { User } from '@/types/UserTypes';
 
-// TODO: consider getting rid of this because timeZoneId is on the scheduleSlots
 export function useInitialTimeZone() {
   const { user, updateUser } = useUser();
 
