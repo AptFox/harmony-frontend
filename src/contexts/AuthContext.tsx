@@ -8,6 +8,7 @@ import {
   useState,
   ReactNode,
   useContext,
+  useRef,
 } from 'react';
 import {
   isApiRateLimitError,
@@ -16,26 +17,37 @@ import {
   sendErrorToSentry,
   isClientRateLimitError,
   logError,
+  logInfo,
+  isProdEnv,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { logoutOfApi, getAccessTokenFromApi } from '@/lib/api';
-import { useToast } from '@/hooks/UseToast';
+import { toast } from 'sonner';
 import { useSWRConfig } from 'swr';
 import { USER_SWR_KEY } from '@/contexts';
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
+  const hasInitializedRef = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { tooManyRequestsToast } = useToast();
   const { cache, mutate } = useSWRConfig();
 
   useEffect(() => {
+    if (!isProdEnv() && hasInitializedRef.current) {
+      logInfo('Strict Mode: Skipping duplicate auth call');
+      return;
+    }
+
+    hasInitializedRef.current = true;
+    const controller = new AbortController();
     const initAuth = async () => {
       if (accessToken || hasLoggedOut) return; // Access token is present, no need to refresh
       try {
-        const token = await getAccessTokenFromApi();
+        const token = await getAccessTokenFromApi({
+          signal: controller.signal,
+        });
         setAccessToken(token);
       } catch (error: unknown) {
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
@@ -46,7 +58,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             : 'api';
           logError(error, `${rateLimitType} rate limit triggered`);
           if (pathname !== '/login') {
-            tooManyRequestsToast();
+            toast.error(
+              'Too Many Requests: You are refreshing the page too often.'
+            );
           }
           return;
         }
@@ -56,8 +70,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, hasLoggedOut]);
+    return () => {
+      logInfo('AuthContext UNMOUNTED');
+      // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
+    };
+  }, [accessToken, hasLoggedOut, pathname, router]);
 
   const logout = useCallback(async () => {
     // Clear all SWR keys and sessionStorage

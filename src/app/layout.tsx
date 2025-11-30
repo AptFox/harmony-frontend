@@ -2,13 +2,15 @@ import * as Sentry from '@sentry/nextjs';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/themeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Harmony',
-  description: 'Scheduler',
+  title: 'Harmony Scheduler',
+  applicationName: 'Harmony Scheduler',
+  description: 'An app for esports scheduling.',
   other: {
     ...Sentry.getTraceData(),
   },
@@ -20,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="any" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="any" />
@@ -32,8 +34,10 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <main>{children}</main>
-        <Toaster />
+        <ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

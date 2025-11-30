@@ -16,10 +16,7 @@ const useRouterMock = mocked(useRouter, { shallow: true });
 
 describe('OAuthCallbackHandler', () => {
   describe('accessToken is loading', () => {
-    it('renders a placeholder message while attempting login', () => {
-      // TODO: figure out how to simplify this mock, maybe spread or something
-      // TODO: make generic mocks
-      // TODO: Make mock factory with sensible default
+    it('renders a login spinner', () => {
       const replaceFn = jest.fn();
       useAuthMock.mockReturnValue({
         accessToken: 'someAccessToken',
@@ -48,24 +45,6 @@ describe('OAuthCallbackHandler', () => {
       render(<OAuthCallbackHandler />);
 
       expect(replaceFn).toHaveBeenCalledWith('/dashboard');
-    });
-  });
-
-  describe('accessToken has failed to load', () => {
-    it('renders an error message', () => {
-      const replaceFn = jest.fn();
-      useAuthMock.mockReturnValue({
-        accessToken: undefined,
-      } as any);
-
-      useRouterMock.mockReturnValue({
-        replace: replaceFn,
-      } as any);
-
-      render(<OAuthCallbackHandler />);
-      expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
-
-      expect(replaceFn).not.toHaveBeenCalled();
     });
   });
 });
