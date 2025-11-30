@@ -21,7 +21,7 @@ describe('useInitialTimeZone', () => {
   });
 
   it('does nothing when user is undefined', () => {
-    const updateUser = jest.fn()
+    const updateUser = jest.fn();
     useUserMock.mockReturnValue({ user: undefined, updateUser } as any);
     renderHook(() => useInitialTimeZone());
 
@@ -30,7 +30,7 @@ describe('useInitialTimeZone', () => {
   });
 
   it('does nothing when user timeZoneId is set', () => {
-    const updateUser = jest.fn()
+    const updateUser = jest.fn();
     const user = { id: '1', name: 'Alice', timeZoneId: 'Europe/London' };
     useUserMock.mockReturnValue({ user, updateUser } as any);
 

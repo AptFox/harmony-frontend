@@ -11,7 +11,7 @@ import {
   TimeOffRequest,
 } from '@/types/ScheduleTypes';
 import { useAuth } from '@/contexts';
-import { logError } from '@/lib/utils';
+import { isScheduleError, logError } from '@/lib/utils';
 
 export const SCHEDULE_SWR_KEY = '/api/availability/@me';
 const WEEKLY_SCHEDULE_URL = '/api/availability/weekly';
@@ -47,10 +47,12 @@ export const ScheduleContextProvider = ({
       );
       mutate(SCHEDULE_SWR_KEY, updatedSchedule, true);
     } catch (err: unknown) {
-      const apiErrors: undefined | string[] = err?.response?.data?.errors;
-      if (apiErrors) {
-        logError(apiErrors, 'Schedule overwrite failed.');
-        return apiErrors;
+      if (isScheduleError(err)){
+        const apiErrors: undefined | string[] = err?.response?.data?.errors;
+        if (apiErrors) {
+          logError(apiErrors, 'Schedule overwrite failed.');
+          return apiErrors;
+        }
       }
       throw err;
     }
@@ -73,10 +75,12 @@ export const ScheduleContextProvider = ({
       await apiPost(EXCEPTION_URL, accessToken, timeOff);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      const apiErrors: undefined | string[] = err?.response?.data?.errors;
-      if (apiErrors) {
-        logError(apiErrors, 'Adding timeOff failed.');
-        return apiErrors;
+      if (isScheduleError(err)){
+        const apiErrors: undefined | string[] = err?.response?.data?.errors;
+        if (apiErrors) {
+          logError(apiErrors, 'Adding timeOff failed.');
+          return apiErrors;
+        }
       }
 
       throw err;
@@ -89,10 +93,12 @@ export const ScheduleContextProvider = ({
       await apiDelete(deleteUrl, accessToken);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      const apiErrors: undefined | string[] = err?.response?.data?.errors;
-      if (apiErrors) {
-        logError(apiErrors, 'Deleting timeOff failed.');
-        return apiErrors;
+      if (isScheduleError(err)){
+        const apiErrors: undefined | string[] = err?.response?.data?.errors;
+        if (apiErrors) {
+          logError(apiErrors, 'Deleting timeOff failed.');
+          return apiErrors;
+        }
       }
 
       throw err;
