@@ -4,15 +4,23 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+import { isProdEnv } from '@/lib/utils';
+
+const isProd = isProdEnv()
+const dsn = isProd
+  ? process.env.SENTRY_DSN
+  : undefined;
+
+const sampleRate = isProd ? 0.25 : 0.01
 
 Sentry.init({
-  dsn: 'https://a8463cf97f893999ad14a78e39e60917@o4509113825099776.ingest.us.sentry.io/4509114980630529',
+  dsn: dsn,
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  tracesSampleRate: sampleRate,
 
   // Enable logs to be sent to Sentry
-  enableLogs: true,
+  enableLogs: isProd,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
