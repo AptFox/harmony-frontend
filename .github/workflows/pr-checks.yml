@@ -5,12 +5,11 @@ on:
       - main
       - dev
 
-permissions:
-  contents: read
-
 jobs:
   pr-checks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -18,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gitleaks
+      - name: gitleaks secret scan
         uses: gitleaks/gitleaks-action@v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
