@@ -18,10 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: gitleaks secret scan
-        uses: gitleaks/gitleaks-action@v2.3.9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and install the gitleaks binary
+        run: |
+          curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run gitleaks scan
+        run: gitleaks detect --exit-code 1 --verbose
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
