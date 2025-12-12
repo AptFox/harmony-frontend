@@ -36,7 +36,7 @@ export default function DashboardHandler() {
   }, [user, isLoadingUser, isErrorUser]);
 
   return (
-    <div className="flex flex-col p-8 mx-auto h-lvh w-full lg:max-w-9/10">
+    <div className="flex flex-col p-8 mb-24 lg:mb-0 mx-auto w-full lg:max-w-9/10">
       <div className="flex flex-col h-full space-y-2">
         {isLoadingUser && (
           <div className="flex flex-col h-full justify-center">
