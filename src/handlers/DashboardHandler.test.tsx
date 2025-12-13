@@ -44,7 +44,7 @@ describe('DashboardHandler', () => {
       useScheduleMock.mockReturnValue({
         availability: {
           weeklyAvailabilitySlots: [],
-          availabilityExceptions: [],
+          timeOffs: [],
         },
       } as any);
       useUserMock.mockReturnValue({

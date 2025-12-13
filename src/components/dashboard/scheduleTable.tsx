@@ -83,7 +83,7 @@ export default function ScheduleTable() {
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const scheduleSlots = availability?.weeklyAvailabilitySlots;
-  const timeOffSlots = availability?.availabilityExceptions;
+  const timeOffSlots = availability?.timeOffs;
   const scheduleTimeZone =
     scheduleSlots && scheduleSlots.length > 0
       ? scheduleSlots[0].timeZoneId
