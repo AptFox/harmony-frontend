@@ -60,7 +60,7 @@ export function TimeOffTableDialog({
   } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
   const oldTimeOffRequests: TimeOffRequest[] = useMemo(() => {
-    const timeOff = availability?.availabilityExceptions ?? [];
+    const timeOff = availability?.timeOffs ?? [];
     return timeOff.map((timeOff) => {
       const fields = {
         startTime: new Date(timeOff.startTime).toISOString(),

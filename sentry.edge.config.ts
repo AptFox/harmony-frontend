@@ -15,6 +15,12 @@ const sampleRate = isProd ? 0.25 : 0.01
 
 Sentry.init({
   dsn: dsn,
+  beforeSend: (event) => {
+    if (event.contexts?.AxiosError && !event.contexts.AxiosError.status) {
+      return null;
+    }
+    return event;
+  },
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: sampleRate,

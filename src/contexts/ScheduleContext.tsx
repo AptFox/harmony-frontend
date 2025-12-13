@@ -15,7 +15,7 @@ import { isScheduleError, logError } from '@/lib/utils';
 
 export const SCHEDULE_SWR_KEY = '/api/availability/@me';
 const WEEKLY_SCHEDULE_URL = '/api/availability/weekly';
-const EXCEPTION_URL = '/api/availability/exceptions';
+const TIME_OFF_URL = '/api/availability/time_off';
 
 export const ScheduleContextProvider = ({
   children,
@@ -72,7 +72,7 @@ export const ScheduleContextProvider = ({
     timeOff: TimeOffRequest
   ): Promise<string[] | void> => {
     try {
-      await apiPost(EXCEPTION_URL, accessToken, timeOff);
+      await apiPost(TIME_OFF_URL, accessToken, timeOff);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
       if (isScheduleError(err)){
@@ -89,7 +89,7 @@ export const ScheduleContextProvider = ({
 
   const deleteTimeOff = async (timeOff: TimeOff): Promise<string[] | void> => {
     try {
-      const deleteUrl: string = `${EXCEPTION_URL}\\${timeOff.id}`;
+      const deleteUrl: string = `${TIME_OFF_URL}\\${timeOff.id}`;
       await apiDelete(deleteUrl, accessToken);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
