@@ -35,7 +35,7 @@ export type TimeOffRequest = {
 
 export type Availability = {
   weeklyAvailabilitySlots: ScheduleSlot[];
-  availabilityExceptions: TimeOff[];
+  timeOffs: TimeOff[];
 };
 
 export type HourOfDay = {
