@@ -4,3 +4,5 @@ Disallow: /dashboard
 Disallow: /login
 Disallow: /auth
 Disallow: /oauth2
+
+Sitemap: https://harmony-schedlr.com/sitemap.xml
