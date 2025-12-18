@@ -34,6 +34,7 @@ import {
   getPossibleEndTimes,
   getPossibleStartTimes,
 } from '@/lib/scheduleUtils';
+import { ScrollArea } from '../ui/scroll-area';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);
@@ -210,117 +211,119 @@ export function TimeOffTableDialog({
   ];
 
   return (
-    <DialogContent className="lg:max-w-[425px] sm:max-w-[425px] bg-secondary">
+    <DialogContent className="max-w-[425px] max-h-[525px] lg:max-h-fit bg-secondary">
       <DialogHeader>
         <DialogTitle>Add time off</DialogTitle>
       </DialogHeader>
-      {!isLoadingAvailability && (
-        <div className="flex">
-          <Calendar
-            className="w-full"
-            disabled={disabledDaysMatcher}
-            mode="single" // TODO: consider switching this to a range
-            selected={selectedDate}
-            startMonth={
-              new Date(currentDate.getFullYear(), currentDate.getMonth())
-            }
-            endMonth={
-              new Date(
-                ninetyDaysFromToday.getFullYear(),
-                ninetyDaysFromToday.getMonth()
-              )
-            }
-            captionLayout="dropdown-months"
-            timeZone={currentTimeZone}
-            onSelect={setSelectedDate}
-          />
-        </div>
-      )}
-      <div className="flex flex-col gap-3">
-        <h3 className="text-xs">{getSelectedDateStr()}</h3>
-        <div className="flex flex-row gap-3 w-full justify-evenly">
-          <div className="flex flex-col gap-3">
-            <div className="flex justify-center gap">
-              <Select
-                disabled={isLoadingAvailability || allDayChecked === true}
-                value={selectedStartTime}
-                onValueChange={(value) => setSelectedStartTime(value)}
-              >
-                <SelectTrigger className="max-w-fit">
-                  <SelectValue placeholder="From" />
-                </SelectTrigger>
-                <SelectContent
-                  position="item-aligned"
-                  className="max-h-[325px] overflow-y-auto"
+      <ScrollArea type="auto" className="flex flex-row max-w-full h-[325px] lg:h-fit relative">
+        {!isLoadingAvailability && (
+          <div className="flex flex-row justify-center">
+            <Calendar
+              className="lg:h-xs lg:w-xs h-full w-full"
+              disabled={disabledDaysMatcher}
+              mode="single" // TODO: consider switching this to a range
+              selected={selectedDate}
+              startMonth={
+                new Date(currentDate.getFullYear(), currentDate.getMonth())
+              }
+              endMonth={
+                new Date(
+                  ninetyDaysFromToday.getFullYear(),
+                  ninetyDaysFromToday.getMonth()
+                )
+              }
+              captionLayout="dropdown-months"
+              timeZone={currentTimeZone}
+              onSelect={setSelectedDate}
+            />
+          </div>
+        )}
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xs">{getSelectedDateStr()}</h3>
+          <div className="flex flex-row gap-3 w-full justify-evenly">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-center gap">
+                <Select
+                  disabled={isLoadingAvailability || allDayChecked === true}
+                  value={selectedStartTime}
+                  onValueChange={(value) => setSelectedStartTime(value)}
                 >
-                  <SelectGroup>
-                    {getPossibleStartTimes(hoursInDay).map((hour, i) => (
-                      <SelectItem key={i} value={hour.hour.toString()}>
-                        {getFormattedHour(hour)}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <span className="mx-1 flex flex-col h-full justify-center">
-                <Minus />
-              </span>
-              <Select
-                disabled={
-                  isLoadingAvailability ||
-                  selectedStartTime === '' ||
-                  allDayChecked === true
-                }
-                value={selectedEndTime}
-                onValueChange={(value) => setSelectedEndTime(value)}
-              >
-                <SelectTrigger className="max-w-fit">
-                  <SelectValue placeholder="Until" />
-                </SelectTrigger>
-                <SelectContent
-                  position="item-aligned"
-                  className="max-h-[325px] max-w-fit overflow-y-auto"
-                >
-                  <SelectGroup>
-                    {getPossibleEndTimes(selectedStartTime, hoursInDay).map(
-                      (hour, i) => (
+                  <SelectTrigger className="max-w-fit">
+                    <SelectValue placeholder="From" />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="item-aligned"
+                    className="max-h-[325px] overflow-y-auto"
+                  >
+                    <SelectGroup>
+                      {getPossibleStartTimes(hoursInDay).map((hour, i) => (
                         <SelectItem key={i} value={hour.hour.toString()}>
                           {getFormattedHour(hour)}
                         </SelectItem>
-                      )
-                    )}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <span className="mx-1 flex flex-col h-full justify-center">
+                  <Minus />
+                </span>
+                <Select
+                  disabled={
+                    isLoadingAvailability ||
+                    selectedStartTime === '' ||
+                    allDayChecked === true
+                  }
+                  value={selectedEndTime}
+                  onValueChange={(value) => setSelectedEndTime(value)}
+                >
+                  <SelectTrigger className="max-w-fit">
+                    <SelectValue placeholder="Until" />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="item-aligned"
+                    className="max-h-[325px] max-w-fit overflow-y-auto"
+                  >
+                    <SelectGroup>
+                      {getPossibleEndTimes(selectedStartTime, hoursInDay).map(
+                        (hour, i) => (
+                          <SelectItem key={i} value={hour.hour.toString()}>
+                            {getFormattedHour(hour)}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex flex-col h-full w-fit justify-center">
+              <div className="flex flex-row items-start justify-center">
+                <Checkbox
+                  checked={allDayChecked}
+                  onCheckedChange={checkAllDay}
+                  id="toggle"
+                  className="h-8 w-8 border-secondary-foreground"
+                />
+              </div>
+              <Label htmlFor="toggle" className="text-xs">
+                All day?
+              </Label>
             </div>
           </div>
-          <div className="flex flex-col h-full w-fit justify-center">
-            <div className="flex flex-row items-start justify-center">
-              <Checkbox
-                checked={allDayChecked}
-                onCheckedChange={checkAllDay}
-                id="toggle"
-                className="h-8 w-8 border-secondary-foreground"
-              />
-            </div>
-            <Label htmlFor="toggle" className="text-xs">
-              All day?
-            </Label>
+          <div className="grid w-full gap-3">
+            <Label htmlFor="message">Add comment:</Label>
+            <Textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Add your notes about this time off here"
+              id="comment"
+            />
           </div>
         </div>
-        <div className="grid w-full gap-3">
-          <Label htmlFor="message">Add comment:</Label>
-          <Textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Add your notes about this time off here"
-            id="comment"
-          />
-        </div>
-      </div>
+      </ScrollArea>
 
       <Separator />
-      <DialogFooter className="flex gap-2">
+      <DialogFooter className="flex flex-row justify-end gap-4 lg:gap-2">
         <DialogClose asChild>
           <Button
             variant="outline"
@@ -331,6 +334,7 @@ export function TimeOffTableDialog({
           </Button>
         </DialogClose>
         <Button
+          className="w-20"
           type="submit"
           onClick={save}
           disabled={
