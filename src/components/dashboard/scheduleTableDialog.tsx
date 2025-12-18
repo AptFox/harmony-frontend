@@ -316,7 +316,7 @@ export function ScheduleTableDialog({
         </DialogDescription>
       </DialogHeader>
       {!isLoadingAvailability && (
-        <ScrollArea className="flex flex-row border-y-2 max-w-[425px] h-[200px] relative">
+        <ScrollArea type="auto" className="flex flex-row border-y-2 max-w-[425px] h-[200px] relative">
           {/* Gradient Overlay for the top edge */}
           {updatedScheduleSlots.length > 4 && (
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-background/30 to-background/0 z-10 pointer-events-none" />
