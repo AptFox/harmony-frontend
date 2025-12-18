@@ -41,9 +41,6 @@ function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
       currentDate.getFullYear(),
       currentDate.getMonth(),
       currentDate.getDate() + i,
-      currentDate.getHours(),
-      currentDate.getMinutes(),
-      currentDate.getSeconds()
     );
     const dayOfWeek = daysOfWeek[dateForDay.getDay()];
     map.set(dayOfWeek, dateForDay);
@@ -65,6 +62,8 @@ function isTimeOffFn(
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
     const startDate = new Date(timeOff.startTime);
     const endDate = new Date(timeOff.endTime);
+    startDate.setHours(0, 0, 0, 0)
+    endDate.setHours(23,59,59,999)
     return dayDate >= startDate && dayDate <= endDate;
   });
 
