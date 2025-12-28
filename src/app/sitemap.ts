@@ -1,12 +1,12 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://harmony-schedlr.com', 
+      url: 'https://harmony-schedlr.com',
       lastModified: new Date(),
-      changeFrequency: 'weekly', 
+      changeFrequency: 'weekly',
       priority: 1.0,
     },
-  ]
+  ];
 }

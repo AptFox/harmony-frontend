@@ -6,12 +6,10 @@
 import * as Sentry from '@sentry/nextjs';
 import { isProdEnv } from '@/lib/utils';
 
-const isProd = isProdEnv()
-const dsn = isProd
-  ? process.env.SENTRY_DSN
-  : undefined;
+const isProd = isProdEnv();
+const dsn = isProd ? process.env.SENTRY_DSN : undefined;
 
-const sampleRate = isProd ? 0.25 : 0.01
+const sampleRate = isProd ? 0.25 : 0.01;
 
 Sentry.init({
   dsn: dsn,

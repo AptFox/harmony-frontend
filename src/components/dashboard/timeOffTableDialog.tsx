@@ -215,7 +215,10 @@ export function TimeOffTableDialog({
       <DialogHeader>
         <DialogTitle>Add time off</DialogTitle>
       </DialogHeader>
-      <ScrollArea type="auto" className="flex flex-row max-w-full h-[325px] lg:h-fit relative">
+      <ScrollArea
+        type="auto"
+        className="flex flex-row max-w-full h-[325px] lg:h-fit relative"
+      >
         {!isLoadingAvailability && (
           <div className="flex flex-row justify-center">
             <Calendar

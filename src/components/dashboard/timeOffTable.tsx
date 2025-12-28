@@ -29,8 +29,7 @@ export default function TimeOffTable() {
   const { user } = useUser();
   const { availability, deleteTimeOff } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
-  const scheduledTimeOff: TimeOff[] | undefined =
-    availability?.timeOffs;
+  const scheduledTimeOff: TimeOff[] | undefined = availability?.timeOffs;
   const [deleteMode, setDeleteMode] = useState(false);
   useEffect(() => {
     if (scheduledTimeOff && scheduledTimeOff.length === 0) {

@@ -47,7 +47,7 @@ export const ScheduleContextProvider = ({
       );
       mutate(SCHEDULE_SWR_KEY, updatedSchedule, true);
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Schedule overwrite failed.');
@@ -75,7 +75,7 @@ export const ScheduleContextProvider = ({
       await apiPost(TIME_OFF_URL, accessToken, timeOff);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Adding timeOff failed.');
@@ -93,7 +93,7 @@ export const ScheduleContextProvider = ({
       await apiDelete(deleteUrl, accessToken);
       mutate(SCHEDULE_SWR_KEY, null, true);
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Deleting timeOff failed.');
