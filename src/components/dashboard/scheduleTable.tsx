@@ -103,13 +103,15 @@ export default function ScheduleTable() {
   useEffect(() => {
     if (scheduleSlots && firstAvailableSlotCoordinate) {
       firstAvailableHourRef.current?.scrollIntoView({
-        behavior: 'smooth',
+        behavior: 'auto',
         block: 'center',
       });
     }
   }, [firstAvailableSlotCoordinate, scheduleSlots]);
 
   const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(currentDate);
+
+  // TODO: move as much logic as possible to scheduleUtils.ts
 
   function createAvailabilityMap(): Map<HourOfDay, Map<string, HourStatus>> {
     const map = new Map<HourOfDay, Map<string, HourStatus>>();

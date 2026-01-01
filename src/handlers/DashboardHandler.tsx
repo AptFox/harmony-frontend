@@ -1,5 +1,5 @@
 'use client';
-import { useUser, useAuth } from '@/contexts';
+import { useUser, useAuth, usePlayer } from '@/contexts';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
 import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
+import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { Spinner } from '@/components/ui/spinner';
+import { Player, Team } from '@/types/PlayerTypes'
 
 export default function DashboardHandler() {
   const {
@@ -17,8 +19,14 @@ export default function DashboardHandler() {
     isLoading: isLoadingUser,
     isError: isErrorUser,
   } = useUser();
+  const {
+    players
+  } = usePlayer();
   const { logout } = useAuth();
   useInitialTimeZone();
+
+  const player: Player | undefined = players ? players[0] : undefined
+  const teams: Team[] | undefined = players ? players.map( (p) => p.team ).filter((team): team is Team => !!team) : undefined
 
   useEffect(() => {
     if (isLoadingUser) return;
@@ -70,8 +78,14 @@ export default function DashboardHandler() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <p className="font-semibold">{user.displayName}</p>
-                  <p className="text-sm">[team name]</p>
-                  <p className="text-sm">[team role]</p>
+                  { player && (
+                    <div>
+                    { player.team && (<p className="text-sm">Org: {player.team?.organization.name}</p>)}
+                    { player.team && (<p className="text-sm">Team: {player.team.name}</p>)}
+                    <p className="text-sm">Player name: {player.name}</p>
+                    <p className="text-sm">Team role: {player.teamRole ? player.teamRole : 'player'}</p>
+                  </div>
+                  )}
                 </div>
               </div>
               <Button className="m-2" onClick={logout}>
@@ -81,6 +95,9 @@ export default function DashboardHandler() {
             <div className="lg:flex lg:flex-row gap-2">
               <ScheduleTable />
               <TimeOffTable />
+            </div>
+            <div>
+              {teams && teams.length > 0 && (<TeamScheduleTable />)}
             </div>
           </div>
         )}
