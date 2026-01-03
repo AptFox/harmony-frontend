@@ -10,37 +10,26 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
-import { HourOfDay, HourStatus, PlayerHourStatus, TimeOff } from '@/types/ScheduleTypes';
+import { HourOfDay, PlayerHourStatus, TimeOff } from '@/types/ScheduleTypes';
 import { usePlayer, useUser } from '@/contexts';
-import { TimeOffIcon } from '@/components/ui/timeOffIcon';
-import { CalendarX2 } from 'lucide-react';
 import React, {
   useEffect,
   useRef,
   useState,
 } from 'react';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '../ui/empty';
-import { createDayOfWeekToDatesMap, createHoursInDayArray, daysOfWeek, formatDate, isTimeOffFn } from '@/lib/scheduleUtils';
+import { createDayOfWeekToDatesMap, createHoursInDayArray, daysOfWeek,isTimeOffFn } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Skeleton } from '../ui/skeleton';
 import { Team } from '@/types/PlayerTypes';
-import { Separator } from '@/components/ui/separator';
-import PlayerCard from '@/components/dashboard/playerCard';
-import { ScrollArea } from '../ui/scroll-area';
+import { Popover, PopoverArrow, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Badge } from '../ui/badge';
 
 export default function TeamScheduleTable() {
   const { user } = useUser();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const currentDate = new Date();
-  const currentDay = daysOfWeek[currentDate.getDay()];
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
     useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
@@ -160,6 +149,16 @@ export default function TeamScheduleTable() {
 
   const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
 
+  const formatPopoverDate = (date: Date | undefined): string => {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: '2-digit',
+      weekday: 'short'
+    });
+
+    return formatter.format(date);
+  }
+
   return (
     <DashboardCard
       title="Team Schedule"
@@ -175,10 +174,10 @@ export default function TeamScheduleTable() {
               </TabsTrigger>
             ))}
           </TabsList>
-          <TabsContent className="relative overflow-y-auto" value={selectedTeamId || "default"}>
+          <TabsContent className="relative overflow-auto" value={selectedTeamId || "default"}>
             {isLoadingTeamSchedule ? <Skeleton /> : 
               <div className="flex flex-auto max-h-68">
-                <Table className=" border-separate border-spacing-0">
+                <Table className="">
                   {playersWithNoAvailability.length > 1 && (
                       <TableCaption>No schedule found for: {playersWithNoAvailability.join(", ")}</TableCaption>
                   )}
@@ -198,44 +197,52 @@ export default function TeamScheduleTable() {
                   <TableBody>
                     {availabilityMap &&
                       Array.from(
-                        availabilityMap.entries().map(([hourOfDay, mapOfPlayerHourStatus]) => (
-                          <TableRow key={hourOfDay.absHourStr} className="border-0">
-                            <TableCell className=' text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none'>
-                                {twelveHourClock
-                                  ? hourOfDay.twelveHourStr
-                                  : hourOfDay.absHourStr}
-                            </TableCell>
-                            {Array.from(
-                              mapOfPlayerHourStatus.entries().map(([day, playerHourStatus]) => {
-                                const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
-                                return (
-                                  <TableCell
-                                    key={slotCoordinate}
-                                    ref={
-                                      slotCoordinate === firstAvailableSlotCoordinate
-                                        ? firstAvailableHourRef
-                                        : undefined
-                                    }
-                                    className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                                  >
-                                    {!playerHourStatus.isTimeOff && (
-                                      <span
-                                        className={`text-xs ${playerHourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
-                                      >
-                                        {playerHourStatus.availablePlayers.size > 0 ? playerHourStatus.availablePlayers.size : '' }
-                                      </span>
-                                    )}
-                                    {playerHourStatus.isTimeOff && (
-                                      <div className="flex w-full h-full justify-center items-center">
-                                        <TimeOffIcon className="w-4 h-4" />
-                                      </div>
-                                    )}
-                                  </TableCell>
-                                );
-                              })
-                            )}
-                          </TableRow>
-                        ))
+                        availabilityMap.entries().map(([hourOfDay, mapOfPlayerHourStatus]) => {
+                          const hourOfDayStr = twelveHourClock ? hourOfDay.twelveHourStr : hourOfDay.absHourStr
+                          return (
+                            <TableRow key={hourOfDay.absHourStr} className="border-0">
+                              <TableCell className=' text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none'>
+                                  {hourOfDayStr}
+                              </TableCell>
+                              {Array.from(
+                                mapOfPlayerHourStatus.entries().map(([day, playerHourStatus]) => {
+                                  const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                                  return (
+                                    <TableCell
+                                      key={slotCoordinate}
+                                      ref={
+                                        slotCoordinate === firstAvailableSlotCoordinate
+                                          ? firstAvailableHourRef
+                                          : undefined
+                                      }
+                                      className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                                    >
+                                      { playerHourStatus.availablePlayers.size > 0 ? 
+                                        <Popover>
+                                          <PopoverTrigger className='flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono'>
+                                                {playerHourStatus.availablePlayers.size}
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-40" align='center'>
+                                            <PopoverArrow />
+                                            <div className="grid gap-1 text-center text-sm">
+                                              <p>
+                                                {hourOfDayStr}, {formatPopoverDate(dayOfWeekToDatesMap.get(day))}
+                                              </p>
+                                              <p>Available: {Array.from(playerHourStatus.availablePlayers.entries().map(([player]) => <Badge key={player}>{player.toString()}</Badge>))}</p>
+                                            </div>
+                                          </PopoverContent>
+                                        </Popover>
+                                      :
+                                      <span className='text-muted-foreground font-extralight'>{playerHourStatus.availablePlayers.size}</span>
+                                      }
+                                      
+                                    </TableCell>
+                                  );
+                                })
+                              )}
+                            </TableRow>
+                          )}
+                        )
                       )}
                   </TableBody>
                 </Table>  

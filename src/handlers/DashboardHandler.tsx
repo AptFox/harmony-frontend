@@ -84,13 +84,11 @@ export default function DashboardHandler() {
                 Logout
               </Button>
             </div>
-            <div className="lg:flex lg:flex-row gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
               <ScheduleTable />
               <TimeOffTable />
-            </div>
-            <div className="lg:flex lg:flex-row gap-2">
-              {teams && teams.length > 0 && (<TeamScheduleTable />)}
               {players && (<PlayerCard />)}
+              {teams && teams.length > 0 && (<TeamScheduleTable />)}
             </div>
           </div>
         )}

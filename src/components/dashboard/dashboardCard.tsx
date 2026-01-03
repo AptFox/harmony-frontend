@@ -30,7 +30,7 @@ export default function DashboardCard({
   return (
     <div
       className={cn(
-        'flex flex-col p-2 rounded-lg border bg-secondary shadow-md mb-2 max-h-96',
+        'flex flex-col p-2 rounded-lg border bg-secondary shadow-md mb-2 lg:mb-0 max-h-96 max-w-135',
         parentClassName
       )}
     >
