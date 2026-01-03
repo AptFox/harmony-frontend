@@ -31,6 +31,9 @@ import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Skeleton } from '../ui/skeleton';
 import { Team } from '@/types/PlayerTypes';
+import { Separator } from '@/components/ui/separator';
+import PlayerCard from '@/components/dashboard/playerCard';
+import { ScrollArea } from '../ui/scroll-area';
 
 export default function TeamScheduleTable() {
   const { user } = useUser();
@@ -55,6 +58,7 @@ export default function TeamScheduleTable() {
 
   const { teamSchedule: selectedTeamSchedule, isLoading: isLoadingTeamSchedule } = useTeamSchedule(selectedTeamId);
   const playerSchedules = selectedTeamSchedule?.playerSchedules
+  const playersWithNoAvailability = playerSchedules?.filter((schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0 ).map((player) => player.playerName) || []
 
   useEffect(() => {
     if (playerSchedules && firstAvailableSlotCoordinate) {
@@ -159,11 +163,11 @@ export default function TeamScheduleTable() {
   return (
     <DashboardCard
       title="Team Schedule"
-      parentClassName="flex-auto basis-xs"
+      parentClassName="flex-auto max-w-135"
       childrenClassName="max-h-96 min-h-48"
     >
       { teams && (
-        <Tabs value={selectedTeamId || undefined} onValueChange={setSelectedTeamId}>
+        <Tabs className="flex-auto w-full" value={selectedTeamId || undefined} onValueChange={setSelectedTeamId}>
           <TabsList>
             {teams.map(team => (
               <TabsTrigger key={team.organization.id} value={team.id}>
@@ -171,32 +175,70 @@ export default function TeamScheduleTable() {
               </TabsTrigger>
             ))}
           </TabsList>
-          
-          <TabsContent value={selectedTeamId || "default"}>
+          <TabsContent className="relative overflow-y-auto" value={selectedTeamId || "default"}>
             {isLoadingTeamSchedule ? <Skeleton /> : 
-              <div>
-                This is where team availabilities will appear:
-                {
-                  Array.from(
-                    availabilityMap.entries().map(([hourOfDay, mapOfPlayerHourStatus], i) => 
-                      <div key={i}>
-                        <div>
-                          {
-                          Array.from(
-                            mapOfPlayerHourStatus.entries().map(([dayOfWeek, playerHourStatus], i) =>
-                              <div key={i}>
-                                <p key={dayOfWeek}>
-                                  {hourOfDay.twelveHourStr} - {dayOfWeek}, isAvailable:{playerHourStatus.isAvailable.toString()}, availablePlayers: {[...playerHourStatus.availablePlayers].join(", ")}
-                                </p>
-                              </div>
-                            )
-                          )
-                          }
-                        </div>
-                      </div>
-                    )
-                  )
-                }
+              <div className="flex flex-auto max-h-68">
+                <Table className=" border-separate border-spacing-0">
+                  {playersWithNoAvailability.length > 1 && (
+                      <TableCaption>No schedule found for: {playersWithNoAvailability.join(", ")}</TableCaption>
+                  )}
+                  <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+                    <TableRow className="h-6">
+                      <TableHead className='px-0 h-6 text-center text-primary-foreground font-semibold font-mono'>Hour</TableHead>
+                      {daysOfWeek.map((day) => (
+                        <TableHead
+                          key={day}
+                          className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
+                        >
+                          {day}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {availabilityMap &&
+                      Array.from(
+                        availabilityMap.entries().map(([hourOfDay, mapOfPlayerHourStatus]) => (
+                          <TableRow key={hourOfDay.absHourStr} className="border-0">
+                            <TableCell className=' text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none'>
+                                {twelveHourClock
+                                  ? hourOfDay.twelveHourStr
+                                  : hourOfDay.absHourStr}
+                            </TableCell>
+                            {Array.from(
+                              mapOfPlayerHourStatus.entries().map(([day, playerHourStatus]) => {
+                                const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                                return (
+                                  <TableCell
+                                    key={slotCoordinate}
+                                    ref={
+                                      slotCoordinate === firstAvailableSlotCoordinate
+                                        ? firstAvailableHourRef
+                                        : undefined
+                                    }
+                                    className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                                  >
+                                    {!playerHourStatus.isTimeOff && (
+                                      <span
+                                        className={`text-xs ${playerHourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
+                                      >
+                                        {playerHourStatus.availablePlayers.size > 0 ? playerHourStatus.availablePlayers.size : '' }
+                                      </span>
+                                    )}
+                                    {playerHourStatus.isTimeOff && (
+                                      <div className="flex w-full h-full justify-center items-center">
+                                        <TimeOffIcon className="w-4 h-4" />
+                                      </div>
+                                    )}
+                                  </TableCell>
+                                );
+                              })
+                            )}
+                          </TableRow>
+                        ))
+                      )}
+                  </TableBody>
+                </Table>  
               </div>
             }
           </TabsContent>

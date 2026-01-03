@@ -202,7 +202,7 @@ export default function ScheduleTable() {
 
   return (
     <DashboardCard
-      title="Schedule"
+      title="My Schedule"
       buttonText="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
@@ -237,10 +237,10 @@ export default function ScheduleTable() {
           <TableBody>
             {availabilityMap &&
               Array.from(
-                availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
+                availabilityMap.entries().map(([hourOfDay, mapOfHourStatus]) => (
                   <TableRow key={hourOfDay.absHourStr} className="border-0">
                     {Array.from(
-                      dayOfWeekMap.entries().map(([day, hourStatus]) => {
+                      mapOfHourStatus.entries().map(([day, hourStatus]) => {
                         const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
                         return (
                           <TableCell

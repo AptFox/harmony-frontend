@@ -10,7 +10,8 @@ import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { Spinner } from '@/components/ui/spinner';
-import { Player, Team } from '@/types/PlayerTypes'
+import { Team } from '@/types/PlayerTypes'
+import PlayerCard from '@/components/dashboard/playerCard';
 
 export default function DashboardHandler() {
   const {
@@ -25,7 +26,6 @@ export default function DashboardHandler() {
   const { logout } = useAuth();
   useInitialTimeZone();
 
-  const player: Player | undefined = players ? players[0] : undefined
   const teams: Team[] | undefined = players ? players.map( (p) => p.team ).filter((team): team is Team => !!team) : undefined
 
   useEffect(() => {
@@ -78,14 +78,6 @@ export default function DashboardHandler() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <p className="font-semibold">{user.displayName}</p>
-                  { player && (
-                    <div>
-                    { player.team && (<p className="text-sm">Org: {player.team?.organization.name}</p>)}
-                    { player.team && (<p className="text-sm">Team: {player.team.name}</p>)}
-                    <p className="text-sm">Player name: {player.name}</p>
-                    <p className="text-sm">Team role: {player.teamRole ? player.teamRole : 'player'}</p>
-                  </div>
-                  )}
                 </div>
               </div>
               <Button className="m-2" onClick={logout}>
@@ -96,8 +88,9 @@ export default function DashboardHandler() {
               <ScheduleTable />
               <TimeOffTable />
             </div>
-            <div>
+            <div className="lg:flex lg:flex-row gap-2">
               {teams && teams.length > 0 && (<TeamScheduleTable />)}
+              {players && (<PlayerCard />)}
             </div>
           </div>
         )}
