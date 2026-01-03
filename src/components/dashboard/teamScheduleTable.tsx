@@ -304,10 +304,10 @@ export default function TeamScheduleTable() {
                                                 }
                                               </PopoverTrigger>
                                               <PopoverContent
-                                                className="w-40"
+                                                className="w-40 bg-secondary border-foreground border-4"
                                                 align="center"
                                               >
-                                                <PopoverArrow className="fill-popover"/>
+                                                <PopoverArrow className="fill-foreground"/>
                                                 <div className="grid gap-1 text-center text-sm">
                                                   <p>
                                                     {hourOfDayStr},{' '}
