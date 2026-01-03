@@ -3,10 +3,7 @@
 import { createContext, ReactNode, useContext } from 'react';
 import useSWR from 'swr';
 import { swrFetcher, swrConfig } from '@/lib/api';
-import {
-  Player,
-  PlayerContextType,
-} from '@/types/PlayerTypes';
+import { Player, PlayerContextType } from '@/types/PlayerTypes';
 import { useAuth } from '@/contexts';
 import { logInfo, sendErrorToSentry } from '@/lib/utils';
 
@@ -30,10 +27,10 @@ export const PlayerContextProvider = ({
     swrConfig
   );
 
-  if(players && players.length > 1 ){
-    const errMsg = `Multiple players unsupported. ${players.length} players found.`
-    logInfo(errMsg)
-    sendErrorToSentry(new Error(errMsg))
+  if (players && players.length > 1) {
+    const errMsg = `Multiple players unsupported. ${players.length} players found.`;
+    logInfo(errMsg);
+    sendErrorToSentry(new Error(errMsg));
   }
 
   return (
@@ -56,8 +53,6 @@ export const PlayerContext = createContext<PlayerContextType | undefined>(
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
   if (!context)
-    throw new Error(
-      'usePlayer must be used within a PlayerContextProvider'
-    );
+    throw new Error('usePlayer must be used within a PlayerContextProvider');
   return context;
 };

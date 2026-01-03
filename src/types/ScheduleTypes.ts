@@ -58,17 +58,17 @@ export type ScheduleContextType = {
 };
 
 export type PlayerSchedule = {
-  playerId: number,
-  playerName: string,
-  availability: Availability
-}
+  playerId: number;
+  playerName: string;
+  availability: Availability;
+};
 
 export type TeamSchedule = {
-  playerSchedules: PlayerSchedule[]
-}
+  playerSchedules: PlayerSchedule[];
+};
 
 export type TeamScheduleContextType = {
-  teamSchedule: TeamSchedule | undefined
+  teamSchedule: TeamSchedule | undefined;
   isLoading: boolean;
   isError: Error | undefined;
-}
+};

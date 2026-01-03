@@ -37,11 +37,11 @@ export const ScheduleContextProvider = ({
   );
 
   const triggerAllScheduleKeyRefresh = async () => {
-    const mutateFilterFn = function(key: string){
-       return  key.includes('/api/availability')
-    }
-    await mutate(mutateFilterFn,null,true);
-  }
+    const mutateFilterFn = function (key: string) {
+      return key.includes('/api/availability');
+    };
+    await mutate(mutateFilterFn, null, true);
+  };
 
   const overwriteSchedule = async (
     slots: ScheduleSlotRequest[]
@@ -52,7 +52,7 @@ export const ScheduleContextProvider = ({
         accessToken,
         slots
       );
-      triggerAllScheduleKeyRefresh()
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
       if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
@@ -68,7 +68,7 @@ export const ScheduleContextProvider = ({
   const deleteSchedule = async () => {
     try {
       await apiDelete(WEEKLY_SCHEDULE_URL, accessToken);
-      triggerAllScheduleKeyRefresh()
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
       logError(err, 'Schedule delete failed.');
       throw err;
@@ -80,7 +80,7 @@ export const ScheduleContextProvider = ({
   ): Promise<string[] | void> => {
     try {
       await apiPost(TIME_OFF_URL, accessToken, timeOff);
-      triggerAllScheduleKeyRefresh()
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
       if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
@@ -98,7 +98,7 @@ export const ScheduleContextProvider = ({
     try {
       const deleteUrl: string = `${TIME_OFF_URL}\\${timeOff.id}`;
       await apiDelete(deleteUrl, accessToken);
-      triggerAllScheduleKeyRefresh()
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
       if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;

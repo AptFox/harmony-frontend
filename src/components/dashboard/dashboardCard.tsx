@@ -42,7 +42,7 @@ export default function DashboardCard({
         </div>
         <div className="flex flex-row gap-2">
           {secondaryButton && secondaryButton()}
-          { buttonText && 
+          {buttonText && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <form>
                 <DialogTrigger asChild>
@@ -51,7 +51,7 @@ export default function DashboardCard({
                 {dialogContent && dialogContent(setDialogOpen)}
               </form>
             </Dialog>
-          }
+          )}
         </div>
       </div>
       <Separator />

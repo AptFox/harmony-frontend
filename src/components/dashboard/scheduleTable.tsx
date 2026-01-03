@@ -237,41 +237,43 @@ export default function ScheduleTable() {
           <TableBody>
             {availabilityMap &&
               Array.from(
-                availabilityMap.entries().map(([hourOfDay, mapOfHourStatus]) => (
-                  <TableRow key={hourOfDay.absHourStr} className="border-0">
-                    {Array.from(
-                      mapOfHourStatus.entries().map(([day, hourStatus]) => {
-                        const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
-                        return (
-                          <TableCell
-                            key={slotCoordinate}
-                            ref={
-                              slotCoordinate === firstAvailableSlotCoordinate
-                                ? firstAvailableHourRef
-                                : undefined
-                            }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                          >
-                            {!hourStatus.isTimeOff && (
-                              <span
-                                className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
-                              >
-                                {twelveHourClock
-                                  ? hourOfDay.twelveHourStr
-                                  : hourOfDay.absHourStr}
-                              </span>
-                            )}
-                            {hourStatus.isTimeOff && (
-                              <div className="flex w-full h-full justify-center items-center">
-                                <TimeOffIcon className="w-4 h-4" />
-                              </div>
-                            )}
-                          </TableCell>
-                        );
-                      })
-                    )}
-                  </TableRow>
-                ))
+                availabilityMap
+                  .entries()
+                  .map(([hourOfDay, mapOfHourStatus]) => (
+                    <TableRow key={hourOfDay.absHourStr} className="border-0">
+                      {Array.from(
+                        mapOfHourStatus.entries().map(([day, hourStatus]) => {
+                          const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                          return (
+                            <TableCell
+                              key={slotCoordinate}
+                              ref={
+                                slotCoordinate === firstAvailableSlotCoordinate
+                                  ? firstAvailableHourRef
+                                  : undefined
+                              }
+                              className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                            >
+                              {!hourStatus.isTimeOff && (
+                                <span
+                                  className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
+                                >
+                                  {twelveHourClock
+                                    ? hourOfDay.twelveHourStr
+                                    : hourOfDay.absHourStr}
+                                </span>
+                              )}
+                              {hourStatus.isTimeOff && (
+                                <div className="flex w-full h-full justify-center items-center">
+                                  <TimeOffIcon className="w-4 h-4" />
+                                </div>
+                              )}
+                            </TableCell>
+                          );
+                        })
+                      )}
+                    </TableRow>
+                  ))
               )}
           </TableBody>
         </Table>

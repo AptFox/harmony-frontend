@@ -3,13 +3,13 @@ import { HourOfDay, TimeOff } from '@/types/ScheduleTypes';
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const formatDate = (date: Date | undefined) => {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-    });
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+  });
 
-    return formatter.format(date);
-  };
+  return formatter.format(date);
+};
 
 export function createHoursInDayArray(): HourOfDay[] {
   const hoursInDayArr = Array.from({ length: 24 }, (_, i): HourOfDay => {
@@ -50,7 +50,9 @@ export function getPossibleStartTimes(hoursInDay: HourOfDay[]): HourOfDay[] {
   return hoursInDay.filter((hod) => hod.hour !== 24);
 }
 
-export function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
+export function createDayOfWeekToDatesMap(
+  currentDate: Date
+): Map<string, Date> {
   const map = new Map<string, Date>();
   for (let i = 0; i < 7; i++) {
     const dateForDay = new Date(
