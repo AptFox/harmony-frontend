@@ -21,20 +21,20 @@ import { Minus } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Spinner } from '../ui/spinner';
+import { Spinner } from '@/components/ui/spinner';
 import { useSchedule, useUser } from '@/contexts';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
-import { Calendar } from '../ui/calendar';
-import { Textarea } from '../ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
 import { Matcher } from 'react-day-picker';
 import {
   createHoursInDayArray,
   getPossibleEndTimes,
   getPossibleStartTimes,
 } from '@/lib/scheduleUtils';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);

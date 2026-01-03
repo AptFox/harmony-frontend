@@ -39,20 +39,20 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { ScrollArea } from '../ui/scroll-area';
+} from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from '../ui/empty';
+} from '@/components/ui/empty';
 import { toast } from 'sonner';
-import { Spinner } from '../ui/spinner';
+import { Spinner } from '@/components/ui/spinner';
 import { useSchedule, useUser } from '@/contexts';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import {
   getPossibleEndTimes,

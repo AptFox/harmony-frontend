@@ -28,7 +28,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from '../ui/empty';
+} from '@/components/ui/empty';
 import { createHoursInDayArray } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();

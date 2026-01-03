@@ -1,6 +1,6 @@
 import { usePlayer } from '@/contexts/PlayerContext';
 import { Organization, Player } from '@/types/PlayerTypes';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@radix-ui/react-separator';

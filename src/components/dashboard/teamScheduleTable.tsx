@@ -20,16 +20,16 @@ import {
   isTimeOffFn,
 } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Skeleton } from '../ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Team } from '@/types/PlayerTypes';
 import {
   Popover,
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover';
-import { Badge } from '../ui/badge';
+} from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
 
 export default function TeamScheduleTable() {
   const { user } = useUser();
@@ -307,7 +307,7 @@ export default function TeamScheduleTable() {
                                                 className="w-40"
                                                 align="center"
                                               >
-                                                <PopoverArrow />
+                                                <PopoverArrow className="fill-popover"/>
                                                 <div className="grid gap-1 text-center text-sm">
                                                   <p>
                                                     {hourOfDayStr},{' '}
