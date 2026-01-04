@@ -10,7 +10,6 @@ import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { Spinner } from '@/components/ui/spinner';
-import { Team } from '@/types/PlayerTypes';
 import PlayerCard from '@/components/dashboard/playerCard';
 
 export default function DashboardHandler() {
@@ -20,13 +19,9 @@ export default function DashboardHandler() {
     isLoading: isLoadingUser,
     isError: isErrorUser,
   } = useUser();
-  const { players } = usePlayer();
+  const { players, teams } = usePlayer();
   const { logout } = useAuth();
   useInitialTimeZone();
-
-  const teams: Team[] | undefined = players
-    ? players.map((p) => p.team).filter((team): team is Team => !!team)
-    : undefined;
 
   useEffect(() => {
     if (isLoadingUser) return;
@@ -88,7 +83,7 @@ export default function DashboardHandler() {
               <ScheduleTable />
               <TimeOffTable />
               {players && <PlayerCard />}
-              {teams && teams.length > 0 && <TeamScheduleTable />}
+              {teams.length > 0 && <TeamScheduleTable />}
             </div>
           </div>
         )}

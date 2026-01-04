@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, useSchedule, useUser } from '@/contexts';
+import { useAuth, usePlayer, useSchedule, useUser } from '@/contexts';
 import { mocked } from 'jest-mock';
 
 beforeEach(() => {
@@ -14,6 +14,7 @@ jest.mock('@/hooks/useInitialTimeZone');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 const useScheduleMock = mocked(useSchedule, { shallow: true });
+const usePlayerMock = mocked(usePlayer, { shallow: true });
 
 describe('DashboardHandler', () => {
   describe('user is loading', () => {
@@ -27,6 +28,11 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
+      } as any);
+
+      usePlayerMock.mockReturnValue({
+        players: undefined,
+        teams: [],
       } as any);
 
       render(<DashboardHandler />);
@@ -59,6 +65,11 @@ describe('DashboardHandler', () => {
         logout: logoutFn,
       } as any);
 
+      usePlayerMock.mockReturnValue({
+        players: undefined,
+        teams: [],
+      } as any);
+
       render(<DashboardHandler />);
       expect(
         screen.getByAltText(`${testUser.displayName}'s avatar`)
@@ -83,6 +94,11 @@ describe('DashboardHandler', () => {
         logout: logoutFn,
       } as any);
 
+      usePlayerMock.mockReturnValue({
+        players: undefined,
+        teams: [],
+      } as any);
+
       render(<DashboardHandler />);
       expect(screen.getByText('Error loading user data')).toBeInTheDocument();
       // TODO: figure out how to test the toast error message as well likely by mocking useToast
@@ -105,6 +121,11 @@ describe('DashboardHandler', () => {
       const logoutFn = jest.fn();
       useAuthMock.mockReturnValue({
         logout: logoutFn,
+      } as any);
+
+      usePlayerMock.mockReturnValue({
+        players: undefined,
+        teams: [],
       } as any);
 
       render(<DashboardHandler />);

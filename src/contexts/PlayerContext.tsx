@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext } from 'react';
 import useSWR from 'swr';
 import { swrFetcher, swrConfig } from '@/lib/api';
-import { Player, PlayerContextType } from '@/types/PlayerTypes';
+import { Player, PlayerContextType, Team } from '@/types/PlayerTypes';
 import { useAuth } from '@/contexts';
 import { logInfo, sendErrorToSentry } from '@/lib/utils';
 
@@ -33,10 +33,15 @@ export const PlayerContextProvider = ({
     sendErrorToSentry(new Error(errMsg));
   }
 
+    const teams: Team[] = players
+    ? players.map((p) => p.team).filter((team): team is Team => !!team)
+    : [];
+
   return (
     <PlayerContext.Provider
       value={{
         players,
+        teams,
         isLoading,
         isError: error,
       }}
