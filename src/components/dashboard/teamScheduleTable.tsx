@@ -22,7 +22,6 @@ import {
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Team } from '@/types/PlayerTypes';
 import {
   Popover,
   PopoverArrow,
@@ -46,11 +45,9 @@ export default function TeamScheduleTable() {
     setFirstAvailableSlotCoordinate(coordinate);
     hasFirstAvailableSlotBeenSetRef.current = true;
   };
-  const { players } = usePlayer();
-  const teams: Team[] = players
-    ? players.map((p) => p.team).filter((team): team is Team => !!team)
-    : [];
-  const firstTeamId = teams && teams[0].id;
+  const { teams } = usePlayer();
+
+  const firstTeamId = teams.length > 0 ? teams[0].id : undefined;
   const [selectedTeamId, setSelectedTeamId] = useState(
     firstTeamId ? firstTeamId : null
   );
