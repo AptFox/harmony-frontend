@@ -12,16 +12,21 @@ import { TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 import { Maximize2, X, Pencil, PencilOff } from 'lucide-react';
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '../ui/empty';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
+} from '@/components/ui/dialog';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
 
@@ -29,8 +34,7 @@ export default function TimeOffTable() {
   const { user } = useUser();
   const { availability, deleteTimeOff } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
-  const scheduledTimeOff: TimeOff[] | undefined =
-    availability?.timeOffs;
+  const scheduledTimeOff: TimeOff[] | undefined = availability?.timeOffs;
   const [deleteMode, setDeleteMode] = useState(false);
   useEffect(() => {
     if (scheduledTimeOff && scheduledTimeOff.length === 0) {

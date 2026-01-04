@@ -17,7 +17,7 @@ export default function DashboardCard({
   children,
 }: {
   title: string;
-  buttonText: string;
+  buttonText?: string;
   dialogContent?: (
     setDialogOpen: Dispatch<SetStateAction<boolean>>
   ) => React.ReactNode;
@@ -30,7 +30,7 @@ export default function DashboardCard({
   return (
     <div
       className={cn(
-        'flex flex-col p-2 rounded-lg border bg-secondary shadow-md mb-2 max-h-96',
+        'flex flex-col p-2 rounded-lg border bg-secondary shadow-md mb-2 lg:mb-0 max-h-96 max-w-135',
         parentClassName
       )}
     >
@@ -42,14 +42,16 @@ export default function DashboardCard({
         </div>
         <div className="flex flex-row gap-2">
           {secondaryButton && secondaryButton()}
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <form>
-              <DialogTrigger asChild>
-                <Button>{buttonText}</Button>
-              </DialogTrigger>
-              {dialogContent && dialogContent(setDialogOpen)}
-            </form>
-          </Dialog>
+          {buttonText && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <form>
+                <DialogTrigger asChild>
+                  <Button>{buttonText}</Button>
+                </DialogTrigger>
+                {dialogContent && dialogContent(setDialogOpen)}
+              </form>
+            </Dialog>
+          )}
         </div>
       </div>
       <Separator />

@@ -1,5 +1,5 @@
 'use client';
-import { useUser, useAuth } from '@/contexts';
+import { useUser, useAuth, usePlayer } from '@/contexts';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import { useInitialTimeZone } from '@/hooks/useInitialTimeZone';
 import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
+import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { Spinner } from '@/components/ui/spinner';
+import PlayerCard from '@/components/dashboard/playerCard';
 
 export default function DashboardHandler() {
   const {
@@ -17,6 +19,7 @@ export default function DashboardHandler() {
     isLoading: isLoadingUser,
     isError: isErrorUser,
   } = useUser();
+  const { players, teams } = usePlayer();
   const { logout } = useAuth();
   useInitialTimeZone();
 
@@ -70,17 +73,17 @@ export default function DashboardHandler() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <p className="font-semibold">{user.displayName}</p>
-                  <p className="text-sm">[team name]</p>
-                  <p className="text-sm">[team role]</p>
                 </div>
               </div>
               <Button className="m-2" onClick={logout}>
                 Logout
               </Button>
             </div>
-            <div className="lg:flex lg:flex-row gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
               <ScheduleTable />
               <TimeOffTable />
+              {players && <PlayerCard />}
+              {teams.length > 0 && <TeamScheduleTable />}
             </div>
           </div>
         )}
