@@ -39,20 +39,20 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { ScrollArea } from '../ui/scroll-area';
+} from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from '../ui/empty';
+} from '@/components/ui/empty';
 import { toast } from 'sonner';
-import { Spinner } from '../ui/spinner';
+import { Spinner } from '@/components/ui/spinner';
 import { useSchedule, useUser } from '@/contexts';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import {
   getPossibleEndTimes,
@@ -316,7 +316,10 @@ export function ScheduleTableDialog({
         </DialogDescription>
       </DialogHeader>
       {!isLoadingAvailability && (
-        <ScrollArea type="auto" className="flex flex-row border-y-2 max-w-[425px] h-[200px] relative">
+        <ScrollArea
+          type="auto"
+          className="flex flex-row border-y-2 max-w-[425px] h-[200px] relative"
+        >
           {/* Gradient Overlay for the top edge */}
           {updatedScheduleSlots.length > 4 && (
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-background/30 to-background/0 z-10 pointer-events-none" />

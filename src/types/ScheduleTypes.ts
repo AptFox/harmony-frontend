@@ -45,12 +45,30 @@ export type HourOfDay = {
 };
 export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
+export type PlayerHourStatus = HourStatus & { availablePlayers: Set<string> };
+
 export type ScheduleContextType = {
   availability: Availability | undefined;
   overwriteSchedule: (slots: ScheduleSlotRequest[]) => Promise<string[] | void>;
   deleteSchedule: () => Promise<void>;
   addTimeOff: (timeOff: TimeOffRequest) => Promise<string[] | void>;
   deleteTimeOff: (timeOff: TimeOff) => Promise<string[] | void>;
+  isLoading: boolean;
+  isError: Error | undefined;
+};
+
+export type PlayerSchedule = {
+  playerId: number;
+  playerName: string;
+  availability: Availability;
+};
+
+export type TeamSchedule = {
+  playerSchedules: PlayerSchedule[];
+};
+
+export type TeamScheduleContextType = {
+  teamSchedule: TeamSchedule | undefined;
   isLoading: boolean;
   isError: Error | undefined;
 };

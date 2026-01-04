@@ -28,7 +28,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from '../ui/empty';
+} from '@/components/ui/empty';
 import { createHoursInDayArray } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
@@ -40,7 +40,7 @@ function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
     const dateForDay = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      currentDate.getDate() + i,
+      currentDate.getDate() + i
     );
     const dayOfWeek = daysOfWeek[dateForDay.getDay()];
     map.set(dayOfWeek, dateForDay);
@@ -62,8 +62,8 @@ function isTimeOffFn(
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
     const startDate = new Date(timeOff.startTime);
     const endDate = new Date(timeOff.endTime);
-    startDate.setHours(0, 0, 0, 0)
-    endDate.setHours(23,59,59,999)
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
     return dayDate >= startDate && dayDate <= endDate;
   });
 
@@ -103,13 +103,15 @@ export default function ScheduleTable() {
   useEffect(() => {
     if (scheduleSlots && firstAvailableSlotCoordinate) {
       firstAvailableHourRef.current?.scrollIntoView({
-        behavior: 'smooth',
+        behavior: 'auto',
         block: 'center',
       });
     }
   }, [firstAvailableSlotCoordinate, scheduleSlots]);
 
   const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(currentDate);
+
+  // TODO: move as much logic as possible to scheduleUtils.ts
 
   function createAvailabilityMap(): Map<HourOfDay, Map<string, HourStatus>> {
     const map = new Map<HourOfDay, Map<string, HourStatus>>();
@@ -200,7 +202,7 @@ export default function ScheduleTable() {
 
   return (
     <DashboardCard
-      title="Schedule"
+      title="My Schedule"
       buttonText="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
@@ -235,41 +237,43 @@ export default function ScheduleTable() {
           <TableBody>
             {availabilityMap &&
               Array.from(
-                availabilityMap.entries().map(([hourOfDay, dayOfWeekMap]) => (
-                  <TableRow key={hourOfDay.absHourStr} className="border-0">
-                    {Array.from(
-                      dayOfWeekMap.entries().map(([day, hourStatus]) => {
-                        const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
-                        return (
-                          <TableCell
-                            key={slotCoordinate}
-                            ref={
-                              slotCoordinate === firstAvailableSlotCoordinate
-                                ? firstAvailableHourRef
-                                : undefined
-                            }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                          >
-                            {!hourStatus.isTimeOff && (
-                              <span
-                                className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
-                              >
-                                {twelveHourClock
-                                  ? hourOfDay.twelveHourStr
-                                  : hourOfDay.absHourStr}
-                              </span>
-                            )}
-                            {hourStatus.isTimeOff && (
-                              <div className="flex w-full h-full justify-center items-center">
-                                <TimeOffIcon className="w-4 h-4" />
-                              </div>
-                            )}
-                          </TableCell>
-                        );
-                      })
-                    )}
-                  </TableRow>
-                ))
+                availabilityMap
+                  .entries()
+                  .map(([hourOfDay, mapOfHourStatus]) => (
+                    <TableRow key={hourOfDay.absHourStr} className="border-0">
+                      {Array.from(
+                        mapOfHourStatus.entries().map(([day, hourStatus]) => {
+                          const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                          return (
+                            <TableCell
+                              key={slotCoordinate}
+                              ref={
+                                slotCoordinate === firstAvailableSlotCoordinate
+                                  ? firstAvailableHourRef
+                                  : undefined
+                              }
+                              className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                            >
+                              {!hourStatus.isTimeOff && (
+                                <span
+                                  className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
+                                >
+                                  {twelveHourClock
+                                    ? hourOfDay.twelveHourStr
+                                    : hourOfDay.absHourStr}
+                                </span>
+                              )}
+                              {hourStatus.isTimeOff && (
+                                <div className="flex w-full h-full justify-center items-center">
+                                  <TimeOffIcon className="w-4 h-4" />
+                                </div>
+                              )}
+                            </TableCell>
+                          );
+                        })
+                      )}
+                    </TableRow>
+                  ))
               )}
           </TableBody>
         </Table>

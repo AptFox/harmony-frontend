@@ -36,18 +36,25 @@ export const ScheduleContextProvider = ({
     swrConfig
   );
 
+  const triggerAllScheduleKeyRefresh = async () => {
+    const mutateFilterFn = function (key: string) {
+      return key.includes('/api/availability');
+    };
+    await mutate(mutateFilterFn, null, true);
+  };
+
   const overwriteSchedule = async (
     slots: ScheduleSlotRequest[]
   ): Promise<string[] | void> => {
     try {
-      const updatedSchedule = await apiPost<ScheduleSlotRequest[]>(
+      await apiPost<ScheduleSlotRequest[]>(
         WEEKLY_SCHEDULE_URL,
         accessToken,
         slots
       );
-      mutate(SCHEDULE_SWR_KEY, updatedSchedule, true);
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Schedule overwrite failed.');
@@ -61,7 +68,7 @@ export const ScheduleContextProvider = ({
   const deleteSchedule = async () => {
     try {
       await apiDelete(WEEKLY_SCHEDULE_URL, accessToken);
-      mutate(SCHEDULE_SWR_KEY, null, true);
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
       logError(err, 'Schedule delete failed.');
       throw err;
@@ -73,9 +80,9 @@ export const ScheduleContextProvider = ({
   ): Promise<string[] | void> => {
     try {
       await apiPost(TIME_OFF_URL, accessToken, timeOff);
-      mutate(SCHEDULE_SWR_KEY, null, true);
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Adding timeOff failed.');
@@ -91,9 +98,9 @@ export const ScheduleContextProvider = ({
     try {
       const deleteUrl: string = `${TIME_OFF_URL}\\${timeOff.id}`;
       await apiDelete(deleteUrl, accessToken);
-      mutate(SCHEDULE_SWR_KEY, null, true);
+      triggerAllScheduleKeyRefresh();
     } catch (err: unknown) {
-      if (isScheduleError(err)){
+      if (isScheduleError(err)) {
         const apiErrors: undefined | string[] = err?.response?.data?.errors;
         if (apiErrors) {
           logError(apiErrors, 'Deleting timeOff failed.');
