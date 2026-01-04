@@ -25,6 +25,7 @@ export type Team = {
 export type Player = {
   id: string;
   name: string;
+  organization: Organization;
   team: Team | undefined;
   userId: string;
   teamRole: string | undefined;

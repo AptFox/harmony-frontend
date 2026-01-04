@@ -10,16 +10,16 @@ export default function PlayerCard() {
   const { players, isLoading } = usePlayer();
   const orgs: Organization[] = players
     ? players
-        .map((p) => p.team?.organization)
+        .map((p) => p.organization)
         .filter((org): org is Organization => !!org)
     : [];
-  const firstOrgId = orgs && orgs[0].id;
+  const firstOrgId = orgs.length > 0 ? orgs[0].id : undefined;
   const [selectedOrgId, setSelectedOrgId] = useState(
     firstOrgId ? firstOrgId : null
   );
   const selectedPlayer: Player | undefined =
-    players &&
-    players?.find((player) => player.team?.organization?.id === selectedOrgId);
+    players && selectedOrgId ?
+    players?.find((player) => player.organization.id === selectedOrgId) : undefined;
 
   return (
     <DashboardCard
