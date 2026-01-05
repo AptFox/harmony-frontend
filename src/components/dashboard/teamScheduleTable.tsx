@@ -261,7 +261,7 @@ export default function TeamScheduleTable() {
     <DashboardCard
       title={`${firstTeam?.name} - Team Schedule`}
       parentClassName="flex-auto max-w-135"
-      childrenClassName="max-h-96 min-h-48"
+      childrenClassName="min-h-48"
     >
       {teams && (
         <Tabs
@@ -286,7 +286,7 @@ export default function TeamScheduleTable() {
             {isLoadingTeamSchedule ? (
               <Skeleton />
             ) : (
-              <div className="flex flex-auto max-h-68">
+              <div className="flex flex-auto max-h-96">
                 <Table>
                   <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
                     <TableRow className="h-6">
