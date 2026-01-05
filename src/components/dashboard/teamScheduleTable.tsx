@@ -2,7 +2,6 @@
 
 import {
   Table,
-  TableCaption,
   TableHeader,
   TableRow,
   TableHead,
@@ -64,12 +63,11 @@ export default function TeamScheduleTable() {
     isLoading: isLoadingTeamSchedule,
   } = useTeamSchedule(selectedTeamId);
   const playerSchedules = selectedTeamSchedule?.playerSchedules;
-  const playersWithNoAvailability =
-    playerSchedules
-      ?.filter(
-        (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
-      )
-      .map((player) => player.playerName);
+  const playersWithNoAvailability = playerSchedules
+    ?.filter(
+      (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
+    )
+    .map((player) => player.playerName);
 
   useEffect(() => {
     if (playerSchedules && firstAvailableSlotCoordinate) {
@@ -191,39 +189,49 @@ export default function TeamScheduleTable() {
 
   const playersWithNoAvailabilityPopOver = () => {
     return (
-      playersWithNoAvailability && playersWithNoAvailability.length > 0 && (
+      playersWithNoAvailability &&
+      playersWithNoAvailability.length > 0 && (
         <div className="p-1">
-        <Popover>
-          <PopoverTrigger asChild className="text-primary-foreground">
-             <Button size="sm">
-              <span>Empty schedules:{' '}</span>
-              <span>{playersWithNoAvailability.length}</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-60 bg-secondary border-foreground border-4"
-            align="center"
-          >
-            <PopoverArrow className="fill-foreground" />
+          <Popover>
+            <PopoverTrigger asChild className="text-primary-foreground">
+              <Button size="sm">
+                <span>Empty schedules: </span>
+                <span>{playersWithNoAvailability.length}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-60 bg-secondary border-foreground border-4"
+              align="center"
+            >
+              <PopoverArrow className="fill-foreground" />
               <p>
-                <span className="text-sm text-muted-foreground">No schedule set for:{' '}</span>
-                <span className="text-sm">{playersWithNoAvailability.join(', ')}</span>
+                <span className="text-sm text-muted-foreground">
+                  No schedule set for:{' '}
+                </span>
+                <span className="text-sm">
+                  {playersWithNoAvailability.join(', ')}
+                </span>
               </p>
             </PopoverContent>
-        </Popover>
+          </Popover>
         </div>
       )
-    )
-  }
+    );
+  };
 
-  const teamScheduleSlotPopOver = ({playerHourStatus, hourOfDayStr, day}: {playerHourStatus: PlayerHourStatus, hourOfDayStr: string, day: string}) => {
+  const teamScheduleSlotPopOver = ({
+    playerHourStatus,
+    hourOfDayStr,
+    day,
+  }: {
+    playerHourStatus: PlayerHourStatus;
+    hourOfDayStr: string;
+    day: string;
+  }) => {
     return (
       <Popover>
         <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
-          {
-            playerHourStatus
-              .availablePlayers.size
-          }
+          {playerHourStatus.availablePlayers.size}
         </PopoverTrigger>
         <PopoverContent
           className="w-40 bg-secondary border-foreground border-4"
@@ -232,12 +240,7 @@ export default function TeamScheduleTable() {
           <PopoverArrow className="fill-foreground" />
           <div className="grid gap-1 text-center text-sm">
             <p>
-              {hourOfDayStr},{' '}
-              {formatPopoverDate(
-                dayOfWeekToDatesMap.get(
-                  day
-                )
-              )}
+              {hourOfDayStr}, {formatPopoverDate(dayOfWeekToDatesMap.get(day))}
             </p>
             <p>
               Available:{' '}
@@ -245,17 +248,15 @@ export default function TeamScheduleTable() {
                 playerHourStatus.availablePlayers
                   .entries()
                   .map(([player]) => (
-                    <Badge key={player}>
-                      {player.toString()}
-                    </Badge>
+                    <Badge key={player}>{player.toString()}</Badge>
                   ))
               )}
             </p>
           </div>
         </PopoverContent>
       </Popover>
-    )
-  }
+    );
+  };
 
   return (
     <DashboardCard
@@ -338,7 +339,11 @@ export default function TeamScheduleTable() {
                                         >
                                           {playerHourStatus.availablePlayers
                                             .size > 0 ? (
-                                            teamScheduleSlotPopOver({playerHourStatus, hourOfDayStr, day})
+                                            teamScheduleSlotPopOver({
+                                              playerHourStatus,
+                                              hourOfDayStr,
+                                              day,
+                                            })
                                           ) : (
                                             <span className="text-muted-foreground font-extralight">
                                               {
