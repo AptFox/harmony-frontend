@@ -18,8 +18,9 @@ export default function PlayerCard() {
     firstOrgId ? firstOrgId : null
   );
   const selectedPlayer: Player | undefined =
-    players && selectedOrgId ?
-    players?.find((player) => player.organization.id === selectedOrgId) : undefined;
+    players && selectedOrgId
+      ? players?.find((player) => player.organization.id === selectedOrgId)
+      : undefined;
 
   return (
     <DashboardCard

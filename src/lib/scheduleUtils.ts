@@ -1,6 +1,25 @@
-import { HourOfDay, TimeOff } from '@/types/ScheduleTypes';
+import { HourOfDay, ScheduleSlot, TimeOff } from '@/types/ScheduleTypes';
+import { fromZonedTime } from 'date-fns-tz';
 
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Converts ScheduleSlot's LocalTimes to UTC
+export const convertScheduleSlotToTargetDate = (
+  scheduleSlot: ScheduleSlot,
+  targetDate: Date
+) => {
+  const dateStr = targetDate.toISOString().split('T')[0];
+
+  const createDate = (time: string) => {
+    const timeInScheduledZone = `${dateStr} ${time}`;
+    return fromZonedTime(timeInScheduledZone, scheduleSlot.timeZoneId);
+  };
+
+  return {
+    startTimeUtc: createDate(scheduleSlot.startTime),
+    endTimeUtc: createDate(scheduleSlot.endTime),
+  };
+};
 
 export const formatDate = (date: Date | undefined) => {
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -77,15 +96,17 @@ export function isTimeOffFn(
   const dayDate = dayOfWeekToDatesMap.get(day);
   if (!dayDate) return false;
 
+  //TODO: update this to use dates instead of numbers for determining isTimeOff
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
-    const startDate = new Date(timeOff.startTime);
-    const endDate = new Date(timeOff.endTime);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-    return dayDate >= startDate && dayDate <= endDate;
+    const timeOffStartDate = new Date(timeOff.startTime);
+    const timeOffEndDate = new Date(timeOff.endTime);
+    timeOffStartDate.setHours(0, 0, 0, 0);
+    timeOffEndDate.setHours(23, 59, 59, 999);
+    return dayDate >= timeOffStartDate && dayDate <= timeOffEndDate;
   });
 
   return timeOffForDay.some((timeOff) => {
+    // TODO: consider switching to dates for this condition
     const startHour = new Date(timeOff.startTime).getHours();
     const endHour = timeOff.endTime.endsWith(':59:59.999Z')
       ? 24
