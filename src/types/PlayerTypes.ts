@@ -33,7 +33,7 @@ export type Player = {
 
 export type PlayerContextType = {
   players: Player[] | undefined;
-  teams: Team[]
+  teams: Team[];
   isLoading: boolean;
   isError: Error | undefined;
 };

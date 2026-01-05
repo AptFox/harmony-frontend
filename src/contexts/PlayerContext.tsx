@@ -33,7 +33,7 @@ export const PlayerContextProvider = ({
     sendErrorToSentry(new Error(errMsg));
   }
 
-    const teams: Team[] = players
+  const teams: Team[] = players
     ? players.map((p) => p.team).filter((team): team is Team => !!team)
     : [];
 
