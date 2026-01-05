@@ -10,10 +10,16 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
-import { HourOfDay, PlayerHourStatus, TimeOff } from '@/types/ScheduleTypes';
+import {
+  HourOfDay,
+  PlayerHourStatus,
+  ScheduleSlot,
+  TimeOff,
+} from '@/types/ScheduleTypes';
 import { usePlayer, useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  convertScheduleSlotToTargetDate,
   createDayOfWeekToDatesMap,
   createHoursInDayArray,
   daysOfWeek,
@@ -29,6 +35,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '../ui/button';
 
 export default function TeamScheduleTable() {
   const { user } = useUser();
@@ -47,9 +54,9 @@ export default function TeamScheduleTable() {
   };
   const { teams } = usePlayer();
 
-  const firstTeamId = teams.length > 0 ? teams[0].id : undefined;
+  const firstTeam = teams.length > 0 ? teams[0] : undefined;
   const [selectedTeamId, setSelectedTeamId] = useState(
-    firstTeamId ? firstTeamId : null
+    firstTeam ? firstTeam.id : null
   );
 
   const {
@@ -62,7 +69,7 @@ export default function TeamScheduleTable() {
       ?.filter(
         (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
       )
-      .map((player) => player.playerName) || [];
+      .map((player) => player.playerName);
 
   useEffect(() => {
     if (playerSchedules && firstAvailableSlotCoordinate) {
@@ -105,12 +112,23 @@ export default function TeamScheduleTable() {
     currentPlayerName: string,
     timeOffs: TimeOff[],
     dayOfWeek: string,
-    startHour: number,
-    endHour: number
+    slot: ScheduleSlot
   ) {
+    const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
+    if (!targetDate) return;
+    const { startTimeUtc, endTimeUtc } = convertScheduleSlotToTargetDate(
+      slot,
+      targetDate
+    );
     const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
       const hour = hourOfDay.hour;
-      return hour >= startHour && hour <= endHour;
+      // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
+      const hourOfDayOnTargetDate = new Date(startTimeUtc);
+      hourOfDayOnTargetDate.setHours(hour);
+      return (
+        hourOfDayOnTargetDate >= startTimeUtc &&
+        hourOfDayOnTargetDate <= endTimeUtc
+      );
     };
     const hoursAvailable = hoursInDay.filter((hourOfDay) =>
       filterToHoursAvailableFn(hourOfDay)
@@ -151,45 +169,7 @@ export default function TeamScheduleTable() {
             );
           availabilitySlotsForDayOfWeek.forEach((slot) => {
             // We're operating on only slots that players are confirmed to be available
-            const { startTime, endTime } = slot;
-            const startHour = startTime.split(':').map(Number)[0];
-            const endHour =
-              endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
-            const overnight = endHour < startHour;
-            if (!overnight) {
-              setHourStatusInMap(
-                map,
-                playerName,
-                timeOffsForPlayer,
-                day,
-                startHour,
-                endHour
-              );
-            } else {
-              // set hours until midnight
-              setHourStatusInMap(
-                map,
-                playerName,
-                timeOffsForPlayer,
-                day,
-                startHour,
-                23
-              );
-              // set hours after midnight
-              const indexOfNextDay =
-                daysOfWeek.findIndex((it) => it === day) + 1;
-              const index =
-                indexOfNextDay > daysOfWeek.length - 1 ? 0 : indexOfNextDay;
-              const dayToSet = daysOfWeek[index];
-              setHourStatusInMap(
-                map,
-                playerName,
-                timeOffsForPlayer,
-                dayToSet,
-                0,
-                endHour
-              );
-            }
+            setHourStatusInMap(map, playerName, timeOffsForPlayer, day, slot);
           });
         });
       });
@@ -209,9 +189,77 @@ export default function TeamScheduleTable() {
     return formatter.format(date);
   };
 
+  const playersWithNoAvailabilityPopOver = () => {
+    return (
+      playersWithNoAvailability && playersWithNoAvailability.length > 0 && (
+        <div className="p-1">
+        <Popover>
+          <PopoverTrigger asChild className="text-primary-foreground">
+             <Button size="sm">
+              <span>Empty schedules:{' '}</span>
+              <span>{playersWithNoAvailability.length}</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-60 bg-secondary border-foreground border-4"
+            align="center"
+          >
+            <PopoverArrow className="fill-foreground" />
+              <p>
+                <span className="text-sm text-muted-foreground">No schedule set for:{' '}</span>
+                <span className="text-sm">{playersWithNoAvailability.join(', ')}</span>
+              </p>
+            </PopoverContent>
+        </Popover>
+        </div>
+      )
+    )
+  }
+
+  const teamScheduleSlotPopOver = ({playerHourStatus, hourOfDayStr, day}: {playerHourStatus: PlayerHourStatus, hourOfDayStr: string, day: string}) => {
+    return (
+      <Popover>
+        <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
+          {
+            playerHourStatus
+              .availablePlayers.size
+          }
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-40 bg-secondary border-foreground border-4"
+          align="center"
+        >
+          <PopoverArrow className="fill-foreground" />
+          <div className="grid gap-1 text-center text-sm">
+            <p>
+              {hourOfDayStr},{' '}
+              {formatPopoverDate(
+                dayOfWeekToDatesMap.get(
+                  day
+                )
+              )}
+            </p>
+            <p>
+              Available:{' '}
+              {Array.from(
+                playerHourStatus.availablePlayers
+                  .entries()
+                  .map(([player]) => (
+                    <Badge key={player}>
+                      {player.toString()}
+                    </Badge>
+                  ))
+              )}
+            </p>
+          </div>
+        </PopoverContent>
+      </Popover>
+    )
+  }
+
   return (
     <DashboardCard
-      title="Team Schedule"
+      title={`${firstTeam?.name} - Team Schedule`}
       parentClassName="flex-auto max-w-135"
       childrenClassName="max-h-96 min-h-48"
     >
@@ -221,28 +269,25 @@ export default function TeamScheduleTable() {
           value={selectedTeamId || undefined}
           onValueChange={setSelectedTeamId}
         >
-          <TabsList>
-            {teams.map((team) => (
-              <TabsTrigger key={team.organization.id} value={team.id}>
-                {team.organization.acronym}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="flex flex-row justify-between">
+            <TabsList>
+              {teams.map((team) => (
+                <TabsTrigger key={team.organization.id} value={team.id}>
+                  {team.organization.acronym}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {playersWithNoAvailabilityPopOver()}
+          </div>
           <TabsContent
-            className="relative overflow-auto"
+            className="relative overflow-auto mt-0.5"
             value={selectedTeamId || 'default'}
           >
             {isLoadingTeamSchedule ? (
               <Skeleton />
             ) : (
               <div className="flex flex-auto max-h-68">
-                <Table className="">
-                  {playersWithNoAvailability.length > 1 && (
-                    <TableCaption>
-                      No schedule found for:{' '}
-                      {playersWithNoAvailability.join(', ')}
-                    </TableCaption>
-                  )}
+                <Table>
                   <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
                     <TableRow className="h-6">
                       <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
@@ -293,42 +338,7 @@ export default function TeamScheduleTable() {
                                         >
                                           {playerHourStatus.availablePlayers
                                             .size > 0 ? (
-                                            <Popover>
-                                              <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
-                                                {
-                                                  playerHourStatus
-                                                    .availablePlayers.size
-                                                }
-                                              </PopoverTrigger>
-                                              <PopoverContent
-                                                className="w-40 bg-secondary border-foreground border-4"
-                                                align="center"
-                                              >
-                                                <PopoverArrow className="fill-foreground"/>
-                                                <div className="grid gap-1 text-center text-sm">
-                                                  <p>
-                                                    {hourOfDayStr},{' '}
-                                                    {formatPopoverDate(
-                                                      dayOfWeekToDatesMap.get(
-                                                        day
-                                                      )
-                                                    )}
-                                                  </p>
-                                                  <p>
-                                                    Available:{' '}
-                                                    {Array.from(
-                                                      playerHourStatus.availablePlayers
-                                                        .entries()
-                                                        .map(([player]) => (
-                                                          <Badge key={player}>
-                                                            {player.toString()}
-                                                          </Badge>
-                                                        ))
-                                                    )}
-                                                  </p>
-                                                </div>
-                                              </PopoverContent>
-                                            </Popover>
+                                            teamScheduleSlotPopOver({playerHourStatus, hourOfDayStr, day})
                                           ) : (
                                             <span className="text-muted-foreground font-extralight">
                                               {
