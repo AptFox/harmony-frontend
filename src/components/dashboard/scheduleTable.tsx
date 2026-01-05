@@ -289,7 +289,6 @@ export default function ScheduleTable() {
           </EmptyHeader>
         </Empty>
       )}
-      <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-background/30 to-background/0 z-10 pointer-events-none" />
     </DashboardCard>
   );
 }

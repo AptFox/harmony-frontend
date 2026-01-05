@@ -20,15 +20,14 @@ import {
 } from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
+import {
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from '../ui/popover';
 
 export default function TimeOffTable() {
   const { user } = useUser();
@@ -129,6 +128,27 @@ export default function TimeOffTable() {
     return timeA - timeB;
   };
 
+  const timeOffCommentPopOver = (comment: string) => {
+    return (
+      <div className="p-2">
+        <Popover>
+          <PopoverTrigger asChild className="text-primary-foreground">
+            <Button size="icon" variant="outline">
+              <Maximize2 />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="bg-secondary border-foreground border-4"
+            align="center"
+          >
+            <PopoverArrow className="fill-foreground" />
+            <p className="flex text-wrap max-w-md text-sm">{comment}</p>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  };
+
   return (
     <DashboardCard
       title="Time off"
@@ -162,42 +182,21 @@ export default function TimeOffTable() {
               .map((timeOff: TimeOff) => (
                 <TableRow key={timeOff.id}>
                   <TableCell key={`${timeOff.id}-date-time`}>
-                    <span className="">
-                      {getDateCell(timeOff.startTime, timeOff.endTime)}
-                    </span>
+                    {getDateCell(timeOff.startTime, timeOff.endTime)}
                   </TableCell>
-                  <TableCell key={`${timeOff.id}-comment`}>
-                    <div className="grid grid-rows-1">
-                      <div className="flex flex-row justify-between overflow-hidden overflow-ellipsis">
-                        <div className="text-xs text-primary-foreground font-mono truncate">
-                          {timeOff.comment && timeOff.comment}
-                          {!timeOff.comment && '...'}
-                        </div>
+                  <TableCell
+                    key={`${timeOff.id}-comment`}
+                    className="max-w-[200px] truncate"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs text-primary-foreground font-mono truncate min-w-0">
+                        {timeOff.comment || '...'}
+                      </div>
+                      <div className="flex-shrink-0">
                         {!deleteMode &&
                           timeOff.comment &&
-                          timeOff.comment.length > 100 && (
-                            <div className="p-2">
-                              <Dialog>
-                                <DialogTrigger>
-                                  <Button size="icon" variant="outline">
-                                    <Maximize2 />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>
-                                      Selected time off comment
-                                    </DialogTitle>
-                                  </DialogHeader>
-                                  <div>
-                                    <span className="flex text-wrap min-w-0 max-w-md">
-                                      {timeOff.comment}
-                                    </span>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          )}
+                          timeOff.comment.length > 100 &&
+                          timeOffCommentPopOver(timeOff.comment)}
                         {deleteMode && (
                           <div>
                             <Button
