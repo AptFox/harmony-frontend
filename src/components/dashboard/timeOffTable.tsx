@@ -20,17 +20,14 @@ import {
 } from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
-import { Popover, PopoverArrow, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Separator } from '../ui/separator';
+import {
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from '../ui/popover';
 
 export default function TimeOffTable() {
   const { user } = useUser();
@@ -141,13 +138,11 @@ export default function TimeOffTable() {
             </Button>
           </PopoverTrigger>
           <PopoverContent
-              className="bg-secondary border-foreground border-4"
-              align="center"
-            >
+            className="bg-secondary border-foreground border-4"
+            align="center"
+          >
             <PopoverArrow className="fill-foreground" />
-            <p className="flex text-wrap max-w-md text-sm">
-                {comment}
-            </p>
+            <p className="flex text-wrap max-w-md text-sm">{comment}</p>
           </PopoverContent>
         </Popover>
       </div>
@@ -187,9 +182,12 @@ export default function TimeOffTable() {
               .map((timeOff: TimeOff) => (
                 <TableRow key={timeOff.id}>
                   <TableCell key={`${timeOff.id}-date-time`}>
-                      {getDateCell(timeOff.startTime, timeOff.endTime)}
+                    {getDateCell(timeOff.startTime, timeOff.endTime)}
                   </TableCell>
-                  <TableCell key={`${timeOff.id}-comment`} className="max-w-[200px] truncate">
+                  <TableCell
+                    key={`${timeOff.id}-comment`}
+                    className="max-w-[200px] truncate"
+                  >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-xs text-primary-foreground font-mono truncate min-w-0">
                         {timeOff.comment || '...'}
@@ -197,9 +195,8 @@ export default function TimeOffTable() {
                       <div className="flex-shrink-0">
                         {!deleteMode &&
                           timeOff.comment &&
-                          timeOff.comment.length > 100 && (
-                            timeOffCommentPopOver(timeOff.comment)
-                          )}
+                          timeOff.comment.length > 100 &&
+                          timeOffCommentPopOver(timeOff.comment)}
                         {deleteMode && (
                           <div>
                             <Button
