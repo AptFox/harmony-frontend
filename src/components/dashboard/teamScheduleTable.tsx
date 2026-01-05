@@ -52,7 +52,6 @@ export default function TeamScheduleTable() {
     hasFirstAvailableSlotBeenSetRef.current = true;
   };
   const { teams } = usePlayer();
-
   const firstTeam = teams.length > 0 ? teams[0] : undefined;
   const [selectedTeamId, setSelectedTeamId] = useState(
     firstTeam ? firstTeam.id : null
@@ -271,7 +270,7 @@ export default function TeamScheduleTable() {
           onValueChange={setSelectedTeamId}
         >
           <div className="flex flex-row justify-between">
-            <TabsList>
+            <TabsList className={teams.length > 1 ? `border` : ''}>
               {teams.map((team) => (
                 <TabsTrigger key={team.organization.id} value={team.id}>
                   {team.organization.acronym}
