@@ -130,22 +130,20 @@ export default function TimeOffTable() {
 
   const timeOffCommentPopOver = (comment: string): JSX.Element => {
     return (
-      <div className="p-2">
-        <Popover>
-          <PopoverTrigger asChild className="text-primary-foreground">
-            <Button size="icon" variant="outline">
-              <Maximize2 />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="bg-secondary border-foreground border-4"
-            align="center"
-          >
-            <PopoverArrow className="fill-foreground" />
-            <p className="flex text-wrap max-w-md text-sm">{comment}</p>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild className="text-primary-foreground">
+          <Button size="icon" variant="outline">
+            <Maximize2 />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="bg-secondary border-foreground border-4"
+          align="center"
+        >
+          <PopoverArrow className="fill-foreground" />
+          <p className="flex text-wrap max-w-md text-sm">{comment}</p>
+        </PopoverContent>
+      </Popover>
     );
   };
 
@@ -170,16 +168,16 @@ export default function TimeOffTable() {
     }, [comment]); // Re-run if the comment text changes
 
     return (
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 h-10">
         <div ref={textRef} className="text-xs font-mono truncate min-w-0">
           <span
             className={`${comment ? 'text-primary-foreground font-semibold' : 'text-muted-foreground font-extralight'}`}
           >
-            {comment || 'No Comment'}
+            {comment || 'Empty Comment'}
           </span>
         </div>
-        <div className="flex-shrink-0">
-          {!deleteMode &&
+        <div className="flex-shrink-0 p-2">
+          {!deleteMode && 
             comment &&
             isOverflowing &&
             timeOffCommentPopOver(comment)}
