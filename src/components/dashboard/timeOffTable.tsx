@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
 import {
   Popover,
@@ -128,23 +128,65 @@ export default function TimeOffTable() {
     return timeA - timeB;
   };
 
-  const timeOffCommentPopOver = (comment: string) => {
+  const timeOffCommentPopOver = (comment: string): JSX.Element => {
     return (
-      <div className="p-2">
-        <Popover>
-          <PopoverTrigger asChild className="text-primary-foreground">
-            <Button size="icon" variant="outline">
-              <Maximize2 />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="bg-secondary border-foreground border-4"
-            align="center"
+      <Popover>
+        <PopoverTrigger asChild className="text-primary-foreground">
+          <Button size="icon" variant="outline">
+            <Maximize2 />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="bg-secondary border-foreground border-4"
+          align="center"
+        >
+          <PopoverArrow className="fill-foreground" />
+          <p className="flex text-wrap max-w-md text-sm">{comment}</p>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
+  const ExpandableComment = ({
+    comment,
+    deleteMode,
+    timeOff,
+  }: {
+    comment: string | undefined;
+    deleteMode: boolean;
+    timeOff: TimeOff;
+  }) => {
+    const [isOverflowing, setIsOverflowing] = useState(false);
+    const textRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const element = textRef.current;
+      if (element) {
+        // Check if the content is wider than the container
+        setIsOverflowing(element.scrollWidth > element.clientWidth);
+      }
+    }, [comment]); // Re-run if the comment text changes
+
+    return (
+      <div className="flex items-center justify-between gap-2 h-10">
+        <div ref={textRef} className="text-xs font-mono truncate min-w-0">
+          <span
+            className={`${comment ? 'text-primary-foreground font-semibold' : 'text-muted-foreground font-extralight'}`}
           >
-            <PopoverArrow className="fill-foreground" />
-            <p className="flex text-wrap max-w-md text-sm">{comment}</p>
-          </PopoverContent>
-        </Popover>
+            {comment || 'Empty Comment'}
+          </span>
+        </div>
+        <div className="flex-shrink-0 p-2">
+          {!deleteMode && 
+            comment &&
+            isOverflowing &&
+            timeOffCommentPopOver(comment)}
+          {deleteMode && (
+            <Button size="icon" onClick={() => deleteTimeOff(timeOff)}>
+              <X className="bg-primary" />
+            </Button>
+          )}
+        </div>
       </div>
     );
   };
@@ -188,27 +230,11 @@ export default function TimeOffTable() {
                     key={`${timeOff.id}-comment`}
                     className="max-w-[200px] truncate"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs text-primary-foreground font-mono truncate min-w-0">
-                        {timeOff.comment || '...'}
-                      </div>
-                      <div className="flex-shrink-0">
-                        {!deleteMode &&
-                          timeOff.comment &&
-                          timeOff.comment.length > 100 &&
-                          timeOffCommentPopOver(timeOff.comment)}
-                        {deleteMode && (
-                          <div>
-                            <Button
-                              size="icon"
-                              onClick={() => deleteTimeOff(timeOff)}
-                            >
-                              <X className="bg-primary" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <ExpandableComment
+                      comment={timeOff.comment}
+                      deleteMode={deleteMode}
+                      timeOff={timeOff}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
