@@ -24,7 +24,7 @@ export default function PlayerCard() {
 
   return (
     <DashboardCard
-      title="Player details"
+      title="Player"
       parentClassName="flex-auto max-w-[543px]"
       childrenClassName="max-h-96 min-h-54"
     >
@@ -47,7 +47,7 @@ export default function PlayerCard() {
           <TabsContent value={selectedOrgId || 'default'}>
             <div>
               {selectedPlayer && (
-                <div>
+                <div className="font-mono">
                   {selectedPlayer?.team && (
                     <p className="text-sm">
                       Org: {selectedPlayer.team?.organization.name}
@@ -61,7 +61,7 @@ export default function PlayerCard() {
                     Team role:{' '}
                     {selectedPlayer.teamRole
                       ? selectedPlayer.teamRole
-                      : 'player'}
+                      : 'Player'}
                   </p>
                 </div>
               )}

@@ -192,9 +192,12 @@ export default function TeamScheduleTable() {
       playersWithNoAvailability.length > 0 && (
         <div className="p-1">
           <Popover>
-            <PopoverTrigger asChild className="text-primary-foreground">
+            <PopoverTrigger
+              asChild
+              className="text-primary-foreground font-mono"
+            >
               <Button size="sm">
-                <span>Empty schedules: </span>
+                <span>Empty Schedules: </span>
                 <span>{playersWithNoAvailability.length}</span>
               </Button>
             </PopoverTrigger>
@@ -203,7 +206,7 @@ export default function TeamScheduleTable() {
               align="center"
             >
               <PopoverArrow className="fill-foreground" />
-              <p>
+              <p className="font-mono">
                 <span className="text-sm text-muted-foreground">
                   No schedule set for:{' '}
                 </span>
