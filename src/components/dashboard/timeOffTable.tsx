@@ -21,7 +21,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover';
+} from '@/components/ui/popover';
 
 export default function TimeOffTable() {
   const { user } = useUser();

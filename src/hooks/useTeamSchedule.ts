@@ -4,7 +4,7 @@ import { TeamSchedule, TeamScheduleContextType } from '@/types/ScheduleTypes';
 import useSWR from 'swr';
 
 export function useTeamSchedule(
-  teamId: string | null
+  teamId: string | undefined
 ): TeamScheduleContextType {
   const { accessToken } = useAuth();
   const teamScheduleUrl = `/api/availability/weekly/team/${teamId}`;

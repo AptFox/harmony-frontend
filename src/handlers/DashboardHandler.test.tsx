@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, usePlayer, useSchedule, useUser } from '@/contexts';
+import { useAuth, useSchedule, useUser } from '@/contexts';
 import { mocked } from 'jest-mock';
+import { usePlayer } from '@/hooks/usePlayer';
 
 beforeEach(() => {
   jest.clearAllMocks();

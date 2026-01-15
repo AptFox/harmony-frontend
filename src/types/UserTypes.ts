@@ -1,3 +1,5 @@
+import { Organization } from '@/types/OrganizationTypes';
+
 export type User = {
   id: string;
   displayName: string;
@@ -5,6 +7,7 @@ export type User = {
   discordId: string;
   discordAvatarHash: string | null;
   twelveHourClock: boolean;
+  organizations: Organization[];
 };
 
 export type UserContextType = {
