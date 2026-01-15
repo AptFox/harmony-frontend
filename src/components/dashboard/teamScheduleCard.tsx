@@ -61,9 +61,7 @@ export default function TeamScheduleCard({
     );
   };
 
-  const cardTitle = player?.team?.name
-    ? `${player?.team?.name}`
-    : 'My Team';
+  const cardTitle = player?.team?.name ? `${player?.team?.name}` : 'My Team';
 
   return (
     orgId && (

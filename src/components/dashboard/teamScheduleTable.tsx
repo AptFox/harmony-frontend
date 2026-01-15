@@ -34,7 +34,13 @@ import {
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Team } from '@/types/OrganizationTypes';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { CalendarX2 } from 'lucide-react';
 
 export default function TeamScheduleTable({
@@ -218,14 +224,23 @@ export default function TeamScheduleTable({
   };
 
   const noPlayersOnTeam = playerSchedules && playerSchedules?.length == 0;
-  const scheduleSlots = playerSchedules?.flatMap((schedule) => schedule.availability.weeklyAvailabilitySlots)
-  const noSchedulesSubmittedForTeam = !noPlayersOnTeam && scheduleSlots?.length == 0;
-  const renderSchedule = !noPlayersOnTeam && !noSchedulesSubmittedForTeam
-  const playerRoster = playerSchedules?.map((sched) => sched.playerName).join(', ')
+  const scheduleSlots = playerSchedules?.flatMap(
+    (schedule) => schedule.availability.weeklyAvailabilitySlots
+  );
+  const noSchedulesSubmittedForTeam =
+    !noPlayersOnTeam && scheduleSlots?.length == 0;
+  const renderSchedule = !noPlayersOnTeam && !noSchedulesSubmittedForTeam;
+  const playerRoster = playerSchedules
+    ?.map((sched) => sched.playerName)
+    .join(', ');
 
   const emptyErrorMessage = () => {
-    const title = noSchedulesSubmittedForTeam ? 'No schedules found' : 'No players found'
-    const desc = noSchedulesSubmittedForTeam ? `No availability found for players: ${playerRoster}` : 'This usually means that there are no players on this team.'
+    const title = noSchedulesSubmittedForTeam
+      ? 'No schedules found'
+      : 'No players found';
+    const desc = noSchedulesSubmittedForTeam
+      ? `No availability found for players: ${playerRoster}`
+      : 'This usually means that there are no players on this team.';
     return (
       (noPlayersOnTeam || noSchedulesSubmittedForTeam) && (
         <Empty className="h-full w-full">
@@ -238,8 +253,8 @@ export default function TeamScheduleTable({
           </EmptyHeader>
         </Empty>
       )
-    )
-  }
+    );
+  };
 
   return isLoading ? (
     <Skeleton />
@@ -296,7 +311,8 @@ export default function TeamScheduleTable({
                                   }
                                   className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
                                 >
-                                  {playerHourStatus.availablePlayers.size > 0 ? (
+                                  {playerHourStatus.availablePlayers.size >
+                                  0 ? (
                                     teamScheduleSlotPopOver({
                                       playerHourStatus,
                                       hourOfDayStr,

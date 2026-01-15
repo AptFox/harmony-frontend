@@ -16,13 +16,20 @@ export default function PlayerCard({ orgId }: { orgId: string | undefined }) {
         {isLoading ? (
           <Skeleton />
         ) : (
-              <div className="grid grid-cols-2 p-4 font-mono text-sm">
-                <span>Organization:</span><span>{ player?.organization.name+` (${player?.organization.acronym})` }</span>
-                <span>Skill Group:</span><span>{player?.team ? player.team.skillGroup.name : 'N/A'}</span>
-                <span>Franchise:</span><span>{player?.team ? player.team.franchise.name : 'N/A'}</span>
-                <span>Player name:</span><span>{player?.name}</span>
-                <span>Team role:</span><span>{player?.teamRole ? player.teamRole : 'Player'}</span>
-              </div>
+          <div className="grid grid-cols-2 p-4 font-mono text-sm">
+            <span>Organization:</span>
+            <span>
+              {player?.organization.name + ` (${player?.organization.acronym})`}
+            </span>
+            <span>Skill Group:</span>
+            <span>{player?.team ? player.team.skillGroup.name : 'N/A'}</span>
+            <span>Franchise:</span>
+            <span>{player?.team ? player.team.franchise.name : 'N/A'}</span>
+            <span>Player name:</span>
+            <span>{player?.name}</span>
+            <span>Team role:</span>
+            <span>{player?.teamRole ? player.teamRole : 'Player'}</span>
+          </div>
         )}
       </DashboardCard>
     )

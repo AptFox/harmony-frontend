@@ -14,11 +14,7 @@ export function useTeams(franchiseId: string | undefined): TeamsContextType {
     data: franchiseTeams,
     error,
     isLoading,
-  } = useSWR<Team[]>(
-    key,
-    () => swrFetcher(TEAM_URL, accessToken),
-    swrConfig
-  );
+  } = useSWR<Team[]>(key, () => swrFetcher(TEAM_URL, accessToken), swrConfig);
 
   return {
     franchiseTeams,

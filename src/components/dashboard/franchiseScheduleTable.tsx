@@ -17,7 +17,7 @@ import { usePlayer } from '@/hooks/usePlayer';
 import { useTeams } from '@/hooks/useTeams';
 
 export default function FranchiseScheduleTable({
-  orgId
+  orgId,
 }: {
   orgId: string | undefined;
 }) {
@@ -82,13 +82,15 @@ export default function FranchiseScheduleTable({
     : 'Franchise Schedule';
 
   useEffect(() => {
-    if (franchiseTeams && franchiseTeams.length > 0 && !selectedTeam){
+    if (franchiseTeams && franchiseTeams.length > 0 && !selectedTeam) {
       setSelectedTeam(franchiseTeams[0]);
     }
-  }, [franchiseTeams, selectedTeam])
+  }, [franchiseTeams, selectedTeam]);
 
-  const franchiseTeamsOmittingCurrentPlayerTeam = franchiseTeams?.filter((team) => team.id !== player?.team?.id)
-  
+  const franchiseTeamsOmittingCurrentPlayerTeam = franchiseTeams?.filter(
+    (team) => team.id !== player?.team?.id
+  );
+
   return (
     orgId && (
       <DashboardCard
@@ -104,7 +106,9 @@ export default function FranchiseScheduleTable({
             onValueChange={onSelectedTeamChange}
           >
             <div className="flex flex-col gap-1">
-              <TabsList className={`${franchiseTeamsOmittingCurrentPlayerTeam.length > 1 ? `border` : ''}`}>
+              <TabsList
+                className={`${franchiseTeamsOmittingCurrentPlayerTeam.length > 1 ? `border` : ''}`}
+              >
                 {franchiseTeamsOmittingCurrentPlayerTeam.map((team) => (
                   <TabsTrigger className="grow" key={team.id} value={team.id}>
                     {team.skillGroup.acronym}

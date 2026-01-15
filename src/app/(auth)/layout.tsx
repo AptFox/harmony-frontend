@@ -13,9 +13,7 @@ export default function AuthLayout({
   return (
     <AuthContextProvider>
       <UserContextProvider>
-        <ScheduleContextProvider>
-          {children}
-        </ScheduleContextProvider>
+        <ScheduleContextProvider>{children}</ScheduleContextProvider>
       </UserContextProvider>
     </AuthContextProvider>
   );

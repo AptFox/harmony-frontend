@@ -12,7 +12,14 @@ import { Spinner } from '@/components/ui/spinner';
 import PlayerCard from '@/components/dashboard/playerCard';
 import FranchiseScheduleTable from '@/components/dashboard/franchiseScheduleTable';
 import TeamScheduleCard from '@/components/dashboard/teamScheduleCard';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function DashboardHandler() {
   const {
@@ -22,12 +29,16 @@ export default function DashboardHandler() {
     isError: isErrorUser,
   } = useUser();
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
-    const { logout } = useAuth();
+  const { logout } = useAuth();
   useInitialTimeZone();
 
   useEffect(() => {
     if (isLoadingUser) return;
-    if (user?.organizations && user.organizations.length > 0 && !selectedOrgId) {
+    if (
+      user?.organizations &&
+      user.organizations.length > 0 &&
+      !selectedOrgId
+    ) {
       setSelectedOrgId(user.organizations[0].id);
     }
     if (isNoAccessTokenError(isErrorUser)) return;
@@ -88,9 +99,7 @@ export default function DashboardHandler() {
                     <SelectTrigger>
                       <SelectValue placeholder="Org" />
                     </SelectTrigger>
-                    <SelectContent
-                      position="item-aligned"
-                    >
+                    <SelectContent position="item-aligned">
                       <SelectGroup>
                         {user.organizations.map((org, i) => (
                           <SelectItem key={i} value={org.id}>
@@ -110,9 +119,11 @@ export default function DashboardHandler() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 <ScheduleTable />
                 <TimeOffTable />
-                {selectedOrgId && (<PlayerCard orgId={selectedOrgId} />)}
-                {selectedOrgId && (<TeamScheduleCard orgId={selectedOrgId} />)}
-                {selectedOrgId && (<FranchiseScheduleTable orgId={selectedOrgId} />)}
+                {selectedOrgId && <PlayerCard orgId={selectedOrgId} />}
+                {selectedOrgId && <TeamScheduleCard orgId={selectedOrgId} />}
+                {selectedOrgId && (
+                  <FranchiseScheduleTable orgId={selectedOrgId} />
+                )}
               </div>
             </div>
           </div>
