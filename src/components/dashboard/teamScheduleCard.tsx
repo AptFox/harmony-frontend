@@ -16,10 +16,13 @@ export default function TeamScheduleCard({
   const cardTitle = player?.team?.name ? `${player?.team?.name}` : 'My Team';
 
   return (
-    orgId && (
+    orgId &&
+    player?.team && (
       <DashboardCard
         title={cardTitle}
-        secondaryButton={() => EmptySchedulePopover(teamSchedule?.playerSchedules)}
+        secondaryButton={() =>
+          EmptySchedulePopover(teamSchedule?.playerSchedules)
+        }
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
