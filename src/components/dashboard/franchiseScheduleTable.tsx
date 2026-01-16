@@ -45,10 +45,13 @@ export default function FranchiseScheduleTable({
   );
 
   return (
-    orgId && (
+    orgId &&
+    franchiseTeamsOmittingCurrentPlayerTeam && (
       <DashboardCard
         title={cardTitle}
-        secondaryButton={() => EmptySchedulePopover(selectedTeamSchedule?.playerSchedules)}
+        secondaryButton={() =>
+          EmptySchedulePopover(selectedTeamSchedule?.playerSchedules)
+        }
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
