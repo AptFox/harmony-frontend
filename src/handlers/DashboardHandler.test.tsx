@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from '@testing-library/react';
 import DashboardHandler from './DashboardHandler';
-import { useAuth, usePlayer, useSchedule, useUser } from '@/contexts';
+import { useAuth, useSchedule, useUser } from '@/contexts';
 import { mocked } from 'jest-mock';
+import { usePlayer } from '@/hooks/usePlayer';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -11,6 +12,7 @@ beforeEach(() => {
 jest.mock('@/contexts');
 jest.mock('next/navigation');
 jest.mock('@/hooks/useInitialTimeZone');
+jest.mock('@/hooks/usePlayer');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 const useScheduleMock = mocked(useSchedule, { shallow: true });
@@ -46,6 +48,7 @@ describe('DashboardHandler', () => {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
+        organizations: [],
       };
       useScheduleMock.mockReturnValue({
         availability: {
@@ -111,6 +114,7 @@ describe('DashboardHandler', () => {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
+        organizations: [],
       };
       useUserMock.mockReturnValue({
         user: testUser,

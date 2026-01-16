@@ -1,74 +1,37 @@
-import { usePlayer } from '@/contexts/PlayerContext';
-import { Organization, Player } from '@/types/PlayerTypes';
+import { usePlayer } from '@/hooks/usePlayer';
 import { Skeleton } from '@/components/ui/skeleton';
 import DashboardCard from '@/components/dashboard/dashboardCard';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@radix-ui/react-separator';
-import { useState } from 'react';
 
-export default function PlayerCard() {
-  const { players, isLoading } = usePlayer();
-  const orgs: Organization[] = players
-    ? players
-        .map((p) => p.organization)
-        .filter((org): org is Organization => !!org)
-    : [];
-  const firstOrgId = orgs.length > 0 ? orgs[0].id : undefined;
-  const [selectedOrgId, setSelectedOrgId] = useState(
-    firstOrgId ? firstOrgId : null
-  );
-  const selectedPlayer: Player | undefined =
-    players && selectedOrgId
-      ? players?.find((player) => player.organization.id === selectedOrgId)
-      : undefined;
+export default function PlayerCard({ orgId }: { orgId: string | undefined }) {
+  const { player, isLoading } = usePlayer(orgId);
+  const cardTitle = player ? `${player.name} Details` : 'Player Details';
 
   return (
-    <DashboardCard
-      title="Player"
-      parentClassName="flex-auto max-w-[543px]"
-      childrenClassName="max-h-96 min-h-54"
-    >
-      {isLoading ? (
-        <Skeleton />
-      ) : (
-        <Tabs
-          className="flex-auto"
-          value={selectedOrgId || undefined}
-          onValueChange={setSelectedOrgId}
-        >
-          <TabsList>
-            {orgs.map((org) => (
-              <TabsTrigger key={org.id} value={org.id}>
-                {org.acronym}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <Separator />
-          <TabsContent value={selectedOrgId || 'default'}>
-            <div>
-              {selectedPlayer && (
-                <div className="font-mono">
-                  {selectedPlayer?.team && (
-                    <p className="text-sm">
-                      Org: {selectedPlayer.team?.organization.name}
-                    </p>
-                  )}
-                  {selectedPlayer?.team && (
-                    <p className="text-sm">Team: {selectedPlayer.team.name}</p>
-                  )}
-                  <p className="text-sm">Player name: {selectedPlayer.name}</p>
-                  <p className="text-sm">
-                    Team role:{' '}
-                    {selectedPlayer.teamRole
-                      ? selectedPlayer.teamRole
-                      : 'Player'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      )}
-    </DashboardCard>
+    orgId && (
+      <DashboardCard
+        title={cardTitle}
+        parentClassName="flex-auto max-w-[543px]"
+        childrenClassName="max-h-96 min-h-54"
+      >
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <div className="grid grid-cols-2 p-4 font-mono text-sm">
+            <span>Organization:</span>
+            <span>
+              {player?.organization.name + ` (${player?.organization.acronym})`}
+            </span>
+            <span>Skill Group:</span>
+            <span>{player?.team ? player.team.skillGroup.name : 'N/A'}</span>
+            <span>Franchise:</span>
+            <span>{player?.team ? player.team.franchise.name : 'N/A'}</span>
+            <span>Player name:</span>
+            <span>{player?.name}</span>
+            <span>Team role:</span>
+            <span>{player?.teamRole ? player.teamRole : 'Player'}</span>
+          </div>
+        )}
+      </DashboardCard>
+    )
   );
 }

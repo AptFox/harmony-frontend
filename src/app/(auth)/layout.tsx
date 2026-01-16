@@ -3,7 +3,6 @@ import {
   AuthContextProvider,
   ScheduleContextProvider,
   UserContextProvider,
-  PlayerContextProvider,
 } from '@/contexts';
 
 export default function AuthLayout({
@@ -14,9 +13,7 @@ export default function AuthLayout({
   return (
     <AuthContextProvider>
       <UserContextProvider>
-        <ScheduleContextProvider>
-          <PlayerContextProvider>{children}</PlayerContextProvider>
-        </ScheduleContextProvider>
+        <ScheduleContextProvider>{children}</ScheduleContextProvider>
       </UserContextProvider>
     </AuthContextProvider>
   );

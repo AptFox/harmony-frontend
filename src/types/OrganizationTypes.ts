@@ -6,20 +6,24 @@ export type Organization = {
 
 export type SkillGroup = {
   id: string;
-  organization: Organization;
   name: string;
   acronym: string;
   imageUrl: string;
   colorHex: string | undefined;
 };
 
-export type Team = {
+export type Franchise = {
   id: string;
-  organization: Organization;
-  skillGroup: SkillGroup;
   name: string;
   acronym: string;
   imageUrl: string;
+};
+
+export type Team = {
+  id: string;
+  skillGroup: SkillGroup;
+  franchise: Franchise;
+  name: string;
 };
 
 export type Player = {
@@ -32,8 +36,19 @@ export type Player = {
 };
 
 export type PlayerContextType = {
-  players: Player[] | undefined;
-  teams: Team[];
+  player: Player | undefined;
+  isLoading: boolean;
+  isError: Error | undefined;
+};
+
+export type OrgContextType = {
+  orgs: Organization[] | undefined;
+  isLoading: boolean;
+  isError: Error | undefined;
+};
+
+export type TeamsContextType = {
+  franchiseTeams: Team[] | undefined;
   isLoading: boolean;
   isError: Error | undefined;
 };
