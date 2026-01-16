@@ -21,7 +21,7 @@
     "test:ci": "jest --ci",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepare": "husky"
+    "prepare": "test -d .git && husky || true"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
