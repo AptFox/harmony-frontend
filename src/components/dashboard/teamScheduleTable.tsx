@@ -7,15 +7,15 @@ import {
   TableHead,
   TableBody,
   TableCell,
+  TableCaption,
 } from '@/components/ui/table';
-import DashboardCard from '@/components/dashboard/dashboardCard';
 import {
   HourOfDay,
   PlayerHourStatus,
   ScheduleSlot,
   TimeOff,
 } from '@/types/ScheduleTypes';
-import { usePlayer, useUser } from '@/contexts';
+import { useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   convertScheduleSlotToTargetDate,
@@ -25,7 +25,6 @@ import {
   isTimeOffFn,
 } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Popover,
@@ -34,9 +33,21 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '../ui/button';
+import { Team } from '@/types/OrganizationTypes';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import { CalendarX2 } from 'lucide-react';
 
-export default function TeamScheduleTable() {
+export default function TeamScheduleTable({
+  team,
+}: {
+  team: Team | undefined;
+}) {
   const { user } = useUser();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
@@ -51,22 +62,9 @@ export default function TeamScheduleTable() {
     setFirstAvailableSlotCoordinate(coordinate);
     hasFirstAvailableSlotBeenSetRef.current = true;
   };
-  const { teams } = usePlayer();
-  const firstTeam = teams.length > 0 ? teams[0] : undefined;
-  const [selectedTeamId, setSelectedTeamId] = useState(
-    firstTeam ? firstTeam.id : null
-  );
 
-  const {
-    teamSchedule: selectedTeamSchedule,
-    isLoading: isLoadingTeamSchedule,
-  } = useTeamSchedule(selectedTeamId);
-  const playerSchedules = selectedTeamSchedule?.playerSchedules;
-  const playersWithNoAvailability = playerSchedules
-    ?.filter(
-      (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
-    )
-    .map((player) => player.playerName);
+  const { teamSchedule, isLoading } = useTeamSchedule(team?.id);
+  const playerSchedules = teamSchedule?.playerSchedules;
 
   useEffect(() => {
     if (playerSchedules && firstAvailableSlotCoordinate) {
@@ -186,38 +184,6 @@ export default function TeamScheduleTable() {
     return formatter.format(date);
   };
 
-  const playersWithNoAvailabilityPopOver = () => {
-    return (
-      playersWithNoAvailability &&
-      playersWithNoAvailability.length > 0 && (
-        <div className="p-1">
-          <Popover>
-            <PopoverTrigger asChild className="text-primary-foreground">
-              <Button size="sm">
-                <span>Empty schedules: </span>
-                <span>{playersWithNoAvailability.length}</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-60 bg-secondary border-foreground border-4"
-              align="center"
-            >
-              <PopoverArrow className="fill-foreground" />
-              <p>
-                <span className="text-sm text-muted-foreground">
-                  No schedule set for:{' '}
-                </span>
-                <span className="text-sm">
-                  {playersWithNoAvailability.join(', ')}
-                </span>
-              </p>
-            </PopoverContent>
-          </Popover>
-        </div>
-      )
-    );
-  };
-
   const teamScheduleSlotPopOver = ({
     playerHourStatus,
     hourOfDayStr,
@@ -257,115 +223,117 @@ export default function TeamScheduleTable() {
     );
   };
 
-  return (
-    <DashboardCard
-      title={`${firstTeam?.name} - Team Schedule`}
-      parentClassName="flex-auto max-w-135"
-      childrenClassName="min-h-48"
-    >
-      {teams && (
-        <Tabs
-          className="flex-auto w-full"
-          value={selectedTeamId || undefined}
-          onValueChange={setSelectedTeamId}
-        >
-          <div className="flex flex-row justify-between">
-            <TabsList className={teams.length > 1 ? `border` : ''}>
-              {teams.map((team) => (
-                <TabsTrigger key={team.organization.id} value={team.id}>
-                  {team.organization.acronym}
-                </TabsTrigger>
+  const noPlayersOnTeam = playerSchedules && playerSchedules?.length == 0;
+  const scheduleSlots = playerSchedules?.flatMap(
+    (schedule) => schedule.availability.weeklyAvailabilitySlots
+  );
+  const noSchedulesSubmittedForTeam =
+    !noPlayersOnTeam && scheduleSlots?.length == 0;
+  const renderSchedule = !noPlayersOnTeam && !noSchedulesSubmittedForTeam;
+  const playerRoster = playerSchedules
+    ?.map((sched) => sched.playerName)
+    .join(', ');
+
+  const emptyErrorMessage = () => {
+    const title = noSchedulesSubmittedForTeam
+      ? 'No schedules found'
+      : 'No players found';
+    const desc = noSchedulesSubmittedForTeam
+      ? `No availability found for players: ${playerRoster}`
+      : 'This usually means that there are no players on this team.';
+    return (
+      (noPlayersOnTeam || noSchedulesSubmittedForTeam) && (
+        <Empty className="h-full w-full">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarX2 />
+            </EmptyMedia>
+            <EmptyTitle>{title}</EmptyTitle>
+            <EmptyDescription>{desc}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )
+    );
+  };
+
+  return isLoading ? (
+    <Skeleton />
+  ) : (
+    <div className="flex flex-auto max-h-96">
+      {!renderSchedule && emptyErrorMessage()}
+      {renderSchedule && playerSchedules && playerSchedules?.length > 0 && (
+        <Table>
+          <TableCaption className="font-mono">
+            Roster: {playerRoster}
+          </TableCaption>
+          <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+            <TableRow className="h-6">
+              <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
+                Hour
+              </TableHead>
+              {daysOfWeek.map((day) => (
+                <TableHead
+                  key={day}
+                  className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
+                >
+                  {day}
+                </TableHead>
               ))}
-            </TabsList>
-            {playersWithNoAvailabilityPopOver()}
-          </div>
-          <TabsContent
-            className="relative overflow-auto mt-0.5"
-            value={selectedTeamId || 'default'}
-          >
-            {isLoadingTeamSchedule ? (
-              <Skeleton />
-            ) : (
-              <div className="flex flex-auto max-h-96">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
-                    <TableRow className="h-6">
-                      <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
-                        Hour
-                      </TableHead>
-                      {daysOfWeek.map((day) => (
-                        <TableHead
-                          key={day}
-                          className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
-                        >
-                          {day}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {availabilityMap &&
-                      Array.from(
-                        availabilityMap
-                          .entries()
-                          .map(([hourOfDay, mapOfPlayerHourStatus]) => {
-                            const hourOfDayStr = twelveHourClock
-                              ? hourOfDay.twelveHourStr
-                              : hourOfDay.absHourStr;
-                            return (
-                              <TableRow
-                                key={hourOfDay.absHourStr}
-                                className="border-0"
-                              >
-                                <TableCell className=" text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none">
-                                  {hourOfDayStr}
-                                </TableCell>
-                                {Array.from(
-                                  mapOfPlayerHourStatus
-                                    .entries()
-                                    .map(([day, playerHourStatus]) => {
-                                      const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
-                                      return (
-                                        <TableCell
-                                          key={slotCoordinate}
-                                          ref={
-                                            slotCoordinate ===
-                                            firstAvailableSlotCoordinate
-                                              ? firstAvailableHourRef
-                                              : undefined
-                                          }
-                                          className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                                        >
-                                          {playerHourStatus.availablePlayers
-                                            .size > 0 ? (
-                                            teamScheduleSlotPopOver({
-                                              playerHourStatus,
-                                              hourOfDayStr,
-                                              day,
-                                            })
-                                          ) : (
-                                            <span className="text-muted-foreground font-extralight">
-                                              {
-                                                playerHourStatus
-                                                  .availablePlayers.size
-                                              }
-                                            </span>
-                                          )}
-                                        </TableCell>
-                                      );
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {availabilityMap &&
+              Array.from(
+                availabilityMap
+                  .entries()
+                  .map(([hourOfDay, mapOfPlayerHourStatus]) => {
+                    const hourOfDayStr = twelveHourClock
+                      ? hourOfDay.twelveHourStr
+                      : hourOfDay.absHourStr;
+                    return (
+                      <TableRow key={hourOfDay.absHourStr} className="border-0">
+                        <TableCell className=" text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none">
+                          {hourOfDayStr}
+                        </TableCell>
+                        {Array.from(
+                          mapOfPlayerHourStatus
+                            .entries()
+                            .map(([day, playerHourStatus]) => {
+                              const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                              return (
+                                <TableCell
+                                  key={slotCoordinate}
+                                  ref={
+                                    slotCoordinate ===
+                                    firstAvailableSlotCoordinate
+                                      ? firstAvailableHourRef
+                                      : undefined
+                                  }
+                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                                >
+                                  {playerHourStatus.availablePlayers.size >
+                                  0 ? (
+                                    teamScheduleSlotPopOver({
+                                      playerHourStatus,
+                                      hourOfDayStr,
+                                      day,
                                     })
-                                )}
-                              </TableRow>
-                            );
-                          })
-                      )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                                  ) : (
+                                    <span className="text-muted-foreground font-extralight">
+                                      {playerHourStatus.availablePlayers.size}
+                                    </span>
+                                  )}
+                                </TableCell>
+                              );
+                            })
+                        )}
+                      </TableRow>
+                    );
+                  })
+              )}
+          </TableBody>
+        </Table>
       )}
-    </DashboardCard>
+    </div>
   );
 }

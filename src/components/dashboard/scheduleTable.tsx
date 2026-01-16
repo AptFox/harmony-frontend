@@ -13,7 +13,6 @@ import DashboardCard from '@/components/dashboard/dashboardCard';
 import { ScheduleTableDialog } from '@/components/dashboard/scheduleTableDialog';
 import { HourOfDay, HourStatus, TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
-import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 import { CalendarX2 } from 'lucide-react';
 import React, {
   Dispatch,
@@ -211,7 +210,9 @@ export default function ScheduleTable() {
       {scheduleSlots && scheduleSlots.length > 0 && (
         <Table className="relative">
           {scheduleTimeZone && (
-            <TableCaption>TZ: {scheduleTimeZone}</TableCaption>
+            <TableCaption className="font-mono">
+              TO = Time Off, TZ: {scheduleTimeZone}
+            </TableCaption>
           )}
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
@@ -264,9 +265,9 @@ export default function ScheduleTable() {
                                 </span>
                               )}
                               {hourStatus.isTimeOff && (
-                                <div className="flex w-full h-full justify-center items-center">
-                                  <TimeOffIcon className="w-4 h-4" />
-                                </div>
+                                <span className="font-semibold font-mono">
+                                  TO
+                                </span>
                               )}
                             </TableCell>
                           );

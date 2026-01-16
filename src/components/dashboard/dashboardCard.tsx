@@ -40,7 +40,7 @@ export default function DashboardCard({
             <h2 className="text-xl font-semibold">{title}</h2>
           </div>
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 h-10">
           {secondaryButton && secondaryButton()}
           {buttonText && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

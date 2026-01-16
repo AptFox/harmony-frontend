@@ -10,14 +10,8 @@ import {
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import { TimeOff } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
-import { TimeOffIcon } from '@/components/ui/timeOffIcon';
 import { Maximize2, X, Pencil, PencilOff } from 'lucide-react';
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
+import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
@@ -27,7 +21,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover';
+} from '@/components/ui/popover';
 
 export default function TimeOffTable() {
   const { user } = useUser();
@@ -141,7 +135,7 @@ export default function TimeOffTable() {
           align="center"
         >
           <PopoverArrow className="fill-foreground" />
-          <p className="flex text-wrap max-w-md text-sm">{comment}</p>
+          <p className="flex text-wrap max-w-md text-sm font-mono">{comment}</p>
         </PopoverContent>
       </Popover>
     );
@@ -177,7 +171,7 @@ export default function TimeOffTable() {
           </span>
         </div>
         <div className="flex-shrink-0 p-2">
-          {!deleteMode && 
+          {!deleteMode &&
             comment &&
             isOverflowing &&
             timeOffCommentPopOver(comment)}
@@ -193,7 +187,7 @@ export default function TimeOffTable() {
 
   return (
     <DashboardCard
-      title="Time off"
+      title="Time Off (TO)"
       buttonText="Add"
       dialogContent={dialogContent}
       secondaryButton={deleteModeButton}
@@ -239,17 +233,18 @@ export default function TimeOffTable() {
                 </TableRow>
               ))}
           </TableBody>
-          <TableCaption>Date format: MM/DD/YY</TableCaption>
+          <TableCaption className="font-mono">
+            Date format: MM/DD/YY
+          </TableCaption>
         </Table>
       )}
       {!scheduledTimeOff ||
         (scheduledTimeOff.length === 0 && (
           <Empty className="h-full w-full">
             <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <TimeOffIcon />
-              </EmptyMedia>
-              <EmptyTitle>No time off scheduled</EmptyTitle>
+              <EmptyTitle className="font-mono text-muted-foreground">
+                No time off scheduled
+              </EmptyTitle>
             </EmptyHeader>
           </Empty>
         ))}
