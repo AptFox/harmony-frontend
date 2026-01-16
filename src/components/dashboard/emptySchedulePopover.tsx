@@ -1,10 +1,16 @@
 import { Popover, PopoverArrow, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarX2 } from "lucide-react";
+import { PlayerSchedule } from "@/types/ScheduleTypes";
 
 export default function EmptySchedulePopover(
-  playersWithEmptySchedule: string[] | undefined
+  playerSchedules: PlayerSchedule[] | undefined
 ) {
+    const playersWithEmptySchedule = playerSchedules
+    ?.filter(
+      (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
+    )
+    .map((player) => player.playerName);
   return (
       playersWithEmptySchedule &&
       playersWithEmptySchedule.length > 0 && (

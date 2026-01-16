@@ -12,13 +12,6 @@ export default function TeamScheduleCard({
 }) {
   const { player } = usePlayer(orgId);
   const { teamSchedule, isLoading } = useTeamSchedule(player?.team?.id);
-  const playerSchedules = teamSchedule?.playerSchedules;
-
-  const playersWithEmptySchedule = playerSchedules
-    ?.filter(
-      (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
-    )
-    .map((player) => player.playerName);
 
   const cardTitle = player?.team?.name ? `${player?.team?.name}` : 'My Team';
 
@@ -26,7 +19,7 @@ export default function TeamScheduleCard({
     orgId && (
       <DashboardCard
         title={cardTitle}
-        secondaryButton={() => EmptySchedulePopover(playersWithEmptySchedule)}
+        secondaryButton={() => EmptySchedulePopover(teamSchedule?.playerSchedules)}
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >

@@ -29,14 +29,6 @@ export default function FranchiseScheduleTable({
     teamSchedule: selectedTeamSchedule,
     isLoading: isLoadingTeamSchedule,
   } = useTeamSchedule(selectedTeam?.id);
-  const playerSchedules = selectedTeamSchedule?.playerSchedules;
-  const playersWithEmptySchedule = playerSchedules
-    ?.filter(
-      (schedule) => schedule.availability.weeklyAvailabilitySlots.length === 0
-    )
-    .map((player) => player.playerName);
-
-  
 
   const cardTitle = selectedTeam
     ? `${selectedTeam.franchise.name}`
@@ -56,7 +48,7 @@ export default function FranchiseScheduleTable({
     orgId && (
       <DashboardCard
         title={cardTitle}
-        secondaryButton={() => EmptySchedulePopover(playersWithEmptySchedule)}
+        secondaryButton={() => EmptySchedulePopover(selectedTeamSchedule?.playerSchedules)}
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
