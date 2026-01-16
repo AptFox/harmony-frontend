@@ -12,6 +12,7 @@ beforeEach(() => {
 jest.mock('@/contexts');
 jest.mock('next/navigation');
 jest.mock('@/hooks/useInitialTimeZone');
+jest.mock('@/hooks/usePlayer');
 const useAuthMock = mocked(useAuth, { shallow: true });
 const useUserMock = mocked(useUser, { shallow: true });
 const useScheduleMock = mocked(useSchedule, { shallow: true });
@@ -47,6 +48,7 @@ describe('DashboardHandler', () => {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
+        organizations: [],
       };
       useScheduleMock.mockReturnValue({
         availability: {
@@ -112,6 +114,7 @@ describe('DashboardHandler', () => {
         id: 'someId',
         displayName: 'someName',
         timeZoneId: 'America/New_York',
+        organizations: [],
       };
       useUserMock.mockReturnValue({
         user: testUser,
