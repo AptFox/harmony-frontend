@@ -191,7 +191,7 @@ export default function TimeOffTable() {
       title="Time Off (TO)"
       buttonText="Add"
       dialogContent={dialogContent}
-      secondaryButton={deleteModeButton}
+      secondElement={deleteModeButton}
       parentClassName="flex-auto basis-2xl"
       childrenClassName="max-h-96 min-h-48"
     >

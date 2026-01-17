@@ -29,8 +29,16 @@ export default function DashboardHandler() {
     isError: isErrorUser,
   } = useUser();
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [orgTimeZoneId, setOrgTimeZoneId] = useState<string | undefined>();
   const { logout } = useAuth();
+
   useInitialTimeZone();
+
+  const selectOrg = (value: string) => {
+    setSelectedOrgId(value);
+    const selectedOrg = user?.organizations.find((org) => org.id === value);
+    setOrgTimeZoneId(selectedOrg?.timeZoneId);
+  };
 
   useEffect(() => {
     if (isLoadingUser) return;
@@ -40,6 +48,7 @@ export default function DashboardHandler() {
       !selectedOrgId
     ) {
       setSelectedOrgId(user.organizations[0].id);
+      setOrgTimeZoneId(user.organizations[0].timeZoneId);
     }
     if (isNoAccessTokenError(isErrorUser)) return;
     if (isErrorUser) {
@@ -94,7 +103,7 @@ export default function DashboardHandler() {
                   <Select
                     disabled={isLoadingUser || user?.organizations.length == 1}
                     value={selectedOrgId}
-                    onValueChange={setSelectedOrgId}
+                    onValueChange={(value) => selectOrg(value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Org" />
@@ -120,9 +129,17 @@ export default function DashboardHandler() {
                 <ScheduleTable />
                 <TimeOffTable />
                 {selectedOrgId && <PlayerCard orgId={selectedOrgId} />}
-                {selectedOrgId && <TeamScheduleCard orgId={selectedOrgId} />}
                 {selectedOrgId && (
-                  <FranchiseScheduleTable orgId={selectedOrgId} />
+                  <TeamScheduleCard
+                    orgId={selectedOrgId}
+                    orgTimeZoneId={orgTimeZoneId}
+                  />
+                )}
+                {selectedOrgId && (
+                  <FranchiseScheduleTable
+                    orgId={selectedOrgId}
+                    orgTimeZoneId={orgTimeZoneId}
+                  />
                 )}
               </div>
             </div>

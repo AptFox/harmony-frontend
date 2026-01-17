@@ -2,6 +2,7 @@ export type Organization = {
   id: string;
   name: string;
   acronym: string;
+  timeZoneId: string;
 };
 
 export type SkillGroup = {

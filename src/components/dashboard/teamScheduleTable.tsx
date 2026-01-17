@@ -22,6 +22,7 @@ import {
   createDayOfWeekToDatesMap,
   createHoursInDayArray,
   daysOfWeek,
+  getCurrentDateInTimeZone,
   getCurrentUserLocale,
   isTimeOffFn,
 } from '@/lib/scheduleUtils';
@@ -46,13 +47,15 @@ import { CalendarX2 } from 'lucide-react';
 
 export default function TeamScheduleTable({
   team,
+  timeZoneId,
 }: {
   team: Team | undefined;
+  timeZoneId: string;
 }) {
   const { user } = useUser();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
-  const currentDate = new Date();
+  const currentDate = getCurrentDateInTimeZone(timeZoneId);
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
     useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
@@ -114,7 +117,8 @@ export default function TeamScheduleTable({
     if (!targetDate) return;
     const { startTimeUtc, endTimeUtc } = convertScheduleSlotToTargetDate(
       slot,
-      targetDate
+      targetDate,
+      timeZoneId
     );
     const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
       const hour = hourOfDay.hour;
