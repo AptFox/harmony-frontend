@@ -28,7 +28,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { createHoursInDayArray } from '@/lib/scheduleUtils';
+import {
+  createHoursInDayArray,
+  formatDateToCurrentLocale,
+} from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -187,15 +190,6 @@ export default function ScheduleTable() {
 
   const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
 
-  const formatDate = (date: Date | undefined) => {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-    });
-
-    return formatter.format(date);
-  };
-
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
     ScheduleTableDialog({ hoursInDay, setDialogOpen });
 
@@ -226,7 +220,9 @@ export default function ScheduleTable() {
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight">
-                        {formatDate(dayOfWeekToDatesMap.get(day))}
+                        {formatDateToCurrentLocale(
+                          dayOfWeekToDatesMap.get(day)
+                        )}
                       </span>
                     </div>
                     <div>{day}</div>

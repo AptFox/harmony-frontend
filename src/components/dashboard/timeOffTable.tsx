@@ -22,6 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { getCurrentUserLocale } from '@/lib/scheduleUtils';
 
 export default function TimeOffTable() {
   const { user } = useUser();
@@ -37,7 +38,7 @@ export default function TimeOffTable() {
   const getDateCell = (startDateStr: string, endDateStr: string) => {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    const formatter = new Intl.DateTimeFormat(getCurrentUserLocale(), {
       year: '2-digit',
       month: '2-digit',
       day: '2-digit',
