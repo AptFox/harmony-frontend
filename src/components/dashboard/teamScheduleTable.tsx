@@ -22,6 +22,7 @@ import {
   createDayOfWeekToDatesMap,
   createHoursInDayArray,
   daysOfWeek,
+  getCurrentUserLocale,
   isTimeOffFn,
 } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
@@ -175,7 +176,7 @@ export default function TeamScheduleTable({
   const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
 
   const formatPopoverDate = (date: Date | undefined): string => {
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    const formatter = new Intl.DateTimeFormat(getCurrentUserLocale(), {
       month: 'short',
       day: '2-digit',
       weekday: 'short',
@@ -199,24 +200,26 @@ export default function TeamScheduleTable({
           {playerHourStatus.availablePlayers.size}
         </PopoverTrigger>
         <PopoverContent
-          className="w-40 bg-secondary border-foreground border-4"
+          className="bg-secondary border-foreground border-4 w-fit"
           align="center"
         >
           <PopoverArrow className="fill-foreground" />
-          <div className="grid gap-1 text-center text-sm">
+          <div className="flex flex-col text-center text-sm">
             <p>
               {hourOfDayStr}, {formatPopoverDate(dayOfWeekToDatesMap.get(day))}
             </p>
-            <p>
-              Available:{' '}
+            <div>Available:</div>
+            <div className="grid gap-1 grid-cols-1">
               {Array.from(
-                playerHourStatus.availablePlayers
-                  .entries()
-                  .map(([player]) => (
-                    <Badge key={player}>{player.toString()}</Badge>
-                  ))
+                playerHourStatus.availablePlayers.entries().map(([player]) => (
+                  <div key={player}>
+                    <Badge>
+                      <span className="max-w-40 truncate">{player}</span>
+                    </Badge>
+                  </div>
+                ))
               )}
-            </p>
+            </div>
           </div>
         </PopoverContent>
       </Popover>
