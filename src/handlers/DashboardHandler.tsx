@@ -29,7 +29,7 @@ export default function DashboardHandler() {
     isError: isErrorUser,
   } = useUser();
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
-  const [orgTimeZone, setOrgTimeZone] = useState<string | undefined>();
+  const [orgTimeZoneId, setOrgTimeZoneId] = useState<string | undefined>();
   const { logout } = useAuth();
 
   useInitialTimeZone();
@@ -37,7 +37,7 @@ export default function DashboardHandler() {
   const selectOrg = (value: string) => {
     setSelectedOrgId(value);
     const selectedOrg = user?.organizations.find((org) => org.id === value);
-    setOrgTimeZone(selectedOrg?.timeZoneId);
+    setOrgTimeZoneId(selectedOrg?.timeZoneId);
   };
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function DashboardHandler() {
       !selectedOrgId
     ) {
       setSelectedOrgId(user.organizations[0].id);
-      setOrgTimeZone(user.organizations[0].timeZoneId);
+      setOrgTimeZoneId(user.organizations[0].timeZoneId);
     }
     if (isNoAccessTokenError(isErrorUser)) return;
     if (isErrorUser) {
@@ -132,13 +132,13 @@ export default function DashboardHandler() {
                 {selectedOrgId && (
                   <TeamScheduleCard
                     orgId={selectedOrgId}
-                    orgTimeZoneId={orgTimeZone}
+                    orgTimeZoneId={orgTimeZoneId}
                   />
                 )}
                 {selectedOrgId && (
                   <FranchiseScheduleTable
                     orgId={selectedOrgId}
-                    orgTimeZoneId={orgTimeZone}
+                    orgTimeZoneId={orgTimeZoneId}
                   />
                 )}
               </div>
