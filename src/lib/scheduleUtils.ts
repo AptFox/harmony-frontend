@@ -21,11 +21,20 @@ export const convertScheduleSlotToTargetDate = (
   };
 };
 
-export const formatDate = (date: Date | undefined) => {
-  const formatter = new Intl.DateTimeFormat('en-US', {
+// Falls back to the US locale
+export const getCurrentUserLocale = (): string => {
+  return typeof window !== 'undefined' ? window.navigator.language : 'en-US';
+};
+
+export const formatDateToCurrentLocale = (
+  date: Date | undefined,
+  locale: string = getCurrentUserLocale(),
+  options: Intl.DateTimeFormatOptions = {
     month: '2-digit',
     day: '2-digit',
-  });
+  }
+) => {
+  const formatter = new Intl.DateTimeFormat(locale, options);
 
   return formatter.format(date);
 };
