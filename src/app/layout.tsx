@@ -35,7 +35,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          {children}
+          <div className="min-h-screen w-full bg-background">
+            <main className="mx-auto max-w-350 p-8 sm:px-6 lg:px-8">
+              {children}
+            </main>
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>

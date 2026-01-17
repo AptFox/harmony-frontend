@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Minus } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
 import { useSchedule, useUser } from '@/contexts';
@@ -34,7 +33,6 @@ import {
   getPossibleEndTimes,
   getPossibleStartTimes,
 } from '@/lib/scheduleUtils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);
@@ -189,12 +187,8 @@ export function TimeOffTableDialog({
       month: '2-digit',
       day: '2-digit',
     });
-    let formattedDateStr = 'N/A';
-    if (selectedDate) {
-      formattedDateStr = formatter.format(selectedDate);
-    }
 
-    return `Selected Date: ${formattedDateStr}`;
+    return formatter.format(selectedDate);
   };
 
   const saveButtonDisabled = () => {
@@ -211,14 +205,13 @@ export function TimeOffTableDialog({
   ];
 
   return (
-    <DialogContent className="max-w-[425px] max-h-[525px] lg:max-h-fit bg-secondary">
+    <DialogContent className="lg:max-h-fit lg:w-fit bg-secondary">
       <DialogHeader>
-        <DialogTitle>Add time off</DialogTitle>
+        <DialogTitle>
+          {selectedDate ? getSelectedDateStr() : 'Add time off'}
+        </DialogTitle>
       </DialogHeader>
-      <ScrollArea
-        type="auto"
-        className="flex flex-row max-w-full h-[325px] lg:h-fit relative"
-      >
+      <div className="flex flex-col max-w-full lg:max-w-fit lg:h-fit">
         {!isLoadingAvailability && (
           <div className="flex flex-row justify-center">
             <Calendar
@@ -242,7 +235,6 @@ export function TimeOffTableDialog({
           </div>
         )}
         <div className="flex flex-col gap-3">
-          <h3 className="text-xs">{getSelectedDateStr()}</h3>
           <div className="flex flex-row gap-3 w-full justify-evenly">
             <div className="flex flex-col gap-3">
               <div className="flex justify-center gap">
@@ -313,19 +305,14 @@ export function TimeOffTableDialog({
               </Label>
             </div>
           </div>
-          <div className="grid w-full gap-3">
-            <Label htmlFor="message">Add comment:</Label>
-            <Textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Add your notes about this time off here"
-              id="comment"
-            />
-          </div>
+          <Textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="What's this time off for?"
+            id="comment"
+          />
         </div>
-      </ScrollArea>
-
-      <Separator />
+      </div>
       <DialogFooter className="flex flex-row justify-end gap-4 lg:gap-2">
         <DialogClose asChild>
           <Button
