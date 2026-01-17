@@ -253,7 +253,7 @@ export default function ScheduleTable() {
                             >
                               {!hourStatus.isTimeOff && (
                                 <span
-                                  className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono' : 'text-muted-foreground font-extralight line-through'}`}
+                                  className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight line-through'}`}
                                 >
                                   {twelveHourClock
                                     ? hourOfDay.twelveHourStr
