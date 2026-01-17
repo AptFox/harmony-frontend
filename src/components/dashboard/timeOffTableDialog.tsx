@@ -18,7 +18,13 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Minus } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useMemo,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
 import { useSchedule, useUser } from '@/contexts';
@@ -182,13 +188,26 @@ export function TimeOffTableDialog({
   };
 
   const getSelectedDateStr = (): string => {
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    const locale =
+      typeof window !== 'undefined' ? window.navigator.language : 'en-US';
+
+    const formatter = new Intl.DateTimeFormat(locale, {
       year: '2-digit',
       month: '2-digit',
       day: '2-digit',
     });
 
     return formatter.format(selectedDate);
+  };
+
+  const getCalendarFooter = (): ReactNode => {
+    return (
+      <div className="text-center font-mono text-muted-foreground text-xs">
+        {selectedDate
+          ? `Selected date: ${getSelectedDateStr()}`
+          : 'Pick a date'}
+      </div>
+    );
   };
 
   const saveButtonDisabled = () => {
@@ -207,9 +226,7 @@ export function TimeOffTableDialog({
   return (
     <DialogContent className="lg:max-h-fit lg:w-fit bg-secondary">
       <DialogHeader>
-        <DialogTitle>
-          {selectedDate ? getSelectedDateStr() : 'Add time off'}
-        </DialogTitle>
+        <DialogTitle>Add Time Off (TO)</DialogTitle>
       </DialogHeader>
       <div className="flex flex-col max-w-full lg:max-w-fit lg:h-fit">
         {!isLoadingAvailability && (
@@ -231,6 +248,7 @@ export function TimeOffTableDialog({
               captionLayout="dropdown-months"
               timeZone={currentTimeZone}
               onSelect={setSelectedDate}
+              footer={getCalendarFooter()}
             />
           </div>
         )}
