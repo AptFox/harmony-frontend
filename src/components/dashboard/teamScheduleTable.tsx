@@ -197,7 +197,9 @@ export default function TeamScheduleTable({
     return (
       <Popover>
         <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
-          {playerHourStatus.availablePlayers.size}
+          <span className="text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+            {playerHourStatus.availablePlayers.size}
+          </span>
         </PopoverTrigger>
         <PopoverContent
           className="bg-secondary border-foreground border-4 w-fit"
@@ -214,7 +216,9 @@ export default function TeamScheduleTable({
                 playerHourStatus.availablePlayers.entries().map(([player]) => (
                   <div key={player}>
                     <Badge>
-                      <span className="max-w-40 truncate">{player}</span>
+                      <span className="text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] max-w-40 truncate">
+                        {player}
+                      </span>
                     </Badge>
                   </div>
                 ))
@@ -295,7 +299,7 @@ export default function TeamScheduleTable({
                       : hourOfDay.absHourStr;
                     return (
                       <TableRow key={hourOfDay.absHourStr} className="border-0">
-                        <TableCell className=" text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none">
+                        <TableCell className="text-xs text-center text-primary-foreground font-semibold font-mono border-b-1 bg-none">
                           {hourOfDayStr}
                         </TableCell>
                         {Array.from(
@@ -312,7 +316,7 @@ export default function TeamScheduleTable({
                                       ? firstAvailableHourRef
                                       : undefined
                                   }
-                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary lg:hover:brightness-85 transition-all' : 'border-b-1 bg-none'}`}
                                 >
                                   {playerHourStatus.availablePlayers.size >
                                   0 ? (
