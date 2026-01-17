@@ -31,6 +31,7 @@ import {
 import {
   createHoursInDayArray,
   formatDateToCurrentLocale,
+  getFormattedTimeZone,
 } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
@@ -85,10 +86,11 @@ export default function ScheduleTable() {
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const scheduleSlots = availability?.weeklyAvailabilitySlots;
   const timeOffSlots = availability?.timeOffs;
-  const scheduleTimeZone =
+  const scheduleTimeZoneId =
     scheduleSlots && scheduleSlots.length > 0
       ? scheduleSlots[0].timeZoneId
       : undefined;
+  const formattedTimeZone = getFormattedTimeZone(scheduleTimeZoneId);
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
@@ -195,7 +197,7 @@ export default function ScheduleTable() {
 
   return (
     <DashboardCard
-      title="My Schedule"
+      title={`My Schedule (${formattedTimeZone})`}
       buttonText="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
@@ -203,9 +205,9 @@ export default function ScheduleTable() {
     >
       {scheduleSlots && scheduleSlots.length > 0 && (
         <Table className="relative">
-          {scheduleTimeZone && (
+          {scheduleTimeZoneId && (
             <TableCaption className="font-mono">
-              TO = Time Off, TZ: {scheduleTimeZone}
+              TO = Time Off, TZ: {formattedTimeZone}
             </TableCaption>
           )}
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
@@ -253,7 +255,7 @@ export default function ScheduleTable() {
                             >
                               {!hourStatus.isTimeOff && (
                                 <span
-                                  className={`text-xs ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold font-mono text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight line-through'}`}
+                                  className={`text-xs font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
                                 >
                                   {twelveHourClock
                                     ? hourOfDay.twelveHourStr

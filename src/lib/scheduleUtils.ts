@@ -1,18 +1,24 @@
-import { HourOfDay, ScheduleSlot, TimeOff } from '@/types/ScheduleTypes';
+import {
+  HourOfDay,
+  ScheduleSlot,
+  TimeOff,
+  TimeZone,
+} from '@/types/ScheduleTypes';
 import { fromZonedTime } from 'date-fns-tz';
 
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Converts ScheduleSlot's LocalTimes to UTC
+// Converts ScheduleSlot's LocalTimes to supplied timeZone, defaults to UTC
 export const convertScheduleSlotToTargetDate = (
   scheduleSlot: ScheduleSlot,
-  targetDate: Date
+  targetDate: Date,
+  timeZoneId: string = scheduleSlot.timeZoneId
 ) => {
   const dateStr = targetDate.toISOString().split('T')[0];
 
   const createDate = (time: string) => {
     const timeInScheduledZone = `${dateStr} ${time}`;
-    return fromZonedTime(timeInScheduledZone, scheduleSlot.timeZoneId);
+    return fromZonedTime(timeInScheduledZone, timeZoneId);
   };
 
   return {
@@ -24,6 +30,58 @@ export const convertScheduleSlotToTargetDate = (
 // Falls back to the US locale
 export const getCurrentUserLocale = (): string => {
   return typeof window !== 'undefined' ? window.navigator.language : 'en-US';
+};
+
+export const getCurrentTimeZoneId = (): string =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/**
+ * Converts an IANA timezone string to its current localized abbreviation.
+ * Example: "America/New_York" -> "EDT" (in summer) or "EST" (in winter)
+ */
+export const getFormattedTimeZone = (
+  timeZoneId: string | undefined,
+  locale: string = 'en-US'
+): string => {
+  const timeZone = timeZoneId || getCurrentTimeZoneId();
+  return (
+    Intl.DateTimeFormat(locale, {
+      timeZone: timeZone,
+      timeZoneName: 'short',
+    })
+      .formatToParts(new Date())
+      .find((part) => part.type === 'timeZoneName')?.value || timeZone
+  );
+};
+
+/**
+ * Returns the current date in the supplied timezone.
+ */
+export const getCurrentDateInTimeZone = (timeZoneId: string): Date => {
+  const now = new Date();
+  const localizedString = now.toLocaleString('en-US', {
+    timeZone: timeZoneId,
+    hour12: false,
+  });
+
+  return new Date(localizedString);
+};
+
+export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
+  const currentUserTimeZone: TimeZone = {
+    displayValue: getFormattedTimeZone(getCurrentTimeZoneId()),
+    timeZoneId: getCurrentTimeZoneId(),
+  };
+  const orgTimeZone: TimeZone | undefined = orgTimeZoneId
+    ? {
+        displayValue: getFormattedTimeZone(orgTimeZoneId),
+        timeZoneId: orgTimeZoneId,
+      }
+    : undefined;
+  const timeZones = [];
+  timeZones.push(currentUserTimeZone);
+  if (orgTimeZone) timeZones.push(orgTimeZone);
+  return timeZones;
 };
 
 export const formatDateToCurrentLocale = (

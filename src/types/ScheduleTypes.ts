@@ -72,3 +72,8 @@ export type TeamScheduleContextType = {
   isLoading: boolean;
   isError: Error | undefined;
 };
+
+export type TimeZone = {
+  displayValue: string;
+  timeZoneId: string;
+};

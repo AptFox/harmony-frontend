@@ -9,17 +9,26 @@ import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeams } from '@/hooks/useTeams';
 import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
+import { getCurrentTimeZoneId, getTimeZones } from '@/lib/scheduleUtils';
+import { TimeZone } from '@/types/ScheduleTypes';
+import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
 
 export default function FranchiseScheduleTable({
   orgId,
+  orgTimeZoneId,
 }: {
   orgId: string | undefined;
+  orgTimeZoneId: string | undefined;
 }) {
   const { player } = usePlayer(orgId);
   const { franchiseTeams } = useTeams(player?.team?.franchise.id);
   const [selectedTeam, setSelectedTeam] = useState(
     franchiseTeams ? franchiseTeams[0] : undefined
   );
+  const [selectedTimeZoneId, setSelectedTimeZoneId] = useState(
+    getCurrentTimeZoneId()
+  );
+  const timeZones: TimeZone[] = getTimeZones(orgTimeZoneId);
   const onSelectedTeamChange = (teamId: string) => {
     const team = franchiseTeams?.find((team) => team.id === teamId);
     setSelectedTeam(team);
@@ -44,14 +53,25 @@ export default function FranchiseScheduleTable({
     (team) => team.id !== player?.team?.id
   );
 
+  const playerSchedules = selectedTeamSchedule?.playerSchedules;
+  const timeZoneSelect = () => {
+    return (
+      <TimeZoneSelect
+        playerSchedules={playerSchedules}
+        timeZones={timeZones}
+        selectedTimeZoneId={selectedTimeZoneId}
+        setSelectedTimeZoneId={setSelectedTimeZoneId}
+      />
+    );
+  };
+
   return (
     orgId &&
     franchiseTeamsOmittingCurrentPlayerTeam && (
       <DashboardCard
         title={cardTitle}
-        secondaryButton={() =>
-          EmptySchedulePopover(selectedTeamSchedule?.playerSchedules)
-        }
+        firstElement={timeZoneSelect}
+        secondElement={() => EmptySchedulePopover(playerSchedules)}
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
@@ -79,7 +99,10 @@ export default function FranchiseScheduleTable({
               {isLoadingTeamSchedule ? (
                 <Skeleton />
               ) : (
-                <TeamScheduleTable team={selectedTeam} />
+                <TeamScheduleTable
+                  team={selectedTeam}
+                  timeZoneId={selectedTimeZoneId}
+                />
               )}
             </TabsContent>
           </Tabs>

@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { type ClassValue } from 'clsx';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 export default function DashboardCard({
   title,
   buttonText,
   dialogContent,
-  secondaryButton,
+  firstElement,
+  secondElement,
   parentClassName,
   childrenClassName,
   children,
@@ -20,11 +21,12 @@ export default function DashboardCard({
   buttonText?: string;
   dialogContent?: (
     setDialogOpen: Dispatch<SetStateAction<boolean>>
-  ) => React.ReactNode;
-  secondaryButton?: () => React.ReactNode;
+  ) => ReactNode;
+  firstElement?: () => ReactNode;
+  secondElement?: () => ReactNode;
   parentClassName?: ClassValue;
   childrenClassName?: ClassValue;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   return (
@@ -41,7 +43,8 @@ export default function DashboardCard({
           </div>
         </div>
         <div className="flex flex-row gap-2 h-10">
-          {secondaryButton && secondaryButton()}
+          {secondElement && secondElement()}
+          {firstElement && firstElement()}
           {buttonText && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <form>
