@@ -4,7 +4,6 @@ import DashboardCard from '@/components/dashboard/dashboardCard';
 import React, { useEffect, useState } from 'react';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeams } from '@/hooks/useTeams';
@@ -12,6 +11,7 @@ import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
 import { getCurrentTimeZoneId, getTimeZones } from '@/lib/scheduleUtils';
 import { TimeZone } from '@/types/ScheduleTypes';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
+import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 
 export default function FranchiseScheduleTable({
   orgId,
@@ -97,7 +97,7 @@ export default function FranchiseScheduleTable({
               value={selectedTeam?.id || 'default'}
             >
               {isLoadingTeamSchedule ? (
-                <Skeleton />
+                <ScheduleTableSkeleton />
               ) : (
                 <TeamScheduleTable
                   team={selectedTeam}

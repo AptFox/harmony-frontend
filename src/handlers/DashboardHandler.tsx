@@ -70,13 +70,13 @@ export default function DashboardHandler() {
           <div className="flex flex-col h-full justify-center">
             <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
               <span className="text-xl font-bold">Dashboard loading...</span>
-              <Spinner className="ml-4 size-8" />
+              <Spinner className="ml-4 size-8 stroke-primary" />
             </div>
           </div>
         )}
         {isErrorUser && (
           <div className="flex flex-col h-full justify-center">
-            <div className="flex flex-row justify-center bg-red-800 rounded-lg p-8 border">
+            <div className="flex flex-row justify-center bg-primary/45 rounded-lg p-8 border border-primary">
               <span className="text-xl font-bold">Error loading user data</span>
             </div>
           </div>
