@@ -27,7 +27,6 @@ import {
   isTimeOffFn,
 } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Popover,
   PopoverArrow,
@@ -44,6 +43,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { CalendarX2 } from 'lucide-react';
+import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 
 export default function TeamScheduleTable({
   team,
@@ -268,7 +268,7 @@ export default function TeamScheduleTable({
   };
 
   return isLoading ? (
-    <Skeleton />
+    <ScheduleTableSkeleton />
   ) : (
     <div className="flex flex-auto max-h-96">
       {!renderSchedule && emptyErrorMessage()}

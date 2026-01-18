@@ -14,13 +14,11 @@ export default function OAuthCallbackHandler() {
   }, [accessToken, router]);
 
   return (
-    <div>
-      <div className="flex flex-col h-dvh w-dvw justify-center">
-        <div className="flex flex-row justify-center">
-          <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
-            <span className="text-xl font-bold">Logging you in...</span>
-            <Spinner className="ml-4 size-8" />
-          </div>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
+      <div className="flex flex-row justify-center">
+        <div className="flex flex-row justify-center bg-secondary rounded-lg p-8 border">
+          <span className="text-xl font-bold">Logging you in...</span>
+          <Spinner className="ml-4 size-8 stroke-primary" />
         </div>
       </div>
     </div>

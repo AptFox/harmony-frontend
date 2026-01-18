@@ -1,8 +1,8 @@
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
+import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
-import { Skeleton } from '@/components/ui/skeleton';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { getCurrentTimeZoneId, getTimeZones } from '@/lib/scheduleUtils';
@@ -46,7 +46,7 @@ export default function TeamScheduleCard({
         childrenClassName="min-h-48"
       >
         {isLoading ? (
-          <Skeleton />
+          <ScheduleTableSkeleton />
         ) : (
           <TeamScheduleTable
             team={player?.team}

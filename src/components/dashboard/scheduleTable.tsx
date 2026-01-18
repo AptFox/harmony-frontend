@@ -218,10 +218,10 @@ export default function ScheduleTable() {
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
                   <div
-                    className={`flex-col ${currentDay === day ? 'border-y-3 border-primary' : ''}`}
+                    className={`flex-col ${currentDay === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
                   >
                     <div>
-                      <span className="text-xs text-muted-foreground font-extralight">
+                      <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
                         {formatDateToCurrentLocale(
                           dayOfWeekToDatesMap.get(day)
                         )}

@@ -23,10 +23,11 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { getCurrentUserLocale } from '@/lib/scheduleUtils';
+import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 
 export default function TimeOffTable() {
   const { user } = useUser();
-  const { availability, deleteTimeOff } = useSchedule();
+  const { availability, deleteTimeOff, isLoading } = useSchedule();
   const twelveHourClock = user?.twelveHourClock || true;
   const scheduledTimeOff: TimeOff[] | undefined = availability?.timeOffs;
   const [deleteMode, setDeleteMode] = useState(false);
@@ -195,7 +196,8 @@ export default function TimeOffTable() {
       parentClassName="flex-auto basis-2xl"
       childrenClassName="max-h-96 min-h-48"
     >
-      {scheduledTimeOff && scheduledTimeOff.length > 0 && (
+      {isLoading && <ScheduleTableSkeleton />}
+      {!isLoading && scheduledTimeOff && scheduledTimeOff.length > 0 && (
         <Table className="relative">
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
             <TableRow className="h-6">

@@ -1,6 +1,6 @@
 import { usePlayer } from '@/hooks/usePlayer';
-import { Skeleton } from '@/components/ui/skeleton';
 import DashboardCard from '@/components/dashboard/dashboardCard';
+import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 
 export default function PlayerCard({ orgId }: { orgId: string | undefined }) {
   const { player, isLoading } = usePlayer(orgId);
@@ -14,7 +14,7 @@ export default function PlayerCard({ orgId }: { orgId: string | undefined }) {
         childrenClassName="max-h-96 min-h-54"
       >
         {isLoading ? (
-          <Skeleton />
+          <ScheduleTableSkeleton />
         ) : (
           <div className="grid grid-cols-2 p-4 font-mono text-sm">
             <span>Organization:</span>
