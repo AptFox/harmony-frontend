@@ -8,8 +8,8 @@ import { ThemeProvider } from '@/components/themeProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Harmony Scheduler',
-  applicationName: 'Harmony Scheduler',
+  title: 'Harmony Schedlr',
+  applicationName: 'Harmony',
   description: 'eSports Schedlr',
   other: {
     ...Sentry.getTraceData(),
