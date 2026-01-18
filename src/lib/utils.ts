@@ -77,11 +77,23 @@ export function logInfo(message: string): void {
 }
 
 export function logWarn(error: Error | unknown, message: string): void {
-  if (!isProdEnv()) console.warn(error, message);
+  if (!isProdEnv()) console.warn(message, error);
 }
 
-export function logError(error: Error | unknown, message: string): void {
-  if (!isProdEnv()) console.error(error, message);
+export function logError(
+  error: Error | (Error & { digest?: string }) | unknown,
+  message: string
+): void {
+  if (!isProdEnv()) {
+    console.error(message, error);
+    const digest =
+      error && typeof error === 'object' && 'digest' in error
+        ? (error as { digest: string }).digest
+        : undefined;
+    if (digest) {
+      console.error('NextJs Digest', digest);
+    }
+  }
 }
 
 export function sendErrorToSentry(error: unknown): void {
