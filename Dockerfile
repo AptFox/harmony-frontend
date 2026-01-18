@@ -4,19 +4,23 @@ FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Install dependencies separately for caching
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --frozen-lockfile
 
 # ---- Build Stage ----
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
 # Set BACKEND API URL at build time
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+COPY --from=deps /app/node_modules ./node_modules
 
+# Copy source code
+COPY . .
+
+# Build Next.js
 RUN npm run build
 
 # ---- Production Stage ----
