@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: 'Harmony Schedlr',
   applicationName: 'Harmony',
   description: 'eSports Schedlr',
+  icons: {
+    icon: [{ url: '/bgIcon_2048.png', type: 'image/png', sizes: 'any' }],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
   other: {
     ...Sentry.getTraceData(),
   },
@@ -23,16 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="any" />
-        <link rel="icon" href="/icon.png" type="image/png" sizes="any" />
-        <link
-          rel="apple-touch-icon"
-          href="/apple-icon.png"
-          type="image/png"
-          sizes="180x180"
-        />
-      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <div className="min-h-screen w-full bg-background">
