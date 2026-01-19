@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import icon from '@/app/icon.png';
 
 export default function HarmonyMascot({
   width = 128,
@@ -11,7 +10,7 @@ export default function HarmonyMascot({
   return (
     <div className="rounded-full border-3 border-primary-foreground bg-primary">
       <Image
-        src={icon}
+        src="/icon.svg"
         alt="Harmony logo"
         width={width}
         height={height}
