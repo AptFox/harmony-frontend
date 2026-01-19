@@ -4,7 +4,7 @@ import {
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
-import { fromZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -18,7 +18,7 @@ export const convertScheduleSlotToTargetDate = (
 
   const createDate = (time: string) => {
     const timeInScheduledZone = `${dateStr} ${time}`;
-    return fromZonedTime(timeInScheduledZone, timeZoneId);
+    return toZonedTime(timeInScheduledZone, timeZoneId);
   };
 
   return {
