@@ -8,7 +8,7 @@
   "theme_color": "#7f22fe",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "/bgIcon_2048.png",
       "sizes": "any",
       "type": "image/png"
     },
