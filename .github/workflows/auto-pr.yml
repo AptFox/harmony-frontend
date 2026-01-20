@@ -99,6 +99,6 @@ jobs:
               --head dev \
               --title "$TITLE" \
               --body "$BODY" \
-              --label auto-pr \
+              --label auto-pr
           fi
 
