@@ -1,5 +1,4 @@
 name: Feature Request
-description: Propose a new feature for Harmony
 title: "[FEAT]: "
 body:
   - type: markdown
