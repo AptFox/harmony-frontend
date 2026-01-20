@@ -16,6 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: dev
           fetch-depth: 0 # Get all commits to compare branches
       
       - name: Calculate Deploy/Build Version
@@ -33,14 +34,12 @@ jobs:
           # DEPLOY_COUNT+=1 for next deploy
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Generate Commit Summary
+      - name: Generate Change Log
         id: commit_summary
         run: |
-          git fetch origin main
-
           # Get all commit messages between main and dev
-          # Format: * ShortHash - Message (Author)
-          COMMITS=$(git log origin/main..HEAD --oneline --no-merges --pretty=format:"* %h - %s")
+          # * ShortHash - Author: Message (Relative commit date)
+          COMMITS=$(git log origin/main..origin/dev --oneline --no-merges --pretty=format:"* %h - %an: %s (%ar)")
 
           echo "Found commits:"
           echo "$COMMITS"
@@ -50,12 +49,12 @@ jobs:
           fi
           
           {
-            echo "COMMIT_LOGS<<EOF"
+            echo "COMMIT_SUMMARY<<EOF"
             echo "$COMMITS"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create Pull Request
+      - name: "Auto-PR: dev ➔ main"
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.HARMONY_AUTO_PR_PAT }}
@@ -63,11 +62,11 @@ jobs:
           base: main
           title: "build/deploy: Harmony v${{ steps.deploy_build_versioning.outputs.VERSION }}"
           body: |
-            ## Auto-PR from `dev` ➔ `main`
+            ## Auto-PR: `dev` ➔ `main`
             This PR was automatically generated because new code was pushed to the `dev` branch.
 
-            ### Commits (change log)
-            ${{ steps.commit_summary.outputs.COMMIT_LOGS }}
+            ### Change log (commits)
+            ${{ steps.commit_summary.outputs.COMMIT_SUMMARY }}
             
           labels: |
             automated-pr
