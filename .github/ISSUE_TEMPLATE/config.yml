@@ -1,6 +1,6 @@
 blank_issues_enabled: false # Forces users to use your forms or links
 contact_links:
-  - name: 💡 Feature Request or Idea
+  - name: 💡  
     url: https://github.com/AptFox/harmony-frontend/discussions/new?category=feature-requests
     about: Want a new feature in Harmony? Suggest it!
   - name: 💬 General Question
