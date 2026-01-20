@@ -10,7 +10,7 @@ permissions:
   pull-requests: write    
 
 jobs:
-  create-pull-request:
+  auto-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -34,9 +34,7 @@ jobs:
         run: |
           # Get all commit messages between main and dev
           # Format: * ShortHash - Message (Author)
-          git fetch origin main:main
-          
-          COMMITS=$(git log origin/main..origin/dev --oneline --no-merges --pretty=format:"* %h - %s")
+          COMMITS=$(git log origin/main..HEAD --oneline --no-merges --pretty=format:"* %h - %s")
 
           if [ -z "$COMMITS" ]; then
             COMMITS="* No new commits found (likely a fast-forward or metadata change)."
