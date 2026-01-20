@@ -1,13 +1,12 @@
-name: 💡 Feature Request
+name: Feature Request
 description: Propose a new feature for Harmony
 title: "[FEAT]: "
-labels: ["Requested"]
 body:
   - type: markdown
     attributes:
       value: |
         ### Have an idea for Harmony?
-        Fill out the details below. We use **Upvotes** to prioritize features.
+        Fill out the details below. **Upvotes** prioritize features.
   - type: input
     id: feature-title
     attributes:
@@ -47,4 +46,4 @@ body:
       value: |
         ---
         ### Vote for this feature!
-        **Use the arrow in the top-left to "Upvote".** New features are prioritized by upvotes.
+        **Use the arrow in the top-left to upvote.** New features are prioritized by upvotes.
