@@ -30,9 +30,9 @@ body:
     attributes:
       label: Priority
       options:
-        - label: This would be nice to have
-        - label: I want this
-        - label: I need this
+        - This would be nice to have
+        - I want this
+        - I need this
       default: 0
     validations:
       required: true
