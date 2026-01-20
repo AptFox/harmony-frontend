@@ -24,23 +24,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.HARMONY_AUTO_PR_PAT }}
         run: |
           # Get the number of previous deploys
-          DEPLOY_COUNT=$(gh run list --workflow "heroku-deploy.yml" --status success --json conclusion --limit 1000 | jq '. | length'  || echo 0)
+          DEPLOY_COUNT=$(gh run list --workflow "prod-deploy" --status success --json conclusion --limit 1000 | jq '. | length'  || echo 0)
+          VERSION=$((DEPLOY_COUNT + 1))
+
+          echo "Calculated version:"
+          echo "$VERSION"
           
           # DEPLOY_COUNT+=1 for next deploy
-          echo "VERSION=$((DEPLOY_COUNT + 1))" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Generate Commit Summary
         id: commit_summary
         run: |
+          git fetch origin main
+
           # Get all commit messages between main and dev
           # Format: * ShortHash - Message (Author)
           COMMITS=$(git log origin/main..HEAD --oneline --no-merges --pretty=format:"* %h - %s")
 
+          echo "Found commits:"
+          echo "$COMMITS"
+
           if [ -z "$COMMITS" ]; then
-            COMMITS="* No new commits found (likely a fast-forward or metadata change)."
+            COMMITS="** No new commits found. **"
           fi
           
-          # Handle multi-line strings for GitHub Actions output
           {
             echo "COMMIT_LOGS<<EOF"
             echo "$COMMITS"
