@@ -21,7 +21,7 @@ jobs:
       - name: Calculate Deploy/Build Version
         id: deploy_build_versioning
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.HARMONY_AUTO_PR_PAT }}
         run: |
           # Get the number of previous deploys
           DEPLOY_COUNT=$(gh run list --workflow "heroku-deploy.yml" --status success --json conclusion --limit 1000 | jq '. | length'  || echo 0)
@@ -51,7 +51,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.HARMONY_AUTO_PR_PAT }}
-          branch: dev
+          branch: auto-pr/dev-to-main
           base: main
           title: "build/deploy: Harmony v${{ steps.deploy_build_versioning.outputs.VERSION }}"
           body: |
