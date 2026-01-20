@@ -101,6 +101,5 @@ jobs:
               --head dev \
               --title "$TITLE" \
               --body "$BODY" \
-              --label automated-pr \
-              --label release
+              --label auto-pr \
           fi
