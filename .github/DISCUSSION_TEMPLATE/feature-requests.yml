@@ -1,0 +1,50 @@
+name: 💡 Feature Request
+description: Propose a new feature for Harmony
+title: "[FEAT]: "
+labels: ["Requested"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Have an idea for Harmony?
+        Fill out the details below. We use **Upvotes** to prioritize features.
+  - type: input
+    id: feature-title
+    attributes:
+      label: Feature Name
+      placeholder: "ex: Google Calendar Integration"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: "How would this improve your experience of using Harmony?"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution
+      description: "How would the feature would work/look?"
+  - type: checkboxes
+    id: importance
+    attributes:
+      label: Priority
+      options:
+        - label: This would be nice to have
+        - label: I want this
+        - label: I need this
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Validation
+      options:
+        - label: I searched and I couldn't find a similar feature request.
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### Vote for this feature!
+        **Use the arrow in the top-left to "Upvote".** New features are prioritized by upvotes.
