@@ -1,0 +1,51 @@
+name: 🐛 Bug Report
+description: Report a bug
+title: "[BUG]: "
+labels: ["Reported"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Provide as much detail as possible
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - Login (Discord)
+        - Dashboard
+        - UI/UX
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened?
+      placeholder: "ex: When I click 'Save', nothing happens."
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      description: What should have happened?
+      placeholder: "ex: The schedule should have updated."
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot / Evidence
+      description: Upload a screenshot
+      description: |
+        Drag and drop screenshots here, or paste them directly. 
+        Screenshots of the browser console (F12) are especially helpful!
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Validation
+      options:
+        - label: I searched and I couldn't find a similar issue.
+          required: true
