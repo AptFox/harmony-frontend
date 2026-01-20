@@ -1,4 +1,4 @@
-name: Heroku Deploy
+name: prod-deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  prod-deploy:
     runs-on: ubuntu-latest
 
     steps:
