@@ -127,7 +127,7 @@ export default function TeamScheduleTable({
       hourOfDayOnTargetDate.setHours(hour);
       return (
         hourOfDayOnTargetDate >= startTimeUtc &&
-        hourOfDayOnTargetDate <= endTimeUtc
+        hourOfDayOnTargetDate < endTimeUtc
       );
     };
     const hoursAvailable = hoursInDay.filter((hourOfDay) =>
