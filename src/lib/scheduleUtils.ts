@@ -68,16 +68,21 @@ export const getCurrentDateInTimeZone = (timeZoneId: string): Date => {
 };
 
 export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
+  const currentUserTimeZoneId = getCurrentTimeZoneId();
   const currentUserTimeZone: TimeZone = {
-    displayValue: getFormattedTimeZone(getCurrentTimeZoneId()),
-    timeZoneId: getCurrentTimeZoneId(),
+    displayValue: getFormattedTimeZone(currentUserTimeZoneId),
+    timeZoneId: currentUserTimeZoneId,
   };
-  const orgTimeZone: TimeZone | undefined = orgTimeZoneId
-    ? {
-        displayValue: getFormattedTimeZone(orgTimeZoneId),
-        timeZoneId: orgTimeZoneId,
-      }
-    : undefined;
+
+  // Only add org timezone if it differs from user's timezone
+  const orgTimeZone: TimeZone | undefined =
+    orgTimeZoneId && orgTimeZoneId !== currentUserTimeZoneId
+      ? {
+          displayValue: getFormattedTimeZone(orgTimeZoneId),
+          timeZoneId: orgTimeZoneId,
+        }
+      : undefined;
+
   const timeZones = [];
   timeZones.push(currentUserTimeZone);
   if (orgTimeZone) timeZones.push(orgTimeZone);
