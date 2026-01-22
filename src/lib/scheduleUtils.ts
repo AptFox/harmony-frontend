@@ -4,26 +4,29 @@ import {
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
-import { toZonedTime } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Converts ScheduleSlot's LocalTimes to supplied timeZone, defaults to UTC
-export const convertScheduleSlotToTargetDate = (
+// Converts ScheduleSlot to target time zone
+export const convertScheduleSlotToTimeZone = (
   scheduleSlot: ScheduleSlot,
   targetDate: Date,
-  timeZoneId: string = scheduleSlot.timeZoneId
+  targetTimeZoneId: string | undefined = undefined
 ) => {
   const dateStr = targetDate.toISOString().split('T')[0];
 
-  const createDate = (time: string) => {
-    const timeInScheduledZone = `${dateStr} ${time}`;
-    return toZonedTime(timeInScheduledZone, timeZoneId);
+  const convertSlotToTargetTimeZone = (time: string) => {
+    const dateTimeStr = `${dateStr} ${time}`;
+    const slotDate = fromZonedTime(dateTimeStr, scheduleSlot.timeZoneId);
+    return targetTimeZoneId
+      ? toZonedTime(slotDate, targetTimeZoneId)
+      : slotDate;
   };
 
   return {
-    startTimeUtc: createDate(scheduleSlot.startTime),
-    endTimeUtc: createDate(scheduleSlot.endTime),
+    startTimeInTargetTz: convertSlotToTargetTimeZone(scheduleSlot.startTime),
+    endTimeInTargetTz: convertSlotToTargetTimeZone(scheduleSlot.endTime),
   };
 };
 
@@ -40,7 +43,7 @@ export const getCurrentTimeZoneId = (): string =>
  * Example: "America/New_York" -> "EDT" (in summer) or "EST" (in winter)
  */
 export const getFormattedTimeZone = (
-  timeZoneId: string | undefined,
+  timeZoneId?: string | undefined,
   locale: string = 'en-US'
 ): string => {
   const timeZone = timeZoneId || getCurrentTimeZoneId();

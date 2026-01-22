@@ -11,7 +11,12 @@ import {
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import { ScheduleTableDialog } from '@/components/dashboard/scheduleTableDialog';
-import { HourOfDay, HourStatus, TimeOff } from '@/types/ScheduleTypes';
+import {
+  HourOfDay,
+  HourStatus,
+  ScheduleSlot,
+  TimeOff,
+} from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { CalendarX2 } from 'lucide-react';
 import React, {
@@ -29,9 +34,12 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import {
+  convertScheduleSlotToTimeZone,
   createHoursInDayArray,
   formatDateToCurrentLocale,
+  getCurrentTimeZoneId,
   getFormattedTimeZone,
+  isTimeOffFn,
 } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
@@ -51,34 +59,6 @@ function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
   return map;
 }
 
-function isTimeOffFn(
-  timeOffSlots: TimeOff[] | undefined,
-  dayOfWeekToDatesMap: Map<string, Date>,
-  day: string,
-  hourOfDay: HourOfDay
-): boolean {
-  if (timeOffSlots === undefined) return false;
-
-  const dayDate = dayOfWeekToDatesMap.get(day);
-  if (!dayDate) return false;
-
-  const timeOffForDay = timeOffSlots.filter((timeOff) => {
-    const startDate = new Date(timeOff.startTime);
-    const endDate = new Date(timeOff.endTime);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-    return dayDate >= startDate && dayDate <= endDate;
-  });
-
-  return timeOffForDay.some((timeOff) => {
-    const startHour = new Date(timeOff.startTime).getHours();
-    const endHour = timeOff.endTime.endsWith(':59:59.999Z')
-      ? 24
-      : new Date(timeOff.endTime).getHours();
-    return hourOfDay.hour >= startHour && hourOfDay.hour <= endHour;
-  });
-}
-
 export default function ScheduleTable() {
   const { user } = useUser();
   const { availability } = useSchedule();
@@ -86,13 +66,15 @@ export default function ScheduleTable() {
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
   const scheduleSlots = availability?.weeklyAvailabilitySlots;
   const timeOffSlots = availability?.timeOffs;
-  const scheduleTimeZoneId =
-    scheduleSlots && scheduleSlots.length > 0
-      ? scheduleSlots[0].timeZoneId
-      : undefined;
-  const formattedTimeZone = getFormattedTimeZone(scheduleTimeZoneId);
+  const currentTimeZoneId = getCurrentTimeZoneId();
+  const formattedTimeZone = getFormattedTimeZone(currentTimeZoneId);
   const currentDate = new Date();
   const currentDay = daysOfWeek[currentDate.getDay()];
+  const scheduleSlotsNotInCurrentTimeZone =
+    scheduleSlots?.filter((slot) => slot.timeZoneId !== currentTimeZoneId)
+      .length || 0;
+  const submittedScheduleMatchesCurrentTimeZone =
+    scheduleSlotsNotInCurrentTimeZone === 0;
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
     useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
@@ -133,57 +115,56 @@ export default function ScheduleTable() {
   function setHourStatusInMap(
     map: Map<HourOfDay, Map<string, HourStatus>>,
     dayOfWeek: string,
-    startHour: number,
-    endHour: number
+    slot: ScheduleSlot,
+    timeOffs: TimeOff[] | undefined
   ) {
-    const filterFn = (hourOfDay: HourOfDay) => {
+    const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
+    if (!targetDate) return;
+    const { startTimeInTargetTz, endTimeInTargetTz } =
+      convertScheduleSlotToTimeZone(slot, targetDate);
+    const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
       const hour = hourOfDay.hour;
-      return hour >= startHour && hour <= endHour;
+      // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
+      const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
+      hourOfDayOnTargetDate.setHours(hour);
+      return (
+        hourOfDayOnTargetDate >= startTimeInTargetTz &&
+        hourOfDayOnTargetDate <= endTimeInTargetTz
+      );
     };
-    hoursInDay
-      .filter((hourOfDay) => filterFn(hourOfDay))
-      .forEach((hourOfDay) => {
-        const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
-          isAvailable: false,
-          isTimeOff: false,
-        };
-        const isTimeOff = isTimeOffFn(
-          timeOffSlots,
-          dayOfWeekToDatesMap,
-          dayOfWeek,
-          hourOfDay
-        );
-        hourStatus.isTimeOff = isTimeOff;
-        hourStatus.isAvailable = !isTimeOff;
-        setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
-        map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
-      });
+    const hoursAvailable = hoursInDay.filter((hourOfDay) =>
+      filterToHoursAvailableFn(hourOfDay)
+    );
+
+    hoursAvailable.forEach((hourOfDay) => {
+      const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
+        isAvailable: false,
+        isTimeOff: false,
+      };
+      const isTimeOff = isTimeOffFn(
+        timeOffs,
+        dayOfWeekToDatesMap,
+        dayOfWeek,
+        hourOfDay
+      );
+      hourStatus.isTimeOff = isTimeOff;
+      hourStatus.isAvailable = !isTimeOff;
+      setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
+      map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
+    });
   }
 
   function setAvailabilityInMap(map: Map<HourOfDay, Map<string, HourStatus>>) {
-    if (scheduleSlots !== undefined) {
+    if (
+      scheduleSlots !== undefined &&
+      submittedScheduleMatchesCurrentTimeZone
+    ) {
       daysOfWeek.forEach((day) => {
-        const slotsForDay = scheduleSlots.filter(
+        const availabilitySlotsForDayOfWeek = scheduleSlots.filter(
           (slot) => slot.dayOfWeek === day
         );
-        slotsForDay.forEach((slot) => {
-          const { startTime, endTime } = slot;
-          const startHour = startTime.split(':').map(Number)[0];
-          const endHour =
-            endTime === '23:59:59' ? 24 : endTime.split(':').map(Number)[0];
-          const overnight = endHour < startHour;
-          if (!overnight) {
-            setHourStatusInMap(map, day, startHour, endHour);
-          } else {
-            // set hours until midnight
-            setHourStatusInMap(map, day, startHour, 23);
-            // set hours after midnight
-            const indexOfNextDay = daysOfWeek.findIndex((it) => it === day) + 1;
-            const index =
-              indexOfNextDay > daysOfWeek.length - 1 ? 0 : indexOfNextDay;
-            const dayToSet = daysOfWeek[index];
-            setHourStatusInMap(map, dayToSet, 0, endHour);
-          }
+        availabilitySlotsForDayOfWeek.forEach((slot) => {
+          setHourStatusInMap(map, day, slot, timeOffSlots);
         });
       });
     }
@@ -195,6 +176,20 @@ export default function ScheduleTable() {
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
     ScheduleTableDialog({ hoursInDay, setDialogOpen });
 
+  const renderScheduleTable =
+    scheduleSlots &&
+    scheduleSlots.length > 0 &&
+    submittedScheduleMatchesCurrentTimeZone;
+  const renderScheduleErrorMessage =
+    (scheduleSlots && scheduleSlots.length === 0) ||
+    !submittedScheduleMatchesCurrentTimeZone;
+  const scheduleErrorTitle = submittedScheduleMatchesCurrentTimeZone
+    ? 'No Schedule set'
+    : `Submitted schedule does not match current time zone (${formattedTimeZone})`;
+  const scheduleErrorDesc = submittedScheduleMatchesCurrentTimeZone
+    ? 'You will appear as unavailable.'
+    : 'Please update your schedule. Your availability will reflect the time zone where you submitted it.';
+
   return (
     <DashboardCard
       title={`My Schedule (${formattedTimeZone})`}
@@ -203,9 +198,9 @@ export default function ScheduleTable() {
       parentClassName="flex-auto basis-xs"
       childrenClassName="max-h-96 min-h-48"
     >
-      {scheduleSlots && scheduleSlots.length > 0 && (
+      {renderScheduleTable && (
         <Table className="relative">
-          {scheduleTimeZoneId && (
+          {formattedTimeZone && (
             <TableCaption className="font-mono">
               TO = Time Off, TZ: {formattedTimeZone}
             </TableCaption>
@@ -277,14 +272,14 @@ export default function ScheduleTable() {
           </TableBody>
         </Table>
       )}
-      {scheduleSlots && scheduleSlots.length === 0 && (
+      {renderScheduleErrorMessage && (
         <Empty className="h-full w-full">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <CalendarX2 />
             </EmptyMedia>
-            <EmptyTitle>No Schedule set</EmptyTitle>
-            <EmptyDescription>You will appear as unavailable.</EmptyDescription>
+            <EmptyTitle>{scheduleErrorTitle}</EmptyTitle>
+            <EmptyDescription>{scheduleErrorDesc}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}

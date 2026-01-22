@@ -101,7 +101,7 @@ export default function FranchiseScheduleTable({
               ) : (
                 <TeamScheduleTable
                   team={selectedTeam}
-                  timeZoneId={selectedTimeZoneId}
+                  selectedTimeZoneId={selectedTimeZoneId}
                 />
               )}
             </TabsContent>
