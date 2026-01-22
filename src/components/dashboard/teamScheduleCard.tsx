@@ -50,7 +50,7 @@ export default function TeamScheduleCard({
         ) : (
           <TeamScheduleTable
             team={player?.team}
-            timeZoneId={selectedTimeZoneId}
+            selectedTimeZoneId={selectedTimeZoneId}
           />
         )}
       </DashboardCard>

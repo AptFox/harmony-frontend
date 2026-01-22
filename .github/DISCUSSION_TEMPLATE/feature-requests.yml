@@ -1,13 +1,11 @@
-name: 💡 Feature Request
-description: Propose a new feature for Harmony
 title: "[FEAT]: "
-labels: ["Requested"]
+labels: ["Feature Request", "Requested"]
 body:
   - type: markdown
     attributes:
       value: |
         ### Have an idea for Harmony?
-        Fill out the details below. We use **Upvotes** to prioritize features.
+        Fill out the details below. **Upvotes** prioritize features.
   - type: input
     id: feature-title
     attributes:
@@ -27,14 +25,17 @@ body:
     attributes:
       label: Describe the solution
       description: "How would the feature would work/look?"
-  - type: checkboxes
-    id: importance
+  - type: dropdown
+    id: priority
     attributes:
       label: Priority
       options:
-        - label: This would be nice to have
-        - label: I want this
-        - label: I need this
+        - This would be nice to have
+        - I want this
+        - I need this
+      default: 0
+    validations:
+      required: true
   - type: checkboxes
     id: checks
     attributes:
@@ -47,4 +48,4 @@ body:
       value: |
         ---
         ### Vote for this feature!
-        **Use the arrow in the top-left to "Upvote".** New features are prioritized by upvotes.
+        **Use the arrow in the top-left to upvote.** New features are prioritized by upvotes.

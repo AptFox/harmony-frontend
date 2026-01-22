@@ -18,7 +18,7 @@ import {
 import { useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  convertScheduleSlotToTargetDate,
+  convertScheduleSlotToTimeZone,
   createDayOfWeekToDatesMap,
   createHoursInDayArray,
   daysOfWeek,
@@ -47,15 +47,15 @@ import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton'
 
 export default function TeamScheduleTable({
   team,
-  timeZoneId,
+  selectedTimeZoneId,
 }: {
   team: Team | undefined;
-  timeZoneId: string;
+  selectedTimeZoneId: string;
 }) {
   const { user } = useUser();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
-  const currentDate = getCurrentDateInTimeZone(timeZoneId);
+  const currentDate = getCurrentDateInTimeZone(selectedTimeZoneId);
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
     useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
@@ -115,19 +115,16 @@ export default function TeamScheduleTable({
   ) {
     const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
     if (!targetDate) return;
-    const { startTimeUtc, endTimeUtc } = convertScheduleSlotToTargetDate(
-      slot,
-      targetDate,
-      timeZoneId
-    );
+    const { startTimeInTargetTz, endTimeInTargetTz } =
+      convertScheduleSlotToTimeZone(slot, targetDate, selectedTimeZoneId);
     const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
       const hour = hourOfDay.hour;
       // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
-      const hourOfDayOnTargetDate = new Date(startTimeUtc);
+      const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
       hourOfDayOnTargetDate.setHours(hour);
       return (
-        hourOfDayOnTargetDate >= startTimeUtc &&
-        hourOfDayOnTargetDate <= endTimeUtc
+        hourOfDayOnTargetDate >= startTimeInTargetTz &&
+        hourOfDayOnTargetDate <= endTimeInTargetTz
       );
     };
     const hoursAvailable = hoursInDay.filter((hourOfDay) =>
@@ -147,7 +144,6 @@ export default function TeamScheduleTable({
       if (isTimeOff) return;
       playerHourStatus.isAvailable = !isTimeOff;
       playerHourStatus.availablePlayers.add(currentPlayerName);
-
       setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
       map.get(hourOfDay)?.set(dayOfWeek, playerHourStatus);
     });
