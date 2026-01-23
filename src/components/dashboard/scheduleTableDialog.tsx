@@ -55,12 +55,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import {
+  daysOfWeek,
   getPossibleEndTimes,
   getPossibleStartTimes,
   getSelectedHourOfDay,
 } from '@/lib/scheduleUtils';
 
-const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const dayRank: Map<string, number> = new Map<string, number>([
   ['Sun', 0],
   ['Mon', 1],

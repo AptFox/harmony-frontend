@@ -1,12 +1,31 @@
 import {
+  AvailabilityMap,
   HourOfDay,
+  HourStatus,
   ScheduleSlot,
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
+export const getCurrentDate = () => new Date();
+
+export const DAY_ORDER: Record<string, number> = {
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+  Sun: 7,
+};
+// daysOfWeek needs to exist in this sort order because Date.getDay() indexes at 0 with 'Sun' as the starting value
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const sortedDaysOfWeek = [...daysOfWeek].sort(
+  (a, b) => DAY_ORDER[a] - DAY_ORDER[b]
+);
+
+export const dayOfWeekToDatesMap = createDayOfWeekToDatesMap();
 
 // Converts ScheduleSlot to target time zone
 export const convertScheduleSlotToTimeZone = (
@@ -140,10 +159,12 @@ export function getPossibleStartTimes(hoursInDay: HourOfDay[]): HourOfDay[] {
   return hoursInDay.filter((hod) => hod.hour !== 24);
 }
 
-export function createDayOfWeekToDatesMap(
-  currentDate: Date
-): Map<string, Date> {
+export const getDayCurrentDayOfWeekStr = () =>
+  daysOfWeek[getCurrentDate().getDay()];
+
+export function createDayOfWeekToDatesMap(): Map<string, Date> {
   const map = new Map<string, Date>();
+  const currentDate = getCurrentDate();
   for (let i = 0; i < 7; i++) {
     const dateForDay = new Date(
       currentDate.getFullYear(),
@@ -154,6 +175,93 @@ export function createDayOfWeekToDatesMap(
     map.set(dayOfWeek, dateForDay);
   }
   return map;
+}
+
+export function createEmptyAvailability(
+  hoursInDay: HourOfDay[]
+): AvailabilityMap {
+  const map = new Map<HourOfDay, Map<string, HourStatus>>();
+  hoursInDay.forEach((hourOfDay) => {
+    const availableDaysMap =
+      map.get(hourOfDay) || new Map<string, HourStatus>();
+    sortedDaysOfWeek.forEach((day) => {
+      availableDaysMap.set(day, { isAvailable: false, isTimeOff: false });
+    });
+    map.set(hourOfDay, availableDaysMap);
+  });
+  return map;
+}
+
+export function getAvailability(
+  hoursInDay: HourOfDay[],
+  scheduleSlots: ScheduleSlot[] | undefined,
+  timeOffSlots: TimeOff[] | undefined,
+  submittedScheduleMatchesCurrentTimeZone: boolean,
+  setFirstAvailableSlot: (coordinate: string) => void
+) {
+  const map = createEmptyAvailability(hoursInDay);
+  if (scheduleSlots !== undefined && submittedScheduleMatchesCurrentTimeZone) {
+    sortedDaysOfWeek.forEach((dayOfWeek) => {
+      const availabilitySlotsForDayOfWeek = scheduleSlots.filter(
+        (slot) => slot.dayOfWeek === dayOfWeek
+      );
+      availabilitySlotsForDayOfWeek.forEach((slot) => {
+        setHourStatusInMap(
+          map,
+          dayOfWeek,
+          slot,
+          timeOffSlots,
+          hoursInDay,
+          setFirstAvailableSlot
+        );
+      });
+    });
+  }
+  return map;
+}
+
+export function setHourStatusInMap(
+  map: Map<HourOfDay, Map<string, HourStatus>>,
+  dayOfWeek: string,
+  slot: ScheduleSlot,
+  timeOffs: TimeOff[] | undefined,
+  hoursInDay: HourOfDay[],
+  setFirstAvailableSlot: (coordinate: string) => void
+) {
+  const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
+  if (!targetDate) return;
+  const { startTimeInTargetTz, endTimeInTargetTz } =
+    convertScheduleSlotToTimeZone(slot, targetDate);
+  const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
+    const hour = hourOfDay.hour;
+    // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
+    const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
+    hourOfDayOnTargetDate.setHours(hour);
+    return (
+      hourOfDayOnTargetDate >= startTimeInTargetTz &&
+      hourOfDayOnTargetDate <= endTimeInTargetTz
+    );
+  };
+  const hoursAvailable = hoursInDay.filter((hourOfDay) =>
+    filterToHoursAvailableFn(hourOfDay)
+  );
+
+  hoursAvailable.forEach((hourOfDay) => {
+    const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
+      isAvailable: false,
+      isTimeOff: false,
+    };
+    const isTimeOff = isTimeOffFn(
+      timeOffs,
+      dayOfWeekToDatesMap,
+      dayOfWeek,
+      hourOfDay
+    );
+    hourStatus.isTimeOff = isTimeOff;
+    hourStatus.isAvailable = !isTimeOff;
+    setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
+    map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
+  });
 }
 
 export function isTimeOffFn(

@@ -77,3 +77,5 @@ export type TimeZone = {
   displayValue: string;
   timeZoneId: string;
 };
+
+export type AvailabilityMap = Map<HourOfDay, Map<string, HourStatus>>;
