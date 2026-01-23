@@ -83,7 +83,8 @@ export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
     : undefined;
   const timeZones = [];
   timeZones.push(currentUserTimeZone);
-  if (orgTimeZone) timeZones.push(orgTimeZone);
+  if (orgTimeZone && orgTimeZone.timeZoneId !== currentUserTimeZone.timeZoneId)
+    timeZones.push(orgTimeZone);
   return timeZones;
 };
 
