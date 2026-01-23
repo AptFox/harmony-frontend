@@ -55,21 +55,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import {
-  daysOfWeek,
+  DAY_ORDER,
   getPossibleEndTimes,
   getPossibleStartTimes,
   getSelectedHourOfDay,
+  sortedDaysOfWeek,
 } from '@/lib/scheduleUtils';
-
-const dayRank: Map<string, number> = new Map<string, number>([
-  ['Sun', 0],
-  ['Mon', 1],
-  ['Tue', 2],
-  ['Wed', 3],
-  ['Thu', 4],
-  ['Fri', 5],
-  ['Sat', 6],
-]);
 
 export function ScheduleTableDialog({
   hoursInDay,
@@ -91,7 +82,7 @@ export function ScheduleTableDialog({
     const scheduleSlots = availability?.weeklyAvailabilitySlots ?? [];
     return scheduleSlots.map((slot) => {
       const fields = {
-        rank: dayRank.get(slot.dayOfWeek) || 0,
+        rank: DAY_ORDER[slot.dayOfWeek],
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.startTime,
         endTime: slot.endTime,
@@ -172,7 +163,7 @@ export function ScheduleTableDialog({
       const startTime = generateSelectedTimeString(selectedStartTime);
       const endTime = generateSelectedTimeString(selectedEndTime);
       const fields = {
-        rank: dayRank.get(dayOfWeek) || 0,
+        rank: DAY_ORDER[dayOfWeek],
         dayOfWeek,
         startTime,
         endTime,
@@ -290,7 +281,7 @@ export function ScheduleTableDialog({
 
   const checkEveryDay = (checked: CheckedState) => {
     if (checked === true) {
-      setSelectedDays(daysOfWeek);
+      setSelectedDays(sortedDaysOfWeek);
     } else {
       setSelectedDays([]);
     }
@@ -301,7 +292,7 @@ export function ScheduleTableDialog({
     if (selectedDays.length > 0) {
       if (selectedDays.length === 7) return 'Every day';
       return selectedDays
-        .sort((a, b) => (dayRank.get(a) ?? 1) - (dayRank.get(b) ?? 0))
+        .sort((a, b) => DAY_ORDER[a] - DAY_ORDER[b])
         .toString();
     }
     return 'Select days';
@@ -399,7 +390,7 @@ export function ScheduleTableDialog({
                   className="lg:max-w-full sm:max-w-[150px]"
                 >
                   <DropdownMenuGroup>
-                    {daysOfWeek.map((day) => (
+                    {sortedDaysOfWeek.map((day) => (
                       <DropdownMenuCheckboxItem
                         className="focus:bg-primary"
                         key={day}
