@@ -11,12 +11,7 @@ import {
 } from '@/components/ui/table';
 import DashboardCard from '@/components/dashboard/dashboardCard';
 import { ScheduleTableDialog } from '@/components/dashboard/scheduleTableDialog';
-import {
-  HourOfDay,
-  HourStatus,
-  ScheduleSlot,
-  TimeOff,
-} from '@/types/ScheduleTypes';
+import { HourOfDay } from '@/types/ScheduleTypes';
 import { useSchedule, useUser } from '@/contexts';
 import { CalendarX2 } from 'lucide-react';
 import React, {
@@ -34,30 +29,17 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import {
-  convertScheduleSlotToTimeZone,
   createHoursInDayArray,
   formatDateToCurrentLocale,
   getCurrentTimeZoneId,
+  getDayCurrentDayOfWeekStr,
   getFormattedTimeZone,
-  isTimeOffFn,
+  getAvailability,
+  sortedDaysOfWeek,
+  dayOfWeekToDatesMap,
 } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
-const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function createDayOfWeekToDatesMap(currentDate: Date): Map<string, Date> {
-  const map = new Map<string, Date>();
-  for (let i = 0; i < 7; i++) {
-    const dateForDay = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() + i
-    );
-    const dayOfWeek = daysOfWeek[dateForDay.getDay()];
-    map.set(dayOfWeek, dateForDay);
-  }
-  return map;
-}
 
 export default function ScheduleTable() {
   const { user } = useUser();
@@ -68,8 +50,6 @@ export default function ScheduleTable() {
   const timeOffSlots = availability?.timeOffs;
   const currentTimeZoneId = getCurrentTimeZoneId();
   const formattedTimeZone = getFormattedTimeZone(currentTimeZoneId);
-  const currentDate = new Date();
-  const currentDay = daysOfWeek[currentDate.getDay()];
   const scheduleSlotsNotInCurrentTimeZone =
     scheduleSlots?.filter((slot) => slot.timeZoneId !== currentTimeZoneId)
       .length || 0;
@@ -95,83 +75,13 @@ export default function ScheduleTable() {
     }
   }, [firstAvailableSlotCoordinate, scheduleSlots]);
 
-  const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(currentDate);
-
-  // TODO: move as much logic as possible to scheduleUtils.ts
-
-  function createAvailabilityMap(): Map<HourOfDay, Map<string, HourStatus>> {
-    const map = new Map<HourOfDay, Map<string, HourStatus>>();
-    hoursInDay.forEach((hourOfDay) => {
-      const availableDaysMap =
-        map.get(hourOfDay) || new Map<string, HourStatus>();
-      daysOfWeek.forEach((day) => {
-        availableDaysMap.set(day, { isAvailable: false, isTimeOff: false });
-      });
-      map.set(hourOfDay, availableDaysMap);
-    });
-    return map;
-  }
-
-  function setHourStatusInMap(
-    map: Map<HourOfDay, Map<string, HourStatus>>,
-    dayOfWeek: string,
-    slot: ScheduleSlot,
-    timeOffs: TimeOff[] | undefined
-  ) {
-    const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
-    if (!targetDate) return;
-    const { startTimeInTargetTz, endTimeInTargetTz } =
-      convertScheduleSlotToTimeZone(slot, targetDate);
-    const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
-      const hour = hourOfDay.hour;
-      // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
-      const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
-      hourOfDayOnTargetDate.setHours(hour);
-      return (
-        hourOfDayOnTargetDate >= startTimeInTargetTz &&
-        hourOfDayOnTargetDate <= endTimeInTargetTz
-      );
-    };
-    const hoursAvailable = hoursInDay.filter((hourOfDay) =>
-      filterToHoursAvailableFn(hourOfDay)
-    );
-
-    hoursAvailable.forEach((hourOfDay) => {
-      const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
-        isAvailable: false,
-        isTimeOff: false,
-      };
-      const isTimeOff = isTimeOffFn(
-        timeOffs,
-        dayOfWeekToDatesMap,
-        dayOfWeek,
-        hourOfDay
-      );
-      hourStatus.isTimeOff = isTimeOff;
-      hourStatus.isAvailable = !isTimeOff;
-      setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
-      map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
-    });
-  }
-
-  function setAvailabilityInMap(map: Map<HourOfDay, Map<string, HourStatus>>) {
-    if (
-      scheduleSlots !== undefined &&
-      submittedScheduleMatchesCurrentTimeZone
-    ) {
-      daysOfWeek.forEach((day) => {
-        const availabilitySlotsForDayOfWeek = scheduleSlots.filter(
-          (slot) => slot.dayOfWeek === day
-        );
-        availabilitySlotsForDayOfWeek.forEach((slot) => {
-          setHourStatusInMap(map, day, slot, timeOffSlots);
-        });
-      });
-    }
-    return map;
-  }
-
-  const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
+  const availabilityMap = getAvailability(
+    hoursInDay,
+    scheduleSlots,
+    timeOffSlots,
+    submittedScheduleMatchesCurrentTimeZone,
+    setFirstAvailableSlot
+  );
 
   const dialogContent = (setDialogOpen: Dispatch<SetStateAction<boolean>>) =>
     ScheduleTableDialog({ hoursInDay, setDialogOpen });
@@ -207,13 +117,13 @@ export default function ScheduleTable() {
           )}
           <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
-              {daysOfWeek.map((day) => (
+              {sortedDaysOfWeek.map((day) => (
                 <TableHead
                   key={day}
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
                   <div
-                    className={`flex-col ${currentDay === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                    className={`flex-col ${getDayCurrentDayOfWeekStr() === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
