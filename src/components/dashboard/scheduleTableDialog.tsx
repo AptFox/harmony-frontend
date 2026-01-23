@@ -18,7 +18,15 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, PlusIcon, X, Minus, ClockAlert } from 'lucide-react';
+import {
+  ChevronDown,
+  PlusIcon,
+  X,
+  Minus,
+  ClockAlert,
+  CalendarRange,
+  Clock,
+} from 'lucide-react';
 import {
   Item,
   ItemActions,
@@ -299,7 +307,7 @@ export function ScheduleTableDialog({
   };
 
   return (
-    <DialogContent className="lg:max-w-fit sm:max-w-[425px] bg-secondary">
+    <DialogContent className="max-w-sm bg-secondary items-center">
       <DialogHeader>
         <DialogTitle>Update schedule</DialogTitle>
         <DialogDescription>
@@ -309,7 +317,7 @@ export function ScheduleTableDialog({
       {!isLoadingAvailability && (
         <ScrollArea
           type="auto"
-          className="flex flex-row border-y-2 max-w-[425px] h-[200px] relative"
+          className="flex flex-row border-y-2 h-[250px] relative"
         >
           {/* Gradient Overlay for the top edge */}
           {updatedScheduleSlots.length > 4 && (
@@ -334,18 +342,26 @@ export function ScheduleTableDialog({
             </Empty>
           )}
           {updatedScheduleSlots.length > 0 && (
-            <ItemGroup className="grid min-h-full lg:grid-cols-2 sm:grid-cols-1 gap-2 lg:max-w-fit py-2">
+            <ItemGroup className="min-h-full gap-1 p-4">
               {updatedScheduleSlots?.map((slot) => (
                 <Item
                   key={slot.id}
                   variant="outline"
                   size="sm"
-                  className="border-2 p-1 min-w-fit "
+                  className="border-2 px-4 py-2 min-w-fit "
                 >
-                  <ItemContent className="flex flex-row">
-                    <div className="flex flex-col justify-center w-fit p-1 pr-2 text-primary-foreground font-semibold font-mono border-r-2 border-primary-foreground">{`${slot.dayOfWeek}`}</div>
-                    <div className="flex flex-col justify-center w-full text-center grow p-2 text-primary-foreground font-semibold font-mono">
-                      {getFormattedTimeSlot(slot)}
+                  <ItemContent className="flex flex-row justify-center items-center">
+                    <div className="flex flex-row gap-4 p-2">
+                      <div className="flex flex-row gap-1.5 justify-center items-center">
+                        <CalendarRange className="size-5 fill-primary stroke-secondary" />
+                        <p className="font-semibold font-mono">{`${slot.dayOfWeek}`}</p>
+                      </div>
+                      <div className="flex flex-row gap-1.5 justify-center items-center">
+                        <Clock className="size-5 fill-primary stroke-secondary" />
+                        <p className="font-mono text-xs">
+                          {getFormattedTimeSlot(slot)}
+                        </p>
+                      </div>
                     </div>
                   </ItemContent>
                   <ItemActions>
@@ -359,10 +375,10 @@ export function ScheduleTableDialog({
           )}
         </ScrollArea>
       )}
-      <div className="flex flex-row gap-3">
-        <div className="flex flex-row gap-3 w-full justify-evenly">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-row h-full w-full justify-center gap-3">
+      <div className="flex flex-row justify-center items-center gap-2">
+        <div className="grid grid-cols-1 gap-2 p-2">
+          <div className="grid grid-cols-1 gap-1 justify-center">
+            <div className="flex flex-row w-full justify-center">
               <DropdownMenu
                 modal={true}
                 open={daysSelectorOpen}
@@ -405,7 +421,7 @@ export function ScheduleTableDialog({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="flex justify-center gap">
+            <div className="flex flex-row justify-items-center">
               <Select
                 disabled={isLoadingAvailability}
                 value={selectedStartTime}
@@ -427,9 +443,9 @@ export function ScheduleTableDialog({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <span className="mx-1 flex flex-col h-full justify-center">
+              <div className="mx-1 flex flex-col h-full justify-center">
                 <Minus />
-              </span>
+              </div>
               <Select
                 disabled={isLoadingAvailability || selectedStartTime === ''}
                 value={selectedEndTime}
@@ -455,7 +471,9 @@ export function ScheduleTableDialog({
               </Select>
             </div>
           </div>
-          <div className="flex flex-col h-full w-fit justify-center">
+        </div>
+        <div className="grid grid-cols-1 gap-2 w-fit justify-items-center p-2">
+          <div className="grid grid-cols-1 gap-2 w-fit justify-items-center">
             <div className="flex flex-row items-start justify-center">
               <Checkbox
                 checked={everyDayChecked}
@@ -464,13 +482,10 @@ export function ScheduleTableDialog({
                 className="h-8 w-8 border-secondary-foreground"
               />
             </div>
-            <Label htmlFor="toggle" className="text-xs">
+            <Label htmlFor="toggle" className="text-xs text-muted-foreground">
               Every day?
             </Label>
           </div>
-        </div>
-
-        <div className="flex flex-col h-full w-fit justify-center">
           <Button
             onClick={addScheduleSlot}
             disabled={isLoadingAvailability || addButtonDisabled}
@@ -480,7 +495,6 @@ export function ScheduleTableDialog({
           </Button>
         </div>
       </div>
-
       <Separator />
       <DialogFooter className="flex gap-2">
         <DialogClose asChild>
