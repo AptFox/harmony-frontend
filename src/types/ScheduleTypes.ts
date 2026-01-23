@@ -43,9 +43,12 @@ export type HourOfDay = {
   twelveHourStr: string;
   hour: number;
 };
-export type HourStatus = { isAvailable: boolean; isTimeOff: boolean };
 
-export type PlayerHourStatus = HourStatus & { availablePlayers: Set<string> };
+export type PlayerHourStatus = {
+  isAvailable: boolean;
+  isTimeOff: boolean;
+  availablePlayers: Set<string>;
+};
 
 export type ScheduleContextType = {
   availability: Availability | undefined;
@@ -77,3 +80,5 @@ export type TimeZone = {
   displayValue: string;
   timeZoneId: string;
 };
+
+export type AvailabilityMap = Map<HourOfDay, Map<string, PlayerHourStatus>>;

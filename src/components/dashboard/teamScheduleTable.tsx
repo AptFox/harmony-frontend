@@ -10,21 +10,20 @@ import {
   TableCaption,
 } from '@/components/ui/table';
 import {
+  AvailabilityMap,
   HourOfDay,
   PlayerHourStatus,
-  ScheduleSlot,
-  TimeOff,
 } from '@/types/ScheduleTypes';
 import { useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  convertScheduleSlotToTimeZone,
   createDayOfWeekToDatesMap,
+  createEmptyAvailability,
   createHoursInDayArray,
-  daysOfWeek,
   getCurrentDateInTimeZone,
   getCurrentUserLocale,
-  isTimeOffFn,
+  setHourStatusInMap,
+  sortedDaysOfWeek,
 } from '@/lib/scheduleUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import {
@@ -55,7 +54,6 @@ export default function TeamScheduleTable({
   const { user } = useUser();
   const twelveHourClock =
     user?.twelveHourClock === undefined ? true : user?.twelveHourClock;
-  const currentDate = getCurrentDateInTimeZone(selectedTimeZoneId);
   const [firstAvailableSlotCoordinate, setFirstAvailableSlotCoordinate] =
     useState<string | undefined>(undefined);
   const firstAvailableHourRef = useRef<HTMLTableCellElement>(null);
@@ -81,91 +79,35 @@ export default function TeamScheduleTable({
 
   const hoursInDay: HourOfDay[] = createHoursInDayArray();
 
-  const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(currentDate);
+  const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(
+    getCurrentDateInTimeZone(selectedTimeZoneId)
+  );
 
-  // TODO: move as much logic as possible to scheduleUtils.ts
-
-  function createAvailabilityMap(): Map<
-    HourOfDay,
-    Map<string, PlayerHourStatus>
-  > {
-    const map = new Map<HourOfDay, Map<string, PlayerHourStatus>>();
-    hoursInDay.forEach((hourOfDay) => {
-      const availableDaysMap =
-        map.get(hourOfDay) || new Map<string, PlayerHourStatus>();
-
-      daysOfWeek.forEach((day) => {
-        availableDaysMap.set(day, {
-          isAvailable: false,
-          isTimeOff: false,
-          availablePlayers: new Set<string>(),
-        });
-      });
-      map.set(hourOfDay, availableDaysMap);
-    });
-    return map;
-  }
-
-  function setHourStatusInMap(
-    map: Map<HourOfDay, Map<string, PlayerHourStatus>>,
-    currentPlayerName: string,
-    timeOffs: TimeOff[],
-    dayOfWeek: string,
-    slot: ScheduleSlot
-  ) {
-    const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
-    if (!targetDate) return;
-    const { startTimeInTargetTz, endTimeInTargetTz } =
-      convertScheduleSlotToTimeZone(slot, targetDate, selectedTimeZoneId);
-    const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
-      const hour = hourOfDay.hour;
-      // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
-      const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
-      hourOfDayOnTargetDate.setHours(hour);
-      return (
-        hourOfDayOnTargetDate >= startTimeInTargetTz &&
-        hourOfDayOnTargetDate <= endTimeInTargetTz
-      );
-    };
-    const hoursAvailable = hoursInDay.filter((hourOfDay) =>
-      filterToHoursAvailableFn(hourOfDay)
-    );
-
-    hoursAvailable.forEach((hourOfDay) => {
-      const playerHourStatus = map.get(hourOfDay)?.get(dayOfWeek);
-      if (!playerHourStatus) return;
-
-      const isTimeOff = isTimeOffFn(
-        timeOffs,
-        dayOfWeekToDatesMap,
-        dayOfWeek,
-        hourOfDay
-      );
-      if (isTimeOff) return;
-      playerHourStatus.isAvailable = !isTimeOff;
-      playerHourStatus.availablePlayers.add(currentPlayerName);
-      setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
-      map.get(hourOfDay)?.set(dayOfWeek, playerHourStatus);
-    });
-  }
-
-  function setAvailabilityInMap(
-    map: Map<HourOfDay, Map<string, PlayerHourStatus>>
-  ) {
+  function setAvailabilityInMap(map: AvailabilityMap) {
     if (playerSchedules !== undefined) {
       playerSchedules.forEach((playerSchedule) => {
         const playerName = playerSchedule.playerName;
         const weeklyAvailabilitySlotsForPlayer =
           playerSchedule.availability.weeklyAvailabilitySlots;
         const timeOffsForPlayer = playerSchedule.availability.timeOffs;
-        daysOfWeek.forEach((day) => {
+        sortedDaysOfWeek.forEach((dayOfWeek) => {
           const availabilitySlotsForDayOfWeek =
             weeklyAvailabilitySlotsForPlayer.filter(
-              (slot) => slot.dayOfWeek === day
+              (slot) => slot.dayOfWeek === dayOfWeek
             );
           availabilitySlotsForDayOfWeek.forEach((slot) => {
             // We're operating on only slots that players are confirmed to be available
-            setHourStatusInMap(map, playerName, timeOffsForPlayer, day, slot);
+            setHourStatusInMap(
+              map,
+              dayOfWeek,
+              slot,
+              timeOffsForPlayer,
+              hoursInDay,
+              setFirstAvailableSlot,
+              selectedTimeZoneId,
+              true,
+              playerName
+            );
           });
         });
       });
@@ -173,7 +115,9 @@ export default function TeamScheduleTable({
     return map;
   }
 
-  const availabilityMap = setAvailabilityInMap(createAvailabilityMap());
+  const availabilityMap = setAvailabilityInMap(
+    createEmptyAvailability(hoursInDay)
+  );
 
   const formatPopoverDate = (date: Date | undefined): string => {
     const formatter = new Intl.DateTimeFormat(getCurrentUserLocale(), {
@@ -278,7 +222,7 @@ export default function TeamScheduleTable({
               <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
                 Hour
               </TableHead>
-              {daysOfWeek.map((day) => (
+              {sortedDaysOfWeek.map((day) => (
                 <TableHead
                   key={day}
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}

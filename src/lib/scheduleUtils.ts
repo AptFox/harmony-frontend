@@ -1,12 +1,31 @@
 import {
+  AvailabilityMap,
   HourOfDay,
+  PlayerHourStatus,
   ScheduleSlot,
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
+export const getCurrentDate = () => new Date();
+
+export const DAY_ORDER: Record<string, number> = {
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+  Sun: 7,
+};
+// daysOfWeek needs to exist in this sort order because Date.getDay() indexes at 0 with 'Sun' as the starting value
 export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const sortedDaysOfWeek = [...daysOfWeek].sort(
+  (a, b) => DAY_ORDER[a] - DAY_ORDER[b]
+);
+
+export const dayOfWeekToDatesMap = createDayOfWeekToDatesMap();
 
 // Converts ScheduleSlot to target time zone
 export const convertScheduleSlotToTimeZone = (
@@ -140,8 +159,11 @@ export function getPossibleStartTimes(hoursInDay: HourOfDay[]): HourOfDay[] {
   return hoursInDay.filter((hod) => hod.hour !== 24);
 }
 
+export const getDayCurrentDayOfWeekStr = () =>
+  daysOfWeek[getCurrentDate().getDay()];
+
 export function createDayOfWeekToDatesMap(
-  currentDate: Date
+  currentDate: Date = getCurrentDate()
 ): Map<string, Date> {
   const map = new Map<string, Date>();
   for (let i = 0; i < 7; i++) {
@@ -154,6 +176,120 @@ export function createDayOfWeekToDatesMap(
     map.set(dayOfWeek, dateForDay);
   }
   return map;
+}
+
+export function createEmptyAvailability(
+  hoursInDay: HourOfDay[]
+): AvailabilityMap {
+  const map = new Map<HourOfDay, Map<string, PlayerHourStatus>>();
+  hoursInDay.forEach((hourOfDay) => {
+    const availableDaysMap =
+      map.get(hourOfDay) || new Map<string, PlayerHourStatus>();
+    sortedDaysOfWeek.forEach((day) => {
+      availableDaysMap.set(day, {
+        isAvailable: false,
+        isTimeOff: false,
+        availablePlayers: new Set<string>(),
+      });
+    });
+    map.set(hourOfDay, availableDaysMap);
+  });
+  return map;
+}
+
+export function getAvailability(
+  hoursInDay: HourOfDay[],
+  scheduleSlots: ScheduleSlot[] | undefined,
+  timeOffSlots: TimeOff[] | undefined,
+  submittedScheduleMatchesCurrentTimeZone: boolean,
+  setFirstAvailableSlot: (coordinate: string) => void
+): AvailabilityMap {
+  const map = createEmptyAvailability(hoursInDay);
+  if (scheduleSlots !== undefined && submittedScheduleMatchesCurrentTimeZone) {
+    sortedDaysOfWeek.forEach((dayOfWeek) => {
+      const availabilitySlotsForDayOfWeek = scheduleSlots.filter(
+        (slot) => slot.dayOfWeek === dayOfWeek
+      );
+      availabilitySlotsForDayOfWeek.forEach((slot) => {
+        setHourStatusInMap(
+          map,
+          dayOfWeek,
+          slot,
+          timeOffSlots,
+          hoursInDay,
+          setFirstAvailableSlot
+        );
+      });
+    });
+  }
+  return map;
+}
+
+export function filterToHoursAvailable(
+  slot: ScheduleSlot,
+  hoursInDay: HourOfDay[],
+  targetDate: Date,
+  timeZoneId: string | undefined
+): HourOfDay[] {
+  const { startTimeInTargetTz, endTimeInTargetTz } =
+    convertScheduleSlotToTimeZone(slot, targetDate, timeZoneId);
+  const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
+    // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
+    const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
+    const hour = hourOfDay.hour;
+
+    if (hour == 24) {
+      hourOfDayOnTargetDate.setHours(23, 59, 59);
+    } else {
+      hourOfDayOnTargetDate.setHours(hour);
+    }
+    return (
+      hourOfDayOnTargetDate >= startTimeInTargetTz &&
+      hourOfDayOnTargetDate <= endTimeInTargetTz
+    );
+  };
+  return hoursInDay.filter((hourOfDay) => filterToHoursAvailableFn(hourOfDay));
+}
+
+export function setHourStatusInMap(
+  map: AvailabilityMap,
+  dayOfWeek: string,
+  slot: ScheduleSlot,
+  timeOffs: TimeOff[] | undefined,
+  hoursInDay: HourOfDay[],
+  setFirstAvailableSlot: (coordinate: string) => void,
+  timeZoneId: string | undefined = undefined,
+  isTeamScheduleTable: boolean = false,
+  currentPlayerName: string | undefined = undefined
+) {
+  const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
+  if (!targetDate) return;
+  const hoursAvailable = filterToHoursAvailable(
+    slot,
+    hoursInDay,
+    targetDate,
+    timeZoneId
+  );
+
+  hoursAvailable.forEach((hourOfDay) => {
+    const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
+      isAvailable: false,
+      isTimeOff: false,
+      availablePlayers: new Set<string>(),
+    };
+    const isTimeOff = isTimeOffFn(
+      timeOffs,
+      dayOfWeekToDatesMap,
+      dayOfWeek,
+      hourOfDay
+    );
+    if (isTeamScheduleTable && isTimeOff) return;
+    hourStatus.isTimeOff = isTimeOff;
+    hourStatus.isAvailable = !isTimeOff;
+    if (currentPlayerName) hourStatus.availablePlayers.add(currentPlayerName);
+    setFirstAvailableSlot(`${dayOfWeek}-${hourOfDay.absHourStr}`);
+    map.get(hourOfDay)?.set(dayOfWeek, hourStatus);
+  });
 }
 
 export function isTimeOffFn(
