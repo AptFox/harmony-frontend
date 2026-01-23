@@ -7,12 +7,38 @@ import { ThemeProvider } from '@/components/themeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://harmony-schedlr.com';
+const harmonyDesc = 'eSports Schedlr';
+
 export const metadata: Metadata = {
   title: 'Harmony Schedlr',
   applicationName: 'Harmony',
-  description: 'eSports Schedlr',
+  description: harmonyDesc,
+  openGraph: {
+    title: 'Harmony',
+    description: harmonyDesc,
+    url: `${baseUrl}`,
+    siteName: 'Harmony',
+    images: [
+      {
+        url: `${baseUrl}/icon_bg_1000.png`,
+        width: 1000,
+        height: 1000,
+        alt: 'Harmony Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Harmony',
+    description: harmonyDesc,
+    images: [`${baseUrl}/icon_bg_1000.png`],
+  },
   icons: {
-    icon: [{ url: '/bgIcon_2048.png', type: 'image/png', sizes: 'any' }],
+    icon: [{ url: '/icon_bg_1000.png', type: 'image/png', sizes: 'any' }],
     apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   other: {
