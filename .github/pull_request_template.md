@@ -1,4 +1,4 @@
-Issue: #<!-- put the issue number here -->
+#### Issue: # <!-- put the issue number here -->
 
 #### Summary
 
@@ -16,7 +16,7 @@ Issue: #<!-- put the issue number here -->
 
 #### Checklist
 
-- [x] I linked to an issue with 'Issue: #'
-- [x] I tested this manually
-- [x] I added unit tests
-- [x] I made sure all tests pass locally
+- [ ] I linked to an issue with 'Issue: #'
+- [ ] I tested this manually
+- [ ] I added unit tests
+- [ ] I made sure all tests pass locally
