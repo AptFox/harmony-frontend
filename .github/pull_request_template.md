@@ -11,7 +11,7 @@
 
 - [YOUR SUMMARY HERE]
 
-<!-- Some times it helps to summarize your commits instead. If that's the case, use the command below. -->
+<!-- Sometimes it helps to summarize your commits instead. If that's the case, use the command below. -->
 <!-- git log origin/dev..HEAD --no-merges --pretty=format:"* %h - %an: %s (%ar)" -->
 
 #### Checklist
