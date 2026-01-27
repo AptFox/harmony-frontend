@@ -17,11 +17,12 @@ import {
 import { useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  createDayOfWeekToDatesMap,
   createEmptyAvailability,
   createHoursInDayArray,
-  getCurrentDateInTimeZone,
+  getCurrentTimeZoneId,
   getCurrentUserLocale,
+  getDayOfWeekToDatesMap,
+  getShiftedSlot,
   setHourStatusInMap,
   sortedDaysOfWeek,
 } from '@/lib/scheduleUtils';
@@ -67,21 +68,22 @@ export default function TeamScheduleTable({
 
   const { teamSchedule, isLoading } = useTeamSchedule(team?.id);
   const playerSchedules = teamSchedule?.playerSchedules;
-
+  const [dayOfWeekToDatesMap, setDayOfWeekToDatesMap] = useState(
+    getDayOfWeekToDatesMap(selectedTimeZoneId)
+  );
   useEffect(() => {
+    if (selectedTimeZoneId !== getCurrentTimeZoneId()) {
+      setDayOfWeekToDatesMap(getDayOfWeekToDatesMap(selectedTimeZoneId));
+    }
     if (playerSchedules && firstAvailableSlotCoordinate) {
       firstAvailableHourRef.current?.scrollIntoView({
         behavior: 'auto',
         block: 'center',
       });
     }
-  }, [firstAvailableSlotCoordinate, playerSchedules]);
+  }, [firstAvailableSlotCoordinate, playerSchedules, selectedTimeZoneId]);
 
   const hoursInDay: HourOfDay[] = createHoursInDayArray();
-
-  const dayOfWeekToDatesMap = createDayOfWeekToDatesMap(
-    getCurrentDateInTimeZone(selectedTimeZoneId)
-  );
 
   function setAvailabilityInMap(map: AvailabilityMap) {
     if (playerSchedules !== undefined) {
@@ -90,21 +92,23 @@ export default function TeamScheduleTable({
         const weeklyAvailabilitySlotsForPlayer =
           playerSchedule.availability.weeklyAvailabilitySlots;
         const timeOffsForPlayer = playerSchedule.availability.timeOffs;
+        const shiftedSlots = weeklyAvailabilitySlotsForPlayer.map((slot) =>
+          getShiftedSlot(slot, selectedTimeZoneId, dayOfWeekToDatesMap)
+        );
         sortedDaysOfWeek.forEach((dayOfWeek) => {
-          const availabilitySlotsForDayOfWeek =
-            weeklyAvailabilitySlotsForPlayer.filter(
-              (slot) => slot.dayOfWeek === dayOfWeek
-            );
+          const availabilitySlotsForDayOfWeek = shiftedSlots.filter(
+            (slot) => slot.dayOfWeek === dayOfWeek
+          );
           availabilitySlotsForDayOfWeek.forEach((slot) => {
             // We're operating on only slots that players are confirmed to be available
             setHourStatusInMap(
               map,
               dayOfWeek,
+              dayOfWeekToDatesMap,
               slot,
               timeOffsForPlayer,
               hoursInDay,
               setFirstAvailableSlot,
-              selectedTimeZoneId,
               true,
               playerName
             );

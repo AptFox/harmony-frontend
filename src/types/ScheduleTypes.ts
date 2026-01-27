@@ -8,6 +8,13 @@ export type ScheduleSlot = {
   timeZoneId: string;
 };
 
+export type ShiftedScheduleSlot = {
+  playerId: string;
+  dayOfWeek: string;
+  startTimeInTargetTz: Date;
+  endTimeInTargetTz: Date;
+};
+
 export type ScheduleSlotRequest = {
   id: string;
   rank: number;

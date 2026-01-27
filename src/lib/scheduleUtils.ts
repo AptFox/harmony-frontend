@@ -3,12 +3,17 @@ import {
   HourOfDay,
   PlayerHourStatus,
   ScheduleSlot,
+  ShiftedScheduleSlot,
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { set, isWithinInterval, addDays, parse } from 'date-fns';
 
-export const getCurrentDate = () => new Date();
+export const getCurrentTimeZoneId = (): string =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+export const getCurrentDate = (timeZoneId: string = getCurrentTimeZoneId()) =>
+  toZonedTime(new Date(), timeZoneId);
 
 export const DAY_ORDER: Record<string, number> = {
   Mon: 1,
@@ -25,27 +30,64 @@ export const sortedDaysOfWeek = [...daysOfWeek].sort(
   (a, b) => DAY_ORDER[a] - DAY_ORDER[b]
 );
 
-export const dayOfWeekToDatesMap = createDayOfWeekToDatesMap();
+export const getDayOfWeekToDatesMap = (
+  timeZoneId: string = getCurrentTimeZoneId()
+) => createDayOfWeekToDatesMap(timeZoneId);
+
+const convertTimeToTargetTimeZone = (
+  originTime: string,
+  originTimeZoneId: string,
+  targetDate: Date,
+  targetTimeZoneId: string
+) => {
+  let parsedTime = parse(originTime, 'HH:mm:ss', targetDate);
+  const isMidnight =
+    parsedTime.getHours() === 23 &&
+    parsedTime.getMinutes() === 59 &&
+    parsedTime.getSeconds() === 59;
+
+  if (isMidnight) {
+    parsedTime = addDays(
+      set(parsedTime, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 }),
+      1
+    );
+  }
+  const hourInCurrentTimeZone = set(targetDate, {
+    date: parsedTime.getDate(),
+    hours: parsedTime.getHours(),
+    minutes: parsedTime.getMinutes(),
+    seconds: parsedTime.getSeconds(),
+    milliseconds: parsedTime.getMilliseconds(),
+  });
+  const slotDateInCreatedTimeZone = fromZonedTime(
+    hourInCurrentTimeZone,
+    originTimeZoneId
+  );
+  return toZonedTime(slotDateInCreatedTimeZone, targetTimeZoneId);
+};
 
 // Converts ScheduleSlot to target time zone
 export const convertScheduleSlotToTimeZone = (
   scheduleSlot: ScheduleSlot,
   targetDate: Date,
-  targetTimeZoneId: string | undefined = undefined
+  targetTimeZoneId: string = getCurrentTimeZoneId()
 ) => {
-  const dateStr = targetDate.toISOString().split('T')[0];
-
-  const convertSlotToTargetTimeZone = (time: string) => {
-    const dateTimeStr = `${dateStr} ${time}`;
-    const slotDate = fromZonedTime(dateTimeStr, scheduleSlot.timeZoneId);
-    return targetTimeZoneId
-      ? toZonedTime(slotDate, targetTimeZoneId)
-      : slotDate;
-  };
+  const startTimeInTargetTz = convertTimeToTargetTimeZone(
+    scheduleSlot.startTime,
+    scheduleSlot.timeZoneId,
+    targetDate,
+    targetTimeZoneId
+  );
+  const endTimeInTargetTz = convertTimeToTargetTimeZone(
+    scheduleSlot.endTime,
+    scheduleSlot.timeZoneId,
+    targetDate,
+    targetTimeZoneId
+  );
 
   return {
-    startTimeInTargetTz: convertSlotToTargetTimeZone(scheduleSlot.startTime),
-    endTimeInTargetTz: convertSlotToTargetTimeZone(scheduleSlot.endTime),
+    startTimeInTargetTz,
+    endTimeInTargetTz,
   };
 };
 
@@ -53,9 +95,6 @@ export const convertScheduleSlotToTimeZone = (
 export const getCurrentUserLocale = (): string => {
   return typeof window !== 'undefined' ? window.navigator.language : 'en-US';
 };
-
-export const getCurrentTimeZoneId = (): string =>
-  Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 /**
  * Converts an IANA timezone string to its current localized abbreviation.
@@ -79,15 +118,8 @@ export const getFormattedTimeZone = (
 /**
  * Returns the current date in the supplied timezone.
  */
-export const getCurrentDateInTimeZone = (timeZoneId: string): Date => {
-  const now = new Date();
-  const localizedString = now.toLocaleString('en-US', {
-    timeZone: timeZoneId,
-    hour12: false,
-  });
-
-  return new Date(localizedString);
-};
+export const getCurrentDateInTimeZone = (timeZoneId: string): Date =>
+  fromZonedTime(getCurrentDate(), timeZoneId);
 
 export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
   const currentUserTimeZone: TimeZone = {
@@ -163,15 +195,12 @@ export const getDayCurrentDayOfWeekStr = () =>
   daysOfWeek[getCurrentDate().getDay()];
 
 export function createDayOfWeekToDatesMap(
-  currentDate: Date = getCurrentDate()
+  timeZoneId: string
 ): Map<string, Date> {
+  const currentDate = getCurrentDate(timeZoneId);
   const map = new Map<string, Date>();
   for (let i = 0; i < 7; i++) {
-    const dateForDay = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() + i
-    );
+    const dateForDay = addDays(currentDate, i);
     const dayOfWeek = daysOfWeek[dateForDay.getDay()];
     map.set(dayOfWeek, dateForDay);
   }
@@ -197,23 +226,47 @@ export function createEmptyAvailability(
   return map;
 }
 
+export function getShiftedSlot(
+  slot: ScheduleSlot,
+  timeZoneId: string,
+  dayOfWeekToDatesMap: Map<string, Date>
+): ShiftedScheduleSlot {
+  const targetDate = dayOfWeekToDatesMap.get(slot.dayOfWeek);
+  if (!targetDate) throw Error('missing target date');
+  const { startTimeInTargetTz, endTimeInTargetTz } =
+    convertScheduleSlotToTimeZone(slot, targetDate, timeZoneId);
+
+  return {
+    playerId: slot.playerId,
+    dayOfWeek: daysOfWeek[startTimeInTargetTz.getDay()],
+    startTimeInTargetTz,
+    endTimeInTargetTz,
+  };
+}
+
 export function getAvailability(
   hoursInDay: HourOfDay[],
   scheduleSlots: ScheduleSlot[] | undefined,
   timeOffSlots: TimeOff[] | undefined,
   submittedScheduleMatchesCurrentTimeZone: boolean,
+  dayOfWeekToDatesMap: Map<string, Date>,
   setFirstAvailableSlot: (coordinate: string) => void
 ): AvailabilityMap {
   const map = createEmptyAvailability(hoursInDay);
-  if (scheduleSlots !== undefined && submittedScheduleMatchesCurrentTimeZone) {
+  if (!scheduleSlots) return map;
+  const shiftedSlots = scheduleSlots.map((slot) =>
+    getShiftedSlot(slot, getCurrentTimeZoneId(), dayOfWeekToDatesMap)
+  );
+  if (submittedScheduleMatchesCurrentTimeZone) {
     sortedDaysOfWeek.forEach((dayOfWeek) => {
-      const availabilitySlotsForDayOfWeek = scheduleSlots.filter(
+      const availabilitySlotsForDayOfWeek = shiftedSlots.filter(
         (slot) => slot.dayOfWeek === dayOfWeek
       );
       availabilitySlotsForDayOfWeek.forEach((slot) => {
         setHourStatusInMap(
           map,
           dayOfWeek,
+          dayOfWeekToDatesMap,
           slot,
           timeOffSlots,
           hoursInDay,
@@ -226,27 +279,24 @@ export function getAvailability(
 }
 
 export function filterToHoursAvailable(
-  slot: ScheduleSlot,
-  hoursInDay: HourOfDay[],
-  targetDate: Date,
-  timeZoneId: string | undefined
+  slot: ShiftedScheduleSlot,
+  hoursInDay: HourOfDay[]
 ): HourOfDay[] {
-  const { startTimeInTargetTz, endTimeInTargetTz } =
-    convertScheduleSlotToTimeZone(slot, targetDate, timeZoneId);
+  const { startTimeInTargetTz, endTimeInTargetTz } = slot;
   const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
-    // TODO: consider putting hourOfDayOnTargetDate into the hourOfDay at creation
-    const hourOfDayOnTargetDate = new Date(startTimeInTargetTz);
     const hour = hourOfDay.hour;
 
-    if (hour == 24) {
-      hourOfDayOnTargetDate.setHours(23, 59, 59);
-    } else {
-      hourOfDayOnTargetDate.setHours(hour);
-    }
-    return (
-      hourOfDayOnTargetDate >= startTimeInTargetTz &&
-      hourOfDayOnTargetDate <= endTimeInTargetTz
-    );
+    const hourToCompare = set(new Date(startTimeInTargetTz), {
+      hours: hour,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+
+    return isWithinInterval(hourToCompare, {
+      start: startTimeInTargetTz,
+      end: endTimeInTargetTz,
+    });
   };
   return hoursInDay.filter((hourOfDay) => filterToHoursAvailableFn(hourOfDay));
 }
@@ -254,22 +304,17 @@ export function filterToHoursAvailable(
 export function setHourStatusInMap(
   map: AvailabilityMap,
   dayOfWeek: string,
-  slot: ScheduleSlot,
+  dayOfWeekToDatesMap: Map<string, Date>,
+  slot: ShiftedScheduleSlot,
   timeOffs: TimeOff[] | undefined,
   hoursInDay: HourOfDay[],
   setFirstAvailableSlot: (coordinate: string) => void,
-  timeZoneId: string | undefined = undefined,
   isTeamScheduleTable: boolean = false,
   currentPlayerName: string | undefined = undefined
 ) {
   const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
   if (!targetDate) return;
-  const hoursAvailable = filterToHoursAvailable(
-    slot,
-    hoursInDay,
-    targetDate,
-    timeZoneId
-  );
+  const hoursAvailable = filterToHoursAvailable(slot, hoursInDay);
 
   hoursAvailable.forEach((hourOfDay) => {
     const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
