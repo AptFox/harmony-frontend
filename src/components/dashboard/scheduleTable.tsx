@@ -36,7 +36,7 @@ import {
   getFormattedTimeZone,
   getAvailability,
   sortedDaysOfWeek,
-  dayOfWeekToDatesMap,
+  getDayOfWeekToDatesMap,
 } from '@/lib/scheduleUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
@@ -75,11 +75,13 @@ export default function ScheduleTable() {
     }
   }, [firstAvailableSlotCoordinate, scheduleSlots]);
 
+  const dayOfWeekToDatesMap = getDayOfWeekToDatesMap();
   const availabilityMap = getAvailability(
     hoursInDay,
     scheduleSlots,
     timeOffSlots,
     submittedScheduleMatchesCurrentTimeZone,
+    dayOfWeekToDatesMap,
     setFirstAvailableSlot
   );
 
