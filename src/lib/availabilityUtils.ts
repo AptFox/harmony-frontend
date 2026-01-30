@@ -3,17 +3,20 @@ import {
   HourOfDay,
   PlayerHourStatus,
   ScheduleSlot,
-  ShiftedScheduleSlot,
+  ParsedScheduleSlot,
   TimeOff,
   TimeZone,
 } from '@/types/ScheduleTypes';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import { set, isWithinInterval, addDays, parse } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
+import { isWithinInterval, addDays } from 'date-fns';
+import {
+  createTimeInZone,
+  parseScheduleSlots,
+} from '@/lib/availabilityService';
 
 export const getCurrentTimeZoneId = (): string =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
-export const getCurrentDate = (timeZoneId: string = getCurrentTimeZoneId()) =>
-  toZonedTime(new Date(), timeZoneId);
+export const getCurrentDate = () => new Date();
 
 export const DAY_ORDER: Record<string, number> = {
   Mon: 1,
@@ -29,67 +32,6 @@ export const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const sortedDaysOfWeek = [...daysOfWeek].sort(
   (a, b) => DAY_ORDER[a] - DAY_ORDER[b]
 );
-
-export const getDayOfWeekToDatesMap = (
-  timeZoneId: string = getCurrentTimeZoneId()
-) => createDayOfWeekToDatesMap(timeZoneId);
-
-const convertTimeToTargetTimeZone = (
-  originTime: string,
-  originTimeZoneId: string,
-  targetDate: Date,
-  targetTimeZoneId: string
-) => {
-  let parsedTime = parse(originTime, 'HH:mm:ss', targetDate);
-  const isMidnight =
-    parsedTime.getHours() === 23 &&
-    parsedTime.getMinutes() === 59 &&
-    parsedTime.getSeconds() === 59;
-
-  if (isMidnight) {
-    parsedTime = addDays(
-      set(parsedTime, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 }),
-      1
-    );
-  }
-  const hourInCurrentTimeZone = set(targetDate, {
-    date: parsedTime.getDate(),
-    hours: parsedTime.getHours(),
-    minutes: parsedTime.getMinutes(),
-    seconds: parsedTime.getSeconds(),
-    milliseconds: parsedTime.getMilliseconds(),
-  });
-  const slotDateInCreatedTimeZone = fromZonedTime(
-    hourInCurrentTimeZone,
-    originTimeZoneId
-  );
-  return toZonedTime(slotDateInCreatedTimeZone, targetTimeZoneId);
-};
-
-// Converts ScheduleSlot to target time zone
-export const convertScheduleSlotToTimeZone = (
-  scheduleSlot: ScheduleSlot,
-  targetDate: Date,
-  targetTimeZoneId: string = getCurrentTimeZoneId()
-) => {
-  const startTimeInTargetTz = convertTimeToTargetTimeZone(
-    scheduleSlot.startTime,
-    scheduleSlot.timeZoneId,
-    targetDate,
-    targetTimeZoneId
-  );
-  const endTimeInTargetTz = convertTimeToTargetTimeZone(
-    scheduleSlot.endTime,
-    scheduleSlot.timeZoneId,
-    targetDate,
-    targetTimeZoneId
-  );
-
-  return {
-    startTimeInTargetTz,
-    endTimeInTargetTz,
-  };
-};
 
 // Falls back to the US locale
 export const getCurrentUserLocale = (): string => {
@@ -119,7 +61,7 @@ export const getFormattedTimeZone = (
  * Returns the current date in the supplied timezone.
  */
 export const getCurrentDateInTimeZone = (timeZoneId: string): Date =>
-  fromZonedTime(getCurrentDate(), timeZoneId);
+  toZonedTime(getCurrentDate(), timeZoneId);
 
 export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
   const currentUserTimeZone: TimeZone = {
@@ -194,10 +136,8 @@ export function getPossibleStartTimes(hoursInDay: HourOfDay[]): HourOfDay[] {
 export const getDayCurrentDayOfWeekStr = () =>
   daysOfWeek[getCurrentDate().getDay()];
 
-export function createDayOfWeekToDatesMap(
-  timeZoneId: string
-): Map<string, Date> {
-  const currentDate = getCurrentDate(timeZoneId);
+export function getDayOfWeekToDatesMap(timeZoneId: string): Map<string, Date> {
+  const currentDate = getCurrentDateInTimeZone(timeZoneId);
   const map = new Map<string, Date>();
   for (let i = 0; i < 7; i++) {
     const dateForDay = addDays(currentDate, i);
@@ -210,6 +150,7 @@ export function createDayOfWeekToDatesMap(
 export function createEmptyAvailability(
   hoursInDay: HourOfDay[]
 ): AvailabilityMap {
+  // TODO: consider setting dates for each cell here based on selectedTimeZoneId
   const map = new Map<HourOfDay, Map<string, PlayerHourStatus>>();
   hoursInDay.forEach((hourOfDay) => {
     const availableDaysMap =
@@ -226,25 +167,8 @@ export function createEmptyAvailability(
   return map;
 }
 
-export function getShiftedSlot(
-  slot: ScheduleSlot,
-  timeZoneId: string,
-  dayOfWeekToDatesMap: Map<string, Date>
-): ShiftedScheduleSlot {
-  const targetDate = dayOfWeekToDatesMap.get(slot.dayOfWeek);
-  if (!targetDate) throw Error('missing target date');
-  const { startTimeInTargetTz, endTimeInTargetTz } =
-    convertScheduleSlotToTimeZone(slot, targetDate, timeZoneId);
-
-  return {
-    playerId: slot.playerId,
-    dayOfWeek: daysOfWeek[startTimeInTargetTz.getDay()],
-    startTimeInTargetTz,
-    endTimeInTargetTz,
-  };
-}
-
 export function getAvailability(
+  timeZoneId: string,
   hoursInDay: HourOfDay[],
   scheduleSlots: ScheduleSlot[] | undefined,
   timeOffSlots: TimeOff[] | undefined,
@@ -254,17 +178,20 @@ export function getAvailability(
 ): AvailabilityMap {
   const map = createEmptyAvailability(hoursInDay);
   if (!scheduleSlots) return map;
-  const shiftedSlots = scheduleSlots.map((slot) =>
-    getShiftedSlot(slot, getCurrentTimeZoneId(), dayOfWeekToDatesMap)
+  const parsedSlots = parseScheduleSlots(
+    scheduleSlots,
+    dayOfWeekToDatesMap,
+    timeZoneId
   );
   if (submittedScheduleMatchesCurrentTimeZone) {
     sortedDaysOfWeek.forEach((dayOfWeek) => {
-      const availabilitySlotsForDayOfWeek = shiftedSlots.filter(
+      const availabilitySlotsForDayOfWeek = parsedSlots.filter(
         (slot) => slot.dayOfWeek === dayOfWeek
       );
       availabilitySlotsForDayOfWeek.forEach((slot) => {
         setHourStatusInMap(
           map,
+          timeZoneId,
           dayOfWeek,
           dayOfWeekToDatesMap,
           slot,
@@ -279,19 +206,15 @@ export function getAvailability(
 }
 
 export function filterToHoursAvailable(
-  slot: ShiftedScheduleSlot,
-  hoursInDay: HourOfDay[]
+  timeZoneId: string,
+  slot: ParsedScheduleSlot,
+  hoursInDay: HourOfDay[],
+  targetDate: Date
 ): HourOfDay[] {
   const { startTimeInTargetTz, endTimeInTargetTz } = slot;
   const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
-    const hour = hourOfDay.hour;
-
-    const hourToCompare = set(new Date(startTimeInTargetTz), {
-      hours: hour,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
-    });
+    const timeStamp = `${hourOfDay.hour}:00:00`;
+    const hourToCompare = createTimeInZone(targetDate, timeZoneId, timeStamp);
 
     return isWithinInterval(hourToCompare, {
       start: startTimeInTargetTz,
@@ -303,9 +226,10 @@ export function filterToHoursAvailable(
 
 export function setHourStatusInMap(
   map: AvailabilityMap,
+  timeZoneId: string,
   dayOfWeek: string,
   dayOfWeekToDatesMap: Map<string, Date>,
-  slot: ShiftedScheduleSlot,
+  slot: ParsedScheduleSlot,
   timeOffs: TimeOff[] | undefined,
   hoursInDay: HourOfDay[],
   setFirstAvailableSlot: (coordinate: string) => void,
@@ -314,7 +238,12 @@ export function setHourStatusInMap(
 ) {
   const targetDate = dayOfWeekToDatesMap.get(dayOfWeek);
   if (!targetDate) return;
-  const hoursAvailable = filterToHoursAvailable(slot, hoursInDay);
+  const hoursAvailable = filterToHoursAvailable(
+    timeZoneId,
+    slot,
+    hoursInDay,
+    targetDate
+  );
 
   hoursAvailable.forEach((hourOfDay) => {
     const hourStatus = map.get(hourOfDay)?.get(dayOfWeek) || {
@@ -348,7 +277,8 @@ export function isTimeOffFn(
   const dayDate = dayOfWeekToDatesMap.get(day);
   if (!dayDate) return false;
 
-  //TODO: update this to use dates instead of numbers for determining isTimeOff
+  // TODO: update this to use temporal dates instead of numbers for determining isTimeOff
+  // TODO: update this to account for timezones
   const timeOffForDay = timeOffSlots.filter((timeOff) => {
     const timeOffStartDate = new Date(timeOff.startTime);
     const timeOffEndDate = new Date(timeOff.endTime);

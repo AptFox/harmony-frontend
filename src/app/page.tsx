@@ -5,7 +5,6 @@ import HarmonyHeader from '@/components/branding/harmonyHeader';
 import HarmonySubHeader from '@/components/branding/harmonySubHeader';
 
 export default function Home() {
-  // TODO: split this file into components
   return (
     <main className="flex flex-col items-center justify-center h-[60vh]">
       <div className="flex flex-col items-center rounded-lg bg-secondary w-sm p-8 border">

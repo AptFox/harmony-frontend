@@ -5,7 +5,7 @@ import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
-import { getCurrentTimeZoneId, getTimeZones } from '@/lib/scheduleUtils';
+import { getCurrentTimeZoneId, getTimeZones } from '@/lib/availabilityUtils';
 import { TimeZone } from '@/types/ScheduleTypes';
 import { useState } from 'react';
 
