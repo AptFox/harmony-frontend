@@ -28,6 +28,7 @@ import { USER_SWR_KEY } from '@/contexts';
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(accessToken === undefined);
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
   const hasInitializedRef = useRef(false);
   const router = useRouter();
@@ -67,6 +68,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
         if (pathname !== '/login') router.replace('/login');
       }
+      setIsLoading(false);
     };
 
     initAuth();
@@ -102,6 +104,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       value={{
         accessToken,
         setAccessToken,
+        isLoading,
         logout,
         triggerDiscordOAuth,
       }}
