@@ -78,14 +78,12 @@ describe('availabilityService', () => {
         const scheduleSlot: ScheduleSlot = {
           id: '101',
           userId: 'someUuid',
-          playerId: '201',
           dayOfWeek: dayOfWeek,
           startTime: '00:00:00',
           endTime: '02:00:00',
           timeZoneId: targetTimeZoneId,
         };
         const expected: ParsedScheduleSlot = {
-          playerId: '201',
           dayOfWeek: dayOfWeek,
           startTimeInTargetTz: new Date('2026-01-30T05:00:00.000Z'), // UTC time stamp for 12am EST (should be 5am UTC)
           endTimeInTargetTz: new Date('2026-01-30T07:00:00.000Z'), // UTC time stamp for 2am EST (should be 7am UTC)
@@ -114,14 +112,12 @@ describe('availabilityService', () => {
         const scheduleSlot: ScheduleSlot = {
           id: '101',
           userId: 'someUuid',
-          playerId: '201',
           dayOfWeek: dayOfWeek,
           startTime: '00:00:00',
           endTime: '02:00:00',
           timeZoneId: targetTimeZoneId,
         };
         const expected: ParsedScheduleSlot = {
-          playerId: '201',
           dayOfWeek: dayOfWeek,
           startTimeInTargetTz: new Date('2026-01-30T06:00:00.000Z'), // UTC time stamp for 12am CST (should be 6am UTC)
           endTimeInTargetTz: new Date('2026-01-30T08:00:00.000Z'), // UTC time stamp for 2am CST (should be 8am UTC)
@@ -150,15 +146,13 @@ describe('availabilityService', () => {
         const scheduleSlot: ScheduleSlot = {
           id: '101',
           userId: 'someUuid',
-          playerId: '201',
           dayOfWeek: dayOfWeek,
           startTime: '22:00:00',
           endTime: '23:59:59',
           timeZoneId: targetTimeZoneId,
         };
         const expected: ParsedScheduleSlot = {
-          playerId: '201',
-          dayOfWeek: 'Sat',
+          dayOfWeek: 'Fri',
           startTimeInTargetTz: new Date('2026-01-31T03:00:00.000Z'), // UTC time stamp for 10pm EST (should be 3am UTC)
           endTimeInTargetTz: new Date('2026-01-31T05:00:00.000Z'), // UTC time stamp for 12am EST (should be 7am UTC)
         };
@@ -185,18 +179,16 @@ describe('availabilityService', () => {
         it('EST to CST', () => {
           const targetTimeZoneId = 'America/Chicago';
           const targetDate = new Date('2026-01-30T00:00:00.000Z');
-          const dayOfWeek = daysOfWeek[targetDate.getDay()];
+          const dayOfWeek = 'Thu';
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'America/New_York',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-30T05:00:00.000Z'), // UTC time stamp for 12am EST (should be 5am UTC)
             endTimeInTargetTz: new Date('2026-01-30T07:00:00.000Z'), // UTC time stamp for 2am EST (should be 7am UTC)
@@ -225,14 +217,12 @@ describe('availabilityService', () => {
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'America/Chicago',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-30T06:00:00.000Z'), // UTC time stamp for 12am CST (should be 6am UTC)
             endTimeInTargetTz: new Date('2026-01-30T08:00:00.000Z'), // UTC time stamp for 2am CST (should be 8am UTC)
@@ -261,14 +251,12 @@ describe('availabilityService', () => {
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'America/New_York',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-30T05:00:00.000Z'), // UTC time stamp for 12am EST (should be 5am UTC)
             endTimeInTargetTz: new Date('2026-01-30T07:00:00.000Z'), // UTC time stamp for 2am EST (should be 7am UTC)
@@ -293,18 +281,16 @@ describe('availabilityService', () => {
         it('GMT+7 to EST', () => {
           const targetTimeZoneId = 'America/New_York';
           const targetDate = new Date('2026-01-30T00:00:00.000Z');
-          const dayOfWeek = daysOfWeek[targetDate.getDay()];
+          const dayOfWeek = 'Thu';
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'Asia/Bangkok',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-29T17:00:00.000Z'), // UTC time stamp for 12am GMT+7 (should be 5pm UTC)
             endTimeInTargetTz: new Date('2026-01-29T19:00:00.000Z'), // UTC time stamp for 2am GMT+7 (should be 7pm UTC)
@@ -333,14 +319,12 @@ describe('availabilityService', () => {
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'America/Los_Angeles',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-30T08:00:00.000Z'), // UTC time stamp for 12am PST (should be 8am UTC)
             endTimeInTargetTz: new Date('2026-01-30T10:00:00.000Z'), // UTC time stamp for 2am PST (should be 10am UTC)
@@ -365,18 +349,16 @@ describe('availabilityService', () => {
         it('EST to PST', () => {
           const targetTimeZoneId = 'America/Los_Angeles';
           const targetDate = new Date('2026-01-30T00:00:00.000Z');
-          const dayOfWeek = daysOfWeek[targetDate.getDay()];
+          const dayOfWeek = 'Thu';
           const scheduleSlot: ScheduleSlot = {
             id: '101',
             userId: 'someUuid',
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTime: '00:00:00',
             endTime: '02:00:00',
             timeZoneId: 'America/New_York',
           };
           const expected: ParsedScheduleSlot = {
-            playerId: '201',
             dayOfWeek: dayOfWeek,
             startTimeInTargetTz: new Date('2026-01-30T05:00:00.000Z'), // UTC time stamp for 12am EST (should be 5am UTC)
             endTimeInTargetTz: new Date('2026-01-30T07:00:00.000Z'), // UTC time stamp for 2am EST (should be 7am UTC)
