@@ -1,15 +1,13 @@
 export type ScheduleSlot = {
   id: string;
   userId: string;
-  playerId: string;
   dayOfWeek: string;
   startTime: string;
   endTime: string;
   timeZoneId: string;
 };
 
-export type ShiftedScheduleSlot = {
-  playerId: string;
+export type ParsedScheduleSlot = {
   dayOfWeek: string;
   startTimeInTargetTz: Date;
   endTimeInTargetTz: Date;

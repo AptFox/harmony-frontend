@@ -68,7 +68,7 @@ import {
   getPossibleStartTimes,
   getSelectedHourOfDay,
   sortedDaysOfWeek,
-} from '@/lib/scheduleUtils';
+} from '@/lib/availabilityUtils';
 
 export function ScheduleTableDialog({
   hoursInDay,

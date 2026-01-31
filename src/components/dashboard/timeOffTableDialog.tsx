@@ -39,7 +39,7 @@ import {
   formatDateToCurrentLocale,
   getPossibleEndTimes,
   getPossibleStartTimes,
-} from '@/lib/scheduleUtils';
+} from '@/lib/availabilityUtils';
 
 function addDaysToDate(initialDate: Date, daysToAdd: number): Date {
   const newDate = new Date(initialDate);

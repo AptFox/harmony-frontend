@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { getCurrentUserLocale } from '@/lib/scheduleUtils';
+import { getCurrentUserLocale } from '@/lib/availabilityUtils';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 
 export default function TimeOffTable() {
