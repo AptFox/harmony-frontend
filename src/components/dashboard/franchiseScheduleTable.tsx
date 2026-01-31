@@ -8,7 +8,7 @@ import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeams } from '@/hooks/useTeams';
 import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
-import { getCurrentTimeZoneId, getTimeZones } from '@/lib/scheduleUtils';
+import { getCurrentTimeZoneId, getTimeZones } from '@/lib/availabilityUtils';
 import { TimeZone } from '@/types/ScheduleTypes';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';

@@ -10,7 +10,7 @@ import HarmonySubHeader from '@/components/branding/harmonySubHeader';
 
 export default function LoginHandler() {
   const router = useRouter();
-  const { accessToken, triggerDiscordOAuth } = useAuth();
+  const { accessToken, isLoading, triggerDiscordOAuth } = useAuth();
 
   useEffect(() => {
     if (accessToken) {
@@ -25,7 +25,7 @@ export default function LoginHandler() {
         <HarmonyHeader />
         <HarmonySubHeader />
         <div className="mt-4 flex items-center">
-          <LoginButton onClickFn={triggerDiscordOAuth} />
+          <LoginButton onClickFn={triggerDiscordOAuth} isLoading={isLoading} />
         </div>
       </div>
     </main>

@@ -9,11 +9,7 @@ import {
   TableCell,
   TableCaption,
 } from '@/components/ui/table';
-import {
-  AvailabilityMap,
-  HourOfDay,
-  PlayerHourStatus,
-} from '@/types/ScheduleTypes';
+import { HourOfDay, PlayerHourStatus } from '@/types/ScheduleTypes';
 import { useUser } from '@/contexts';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -22,10 +18,9 @@ import {
   getCurrentTimeZoneId,
   getCurrentUserLocale,
   getDayOfWeekToDatesMap,
-  getShiftedSlot,
   setHourStatusInMap,
   sortedDaysOfWeek,
-} from '@/lib/scheduleUtils';
+} from '@/lib/availabilityUtils';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import {
   Popover,
@@ -44,6 +39,7 @@ import {
 } from '@/components/ui/empty';
 import { CalendarX2 } from 'lucide-react';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
+import { parseScheduleSlots } from '@/lib/availabilityService';
 
 export default function TeamScheduleTable({
   team,
@@ -85,26 +81,32 @@ export default function TeamScheduleTable({
 
   const hoursInDay: HourOfDay[] = createHoursInDayArray();
 
-  function setAvailabilityInMap(map: AvailabilityMap) {
+  function setAvailabilityInMap() {
+    const map = createEmptyAvailability(hoursInDay);
+    const recalculatedMap = getDayOfWeekToDatesMap(selectedTimeZoneId);
     if (playerSchedules !== undefined) {
       playerSchedules.forEach((playerSchedule) => {
         const playerName = playerSchedule.playerName;
         const weeklyAvailabilitySlotsForPlayer =
           playerSchedule.availability.weeklyAvailabilitySlots;
         const timeOffsForPlayer = playerSchedule.availability.timeOffs;
-        const shiftedSlots = weeklyAvailabilitySlotsForPlayer.map((slot) =>
-          getShiftedSlot(slot, selectedTimeZoneId, dayOfWeekToDatesMap)
+
+        const parsedSlots = parseScheduleSlots(
+          weeklyAvailabilitySlotsForPlayer,
+          recalculatedMap,
+          selectedTimeZoneId
         );
         sortedDaysOfWeek.forEach((dayOfWeek) => {
-          const availabilitySlotsForDayOfWeek = shiftedSlots.filter(
+          const availabilitySlotsForDayOfWeek = parsedSlots.filter(
             (slot) => slot.dayOfWeek === dayOfWeek
           );
           availabilitySlotsForDayOfWeek.forEach((slot) => {
             // We're operating on only slots that players are confirmed to be available
             setHourStatusInMap(
               map,
+              selectedTimeZoneId,
               dayOfWeek,
-              dayOfWeekToDatesMap,
+              recalculatedMap,
               slot,
               timeOffsForPlayer,
               hoursInDay,
@@ -119,9 +121,7 @@ export default function TeamScheduleTable({
     return map;
   }
 
-  const availabilityMap = setAvailabilityInMap(
-    createEmptyAvailability(hoursInDay)
-  );
+  const availabilityMap = setAvailabilityInMap();
 
   const formatPopoverDate = (date: Date | undefined): string => {
     const formatter = new Intl.DateTimeFormat(getCurrentUserLocale(), {
