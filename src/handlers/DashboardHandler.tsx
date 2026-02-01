@@ -1,7 +1,7 @@
 'use client';
 import { useUser, useAuth } from '@/contexts';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { isApiRateLimitError, isNoAccessTokenError } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,14 @@ export default function DashboardHandler() {
     }
   }, [user, isLoadingUser, isErrorUser, selectedOrgId]);
 
+  const logoutButton = (): ReactNode => {
+    return (
+      <Button className="m-2" onClick={logout}>
+        Logout
+      </Button>
+    );
+  };
+
   return (
     <div className="flex flex-col lg:mb-0 mx-auto">
       <div className="flex flex-col h-full space-y-2">
@@ -77,7 +85,15 @@ export default function DashboardHandler() {
         {isErrorUser && (
           <div className="flex flex-col h-full justify-center">
             <div className="flex flex-row justify-center bg-primary/45 rounded-lg p-8 border border-primary">
-              <span className="text-xl font-bold">Error loading user data</span>
+              <div className="flex flex-col justify-center items-center">
+                <span className="text-xl font-bold">
+                  Error loading user data
+                </span>
+                <span className="text-md text-muted-foreground">
+                  Try logging out and back in
+                </span>
+                {logoutButton()}
+              </div>
             </div>
           </div>
         )}
@@ -120,9 +136,7 @@ export default function DashboardHandler() {
                   </Select>
                 </div>
               </div>
-              <Button className="m-2" onClick={logout}>
-                Logout
-              </Button>
+              {logoutButton()}
             </div>
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
