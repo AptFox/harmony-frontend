@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useEffect } from 'react';
 import useSWR, { mutate } from 'swr';
 import { swrFetcher, swrConfig, apiPut } from '@/lib/api';
 import { User, UserContextType } from '@/types/UserTypes';
@@ -26,13 +26,17 @@ function getDiscordAvatarUrl(user: User | undefined): string | null {
 }
 
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
-  const { accessToken } = useAuth();
+  const { accessToken, handleAuthError } = useAuth();
   const key = accessToken ? USER_SWR_KEY : null;
   const {
     data: user,
     error,
     isLoading,
   } = useSWR<User>(key, () => swrFetcher(USER_SWR_KEY, accessToken), swrConfig);
+
+  useEffect(() => {
+    if (error) handleAuthError(error);
+  }, [error, handleAuthError]);
 
   const updateUser = (userToUpdate: User) => {
     const staleUser = user;
