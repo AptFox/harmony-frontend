@@ -12,6 +12,7 @@ import {
   isNotFoundError,
   isApiRateLimitError,
   logWarn,
+  isUnauthorizedError,
 } from '@/lib/utils';
 
 const ACCESS_TOKEN_STRING = 'harmony_access_token';
@@ -92,6 +93,7 @@ export const swrConfig: SWRConfiguration = {
     if (isBadRequestError(error)) return; // bad request, don't retry
     if (isNotFoundError(error)) return; // schedule not found, don't retry
     if (isApiRateLimitError(error)) return; // too many requests, don't retry
+    if (isUnauthorizedError(error)) return; // access token expired, don't retry
 
     const retryIn = 2 ** retryCount * 1000; // exponential backoff
     logWarn(

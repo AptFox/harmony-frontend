@@ -35,6 +35,34 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const { cache, mutate } = useSWRConfig();
 
+  const logout = useCallback(async () => {
+    setHasLoggedOut((prev) => {
+      if (prev) return prev; // already logged out
+      return true;
+    });
+    // Clear all SWR keys and sessionStorage
+    const clearUserCache = () => {
+      cache.delete(USER_SWR_KEY);
+      mutate(USER_SWR_KEY, null, { revalidate: false });
+    };
+
+    await logoutOfApi();
+    setAccessToken(undefined);
+    clearUserCache();
+
+    router.replace('/login');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
+  const handleAuthError = useCallback(
+    (error: unknown) => {
+      if (isUnauthorizedError(error)) {
+        logout();
+      }
+    },
+    [logout]
+  );
+
   useEffect(() => {
     if (!isProdEnv() && hasInitializedRef.current) {
       logInfo('Strict Mode: Skipping duplicate auth call');
@@ -51,6 +79,10 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         });
         setAccessToken(token);
       } catch (error: unknown) {
+        if (isUnauthorizedError(error)) {
+          logout();
+          return;
+        }
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
           sendErrorToSentry(error);
         if (isApiRateLimitError(error) || isClientRateLimitError(error)) {
@@ -76,23 +108,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       logInfo('AuthContext UNMOUNTED');
       // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
     };
-  }, [accessToken, hasLoggedOut, pathname, router]);
-
-  const logout = useCallback(async () => {
-    // Clear all SWR keys and sessionStorage
-    const clearUserCache = () => {
-      cache.delete;
-      mutate(USER_SWR_KEY, null, { revalidate: false });
-    };
-
-    await logoutOfApi();
-    setHasLoggedOut(true);
-    setAccessToken(undefined);
-    clearUserCache();
-
-    router.replace('/login');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [accessToken, hasLoggedOut, logout, pathname, router]);
 
   const triggerDiscordOAuth = () => {
     const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -106,6 +122,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken,
         isLoading,
         logout,
+        handleAuthError,
         triggerDiscordOAuth,
       }}
     >

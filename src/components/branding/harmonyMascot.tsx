@@ -14,6 +14,7 @@ export default function HarmonyMascot({
         alt="Harmony logo"
         width={width}
         height={height}
+        loading="eager"
         className="drop-shadow-lg transition-transform duration-300 hover:scale-105"
       />
     </div>

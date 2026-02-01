@@ -108,6 +108,7 @@ export default function DashboardHandler() {
                       alt={`${user.displayName}'s avatar`}
                       width={64}
                       height={64}
+                      loading="eager"
                       className="rounded-full"
                     />
                   )}
