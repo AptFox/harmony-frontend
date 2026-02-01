@@ -35,6 +35,10 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const { cache, mutate } = useSWRConfig();
 
+  const redirectToLogin = useCallback(() => {
+    if (pathname !== '/login') router.replace('/login');
+  }, [pathname, router]);
+
   useEffect(() => {
     if (!isProdEnv() && hasInitializedRef.current) {
       logInfo('Strict Mode: Skipping duplicate auth call');
@@ -66,7 +70,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        if (pathname !== '/login') router.replace('/login');
+        redirectToLogin();
       }
       setIsLoading(false);
     };
@@ -76,7 +80,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       logInfo('AuthContext UNMOUNTED');
       // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
     };
-  }, [accessToken, hasLoggedOut, pathname, router]);
+  }, [accessToken, hasLoggedOut, pathname, redirectToLogin, router]);
 
   const logout = useCallback(async () => {
     // Clear all SWR keys and sessionStorage
@@ -106,6 +110,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken,
         isLoading,
         logout,
+        redirectToLogin,
         triggerDiscordOAuth,
       }}
     >

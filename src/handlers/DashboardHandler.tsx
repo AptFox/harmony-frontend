@@ -30,7 +30,7 @@ export default function DashboardHandler() {
   } = useUser();
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const [orgTimeZoneId, setOrgTimeZoneId] = useState<string | undefined>();
-  const { logout } = useAuth();
+  const { logout, redirectToLogin } = useAuth();
 
   useInitialTimeZone();
 
@@ -54,14 +54,12 @@ export default function DashboardHandler() {
     if (isErrorUser) {
       // TODO: centralize error to toasts logic
       if (isApiRateLimitError(isErrorUser)) {
-        toast.error('Something went wrong');
+        toast.error('Something went wrong - try again in a few minutes');
         return;
       }
-      toast.error(
-        `${(isErrorUser as Error).name}: ${(isErrorUser as Error).message}`
-      );
+      redirectToLogin();
     }
-  }, [user, isLoadingUser, isErrorUser, selectedOrgId]);
+  }, [user, isLoadingUser, isErrorUser, selectedOrgId, redirectToLogin]);
 
   return (
     <div className="flex flex-col lg:mb-0 mx-auto">
