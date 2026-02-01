@@ -30,7 +30,7 @@ export default function DashboardHandler() {
   } = useUser();
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const [orgTimeZoneId, setOrgTimeZoneId] = useState<string | undefined>();
-  const { logout, redirectToLogin } = useAuth();
+  const { logout } = useAuth();
 
   useInitialTimeZone();
 
@@ -57,9 +57,10 @@ export default function DashboardHandler() {
         toast.error('Something went wrong - try again in a few minutes');
         return;
       }
-      redirectToLogin();
+
+      logout();
     }
-  }, [user, isLoadingUser, isErrorUser, selectedOrgId, redirectToLogin]);
+  }, [user, isLoadingUser, isErrorUser, selectedOrgId, logout]);
 
   return (
     <div className="flex flex-col lg:mb-0 mx-auto">

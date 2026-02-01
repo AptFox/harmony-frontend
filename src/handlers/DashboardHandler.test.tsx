@@ -83,7 +83,7 @@ describe('DashboardHandler', () => {
     });
   });
   describe('when an error occurs while loading the user', () => {
-    it('displays a error message', async () => {
+    it('displays an error message and redirects to login', async () => {
       const error = new Error('test');
       useUserMock.mockReturnValue({
         user: undefined,
@@ -104,6 +104,7 @@ describe('DashboardHandler', () => {
 
       render(<DashboardHandler />);
       expect(screen.getByText('Error loading user data')).toBeInTheDocument();
+      expect(logoutFn).toHaveBeenCalled();
       // TODO: figure out how to test the toast error message as well likely by mocking useToast
     });
   });

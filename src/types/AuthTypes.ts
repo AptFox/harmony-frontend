@@ -3,6 +3,5 @@ export type AuthContextType = {
   setAccessToken: (accessToken: string | undefined) => void;
   isLoading: boolean;
   logout: () => void;
-  redirectToLogin: () => void;
   triggerDiscordOAuth: () => void;
 };

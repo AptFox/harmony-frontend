@@ -30,22 +30,19 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(accessToken === undefined);
   const [hasLoggedOut, setHasLoggedOut] = useState(false);
-  const hasInitializedRef = useRef(false);
+  const hasInitializedAuthRef = useRef(false);
+  const hasInitializedLogoutRef = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
   const { cache, mutate } = useSWRConfig();
 
-  const redirectToLogin = useCallback(() => {
-    if (pathname !== '/login') router.replace('/login');
-  }, [pathname, router]);
-
   useEffect(() => {
-    if (!isProdEnv() && hasInitializedRef.current) {
+    if (!isProdEnv() && hasInitializedAuthRef.current) {
       logInfo('Strict Mode: Skipping duplicate auth call');
       return;
     }
 
-    hasInitializedRef.current = true;
+    hasInitializedAuthRef.current = true;
     const controller = new AbortController();
     const initAuth = async () => {
       if (accessToken || hasLoggedOut) return; // Access token is present, no need to refresh
@@ -70,7 +67,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        redirectToLogin();
+        if (pathname !== '/login') router.replace('/login');
       }
       setIsLoading(false);
     };
@@ -80,9 +77,14 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       logInfo('AuthContext UNMOUNTED');
       // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
     };
-  }, [accessToken, hasLoggedOut, pathname, redirectToLogin, router]);
+  }, [accessToken, hasLoggedOut, pathname, router]);
 
   const logout = useCallback(async () => {
+    if (!isProdEnv() && hasInitializedLogoutRef.current) {
+      logInfo('Strict Mode: Skipping duplicate logout call');
+      return;
+    }
+    hasInitializedLogoutRef.current = true;
     // Clear all SWR keys and sessionStorage
     const clearUserCache = () => {
       cache.delete;
@@ -110,7 +112,6 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken,
         isLoading,
         logout,
-        redirectToLogin,
         triggerDiscordOAuth,
       }}
     >
