@@ -35,22 +35,25 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const { cache, mutate } = useSWRConfig();
 
+  const resetAuth = useCallback(() => {
+    setAccessToken(undefined);
+    cache.delete(USER_SWR_KEY);
+    mutate(USER_SWR_KEY, null, { revalidate: false });
+    setIsLoading(false);
+    router.replace('/login');
+  }, [cache, mutate, router]);
+
   const logout = useCallback(async () => {
     setHasLoggedOut((prev) => {
       if (prev) return prev; // already logged out
       return true;
     });
-    // Clear all SWR keys and sessionStorage
-    const clearUserCache = () => {
-      cache.delete(USER_SWR_KEY);
-      mutate(USER_SWR_KEY, null, { revalidate: false });
-    };
 
-    await logoutOfApi();
-    setAccessToken(undefined);
-    clearUserCache();
-
-    router.replace('/login');
+    try {
+      await logoutOfApi();
+    } finally {
+      resetAuth();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
@@ -80,7 +83,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken(token);
       } catch (error: unknown) {
         if (isUnauthorizedError(error)) {
-          logout();
+          resetAuth();
           return;
         }
         if (!isUnauthorizedError(error) && !isBadRequestError(error))
@@ -108,7 +111,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       logInfo('AuthContext UNMOUNTED');
       // controller.abort(); // TODO: This doesn't work because of an extra unexpected mount/unmount, need to find it somehow
     };
-  }, [accessToken, hasLoggedOut, logout, pathname, router]);
+  }, [accessToken, hasLoggedOut, pathname, resetAuth, router]);
 
   const triggerDiscordOAuth = () => {
     const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL;
