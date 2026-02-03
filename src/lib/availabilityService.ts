@@ -6,24 +6,6 @@ import {
   ScheduleSlot,
 } from '@/types/ScheduleTypes';
 
-export const createTimeInZone = (
-  targetDate: Temporal.ZonedDateTime,
-  targetTimeZoneId: string,
-  timeStamp: string
-): Temporal.ZonedDateTime => {
-  const [hour, minute, second] = timeStamp.split(':').map(Number);
-  const zonedInstant = Temporal.Instant.fromEpochMilliseconds(
-    targetDate.epochMilliseconds
-  ).toZonedDateTimeISO(targetTimeZoneId);
-
-  const plainDate = zonedInstant.toPlainDate();
-
-  return plainDate.toZonedDateTime({
-    timeZone: targetTimeZoneId,
-    plainTime: { hour, minute, second },
-  });
-};
-
 // returns a string representing the day of the week
 // ex: "Sun"
 export const getDayOfWeekInTargetTimeZone = (
@@ -36,36 +18,31 @@ export const getDayOfWeekInTargetTimeZone = (
   return daysOfWeek[zonedStart.dayOfWeek % 7];
 };
 
-// Converts ScheduleSlot to target time zone
-const convertTimeToTargetTimeZone = (
-  originTime: string, // "07:00:00"
-  originTimeZoneId: string, // "America/New_York"
-  targetDate: Temporal.ZonedDateTime, // date whose calendar day we want to use
-  targetTimeZoneId: string // "America/Chicago"
-): Temporal.ZonedDateTime => {
-  let [hour, minute, second] = originTime.split(':').map(Number);
-  let dateToUse = targetDate;
-  const isMidnight = hour === 23 && minute === 59 && second === 59;
-  if (isMidnight) {
-    hour = 0;
-    minute = 0;
-    second = 0;
-    dateToUse = targetDate.add({ days: 1 });
-  }
+function convertTimeToTargetTimeZone(
+  originTime: string,
+  originTz: string,
+  originDate: Temporal.ZonedDateTime,
+  targetTz: string
+): Temporal.ZonedDateTime {
+  const [hour, minute, second] = originTime.split(':').map(Number);
 
-  const zonedInstant = Temporal.Instant.fromEpochMilliseconds(
-    dateToUse.epochMilliseconds
-  ).toZonedDateTimeISO(targetTimeZoneId);
-
-  const plainDate = zonedInstant.toPlainDate();
-
-  const originZonedDateTime = plainDate.toZonedDateTime({
-    timeZone: originTimeZoneId,
-    plainTime: { hour, minute, second },
+  let originZdt = Temporal.ZonedDateTime.from({
+    timeZone: originTz,
+    year: originDate.year,
+    month: originDate.month,
+    day: originDate.day,
+    hour,
+    minute,
+    second,
   });
 
-  return originZonedDateTime.withTimeZone(targetTimeZoneId);
-};
+  // 23:59:59 represents midnight of next day
+  if (hour === 23 && minute === 59 && second === 59) {
+    originZdt = originZdt.add({ seconds: 1 });
+  }
+
+  return originZdt.withTimeZone(targetTz);
+}
 
 export const convertScheduleSlotToTimeZone = (
   scheduleSlot: ScheduleSlot,
