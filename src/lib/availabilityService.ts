@@ -36,8 +36,8 @@ function convertTimeToTargetTimeZone(
     second,
   });
 
-  // 23:59:59 represents midnight of next day
-  if (hour === 23 && minute === 59 && second === 59) {
+  // 59:59 represents midnight the original timezone. Shifting to whole hour
+  if (minute === 59 && second === 59) {
     originZdt = originZdt.add({ seconds: 1 });
   }
 
