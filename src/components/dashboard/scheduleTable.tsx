@@ -126,7 +126,7 @@ export default function ScheduleTable() {
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
                   <div
-                    className={`flex-col ${getDayCurrentDayOfWeekStr() === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                    className={`flex-col ${getDayCurrentDayOfWeekStr(currentTimeZoneId) === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">

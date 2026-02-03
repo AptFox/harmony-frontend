@@ -36,7 +36,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Matcher } from 'react-day-picker';
 import {
   createHoursInDayArray,
-  formatDateToCurrentLocale,
+  getCurrentUserLocale,
   getPossibleEndTimes,
   getPossibleStartTimes,
 } from '@/lib/availabilityUtils';
@@ -186,6 +186,19 @@ export function TimeOffTableDialog({
       setSelectedEndTime('');
     }
     setAllDayChecked(checked);
+  };
+
+  const formatDateToCurrentLocale = (
+    date: Date | undefined,
+    locale: string = getCurrentUserLocale(),
+    options: Intl.DateTimeFormatOptions = {
+      month: '2-digit',
+      day: '2-digit',
+    }
+  ) => {
+    const formatter = new Intl.DateTimeFormat(locale, options);
+
+    return formatter.format(date);
   };
 
   const getCalendarFooter = (): ReactNode => {
