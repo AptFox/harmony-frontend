@@ -8,10 +8,7 @@ import {
   TimeZone,
   DayOfWeekToDatesMap,
 } from '@/types/ScheduleTypes';
-import {
-  createTimeInZone,
-  parseScheduleSlots,
-} from '@/lib/availabilityService';
+import { parseScheduleSlots } from '@/lib/availabilityService';
 import { Temporal } from '@js-temporal/polyfill';
 
 export const getCurrentTimeZoneId = (): string =>
@@ -245,12 +242,14 @@ export function filterToHoursAvailable(
   targetDate: Temporal.ZonedDateTime
 ): HourOfDay[] {
   const { startTimeInTargetTz, endTimeInTargetTz } = slot;
+
+  const dayStart = targetDate.withTimeZone(timeZoneId).startOfDay();
+
   return hoursInDay.filter(({ hour }) => {
-    const timeStamp = `${hour}:00:00`;
-    const hourToCompare = createTimeInZone(targetDate, timeZoneId, timeStamp);
+    const hourZdt = dayStart.add({ hours: hour });
 
     return isWithinZonedInterval(
-      hourToCompare,
+      hourZdt,
       startTimeInTargetTz,
       endTimeInTargetTz
     );
