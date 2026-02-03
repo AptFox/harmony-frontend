@@ -26,7 +26,7 @@ function convertTimeToTargetTimeZone(
 ): Temporal.ZonedDateTime {
   const [hour, minute, second] = originTime.split(':').map(Number);
 
-  const originZdt = Temporal.ZonedDateTime.from({
+  let originZdt = Temporal.ZonedDateTime.from({
     timeZone: originTz,
     year: originDate.year,
     month: originDate.month,
@@ -35,6 +35,11 @@ function convertTimeToTargetTimeZone(
     minute,
     second,
   });
+
+  // 23:59:59 represents midnight of next day
+  if (hour === 23 && minute === 59 && second === 59) {
+    originZdt = originZdt.add({ seconds: 1 });
+  }
 
   return originZdt.withTimeZone(targetTz);
 }
