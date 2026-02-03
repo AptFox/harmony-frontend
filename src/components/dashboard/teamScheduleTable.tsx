@@ -40,6 +40,7 @@ import {
 import { CalendarX2 } from 'lucide-react';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 import { parseScheduleSlots } from '@/lib/availabilityService';
+import { Temporal } from '@js-temporal/polyfill';
 
 export default function TeamScheduleTable({
   team,
@@ -123,14 +124,17 @@ export default function TeamScheduleTable({
 
   const availabilityMap = setAvailabilityInMap();
 
-  const formatPopoverDate = (date: Date | undefined): string => {
+  const formatPopoverDate = (
+    zdt: Temporal.ZonedDateTime | undefined
+  ): string => {
+    const dateToUse = zdt ? new Date(zdt.epochMilliseconds) : zdt;
     const formatter = new Intl.DateTimeFormat(getCurrentUserLocale(), {
       month: 'short',
       day: '2-digit',
       weekday: 'short',
     });
 
-    return formatter.format(date);
+    return formatter.format(dateToUse);
   };
 
   const teamScheduleSlotPopOver = ({

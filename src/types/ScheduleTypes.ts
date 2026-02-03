@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 export type ScheduleSlot = {
   id: string;
   userId: string;
@@ -9,8 +11,8 @@ export type ScheduleSlot = {
 
 export type ParsedScheduleSlot = {
   dayOfWeek: string;
-  startTimeInTargetTz: Date;
-  endTimeInTargetTz: Date;
+  startTimeInTargetTz: Temporal.ZonedDateTime;
+  endTimeInTargetTz: Temporal.ZonedDateTime;
 };
 
 export type ScheduleSlotRequest = {
@@ -87,3 +89,4 @@ export type TimeZone = {
 };
 
 export type AvailabilityMap = Map<HourOfDay, Map<string, PlayerHourStatus>>;
+export type DayOfWeekToDatesMap = Map<string, Temporal.ZonedDateTime>;

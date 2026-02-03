@@ -6,17 +6,17 @@ import {
   ParsedScheduleSlot,
   TimeOff,
   TimeZone,
+  DayOfWeekToDatesMap,
 } from '@/types/ScheduleTypes';
-import { toZonedTime } from 'date-fns-tz';
-import { isWithinInterval, addDays } from 'date-fns';
 import {
   createTimeInZone,
   parseScheduleSlots,
 } from '@/lib/availabilityService';
+import { Temporal } from '@js-temporal/polyfill';
 
 export const getCurrentTimeZoneId = (): string =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
-export const getCurrentDate = () => new Date();
+export const getNowInstant = () => Temporal.Now.instant();
 
 export const DAY_ORDER: Record<string, number> = {
   Mon: 1,
@@ -60,8 +60,8 @@ export const getFormattedTimeZone = (
 /**
  * Returns the current date in the supplied timezone.
  */
-export const getCurrentDateInTimeZone = (timeZoneId: string): Date =>
-  toZonedTime(getCurrentDate(), timeZoneId);
+export const getCurrentDateInTimeZone = (timeZoneId: string) =>
+  Temporal.Now.zonedDateTimeISO(timeZoneId);
 
 export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
   const currentUserTimeZone: TimeZone = {
@@ -82,16 +82,17 @@ export const getTimeZones = (orgTimeZoneId: string | undefined): TimeZone[] => {
 };
 
 export const formatDateToCurrentLocale = (
-  date: Date | undefined,
+  zdt: Temporal.ZonedDateTime | undefined,
   locale: string = getCurrentUserLocale(),
   options: Intl.DateTimeFormatOptions = {
     month: '2-digit',
     day: '2-digit',
   }
 ) => {
+  const dateToUse = zdt ? new Date(zdt.epochMilliseconds) : zdt;
   const formatter = new Intl.DateTimeFormat(locale, options);
 
-  return formatter.format(date);
+  return formatter.format(dateToUse);
 };
 
 export function createHoursInDayArray(): HourOfDay[] {
@@ -133,17 +134,27 @@ export function getPossibleStartTimes(hoursInDay: HourOfDay[]): HourOfDay[] {
   return hoursInDay.filter((hod) => hod.hour !== 24);
 }
 
-export const getDayCurrentDayOfWeekStr = () =>
-  daysOfWeek[getCurrentDate().getDay()];
+export const convertDateToDayOfWeek = (zdt: Temporal.ZonedDateTime): string => {
+  return daysOfWeek[zdt.dayOfWeek % 7];
+};
 
-export function getDayOfWeekToDatesMap(timeZoneId: string): Map<string, Date> {
-  const currentDate = getCurrentDateInTimeZone(timeZoneId);
-  const map = new Map<string, Date>();
+export const getDayCurrentDayOfWeekStr = (timeZoneId: string) => {
+  const now = Temporal.Now.zonedDateTimeISO(timeZoneId);
+  return convertDateToDayOfWeek(now);
+};
+
+export function getDayOfWeekToDatesMap(
+  timeZoneId: string
+): DayOfWeekToDatesMap {
+  const today = Temporal.Now.zonedDateTimeISO(timeZoneId).startOfDay();
+  const map = new Map<string, Temporal.ZonedDateTime>();
+
   for (let i = 0; i < 7; i++) {
-    const dateForDay = addDays(currentDate, i);
-    const dayOfWeek = daysOfWeek[dateForDay.getDay()];
+    const dateForDay = today.add({ days: i });
+    const dayOfWeek = convertDateToDayOfWeek(dateForDay);
     map.set(dayOfWeek, dateForDay);
   }
+
   return map;
 }
 
@@ -173,7 +184,7 @@ export function getAvailability(
   scheduleSlots: ScheduleSlot[] | undefined,
   timeOffSlots: TimeOff[] | undefined,
   submittedScheduleMatchesCurrentTimeZone: boolean,
-  dayOfWeekToDatesMap: Map<string, Date>,
+  dayOfWeekToDatesMap: DayOfWeekToDatesMap,
   setFirstAvailableSlot: (coordinate: string) => void
 ): AvailabilityMap {
   const map = createEmptyAvailability(hoursInDay);
@@ -205,30 +216,52 @@ export function getAvailability(
   return map;
 }
 
+export function isWithinZonedInterval(
+  value: Temporal.ZonedDateTime,
+  start: Temporal.ZonedDateTime,
+  end: Temporal.ZonedDateTime
+): boolean {
+  return (
+    Temporal.ZonedDateTime.compare(value, start) >= 0 &&
+    Temporal.ZonedDateTime.compare(value, end) <= 0
+  );
+}
+
+export function isWithinInstantInterval(
+  value: Temporal.Instant,
+  start: Temporal.Instant,
+  end: Temporal.Instant
+): boolean {
+  return (
+    Temporal.Instant.compare(value, start) >= 0 &&
+    Temporal.Instant.compare(value, end) <= 0
+  );
+}
+
 export function filterToHoursAvailable(
   timeZoneId: string,
   slot: ParsedScheduleSlot,
   hoursInDay: HourOfDay[],
-  targetDate: Date
+  targetDate: Temporal.ZonedDateTime
 ): HourOfDay[] {
   const { startTimeInTargetTz, endTimeInTargetTz } = slot;
-  const filterToHoursAvailableFn = (hourOfDay: HourOfDay) => {
-    const timeStamp = `${hourOfDay.hour}:00:00`;
+  return hoursInDay.filter(({ hour }) => {
+    const timeStamp = `${hour}:00:00`;
     const hourToCompare = createTimeInZone(targetDate, timeZoneId, timeStamp);
 
-    return isWithinInterval(hourToCompare, {
-      start: startTimeInTargetTz,
-      end: endTimeInTargetTz,
-    });
-  };
-  return hoursInDay.filter((hourOfDay) => filterToHoursAvailableFn(hourOfDay));
+    return isWithinZonedInterval(
+      hourToCompare,
+      startTimeInTargetTz,
+      endTimeInTargetTz
+    );
+  });
 }
 
 export function setHourStatusInMap(
   map: AvailabilityMap,
   timeZoneId: string,
   dayOfWeek: string,
-  dayOfWeekToDatesMap: Map<string, Date>,
+  dayOfWeekToDatesMap: DayOfWeekToDatesMap,
   slot: ParsedScheduleSlot,
   timeOffs: TimeOff[] | undefined,
   hoursInDay: HourOfDay[],
@@ -268,7 +301,7 @@ export function setHourStatusInMap(
 
 export function isTimeOffFn(
   timeOffSlots: TimeOff[] | undefined,
-  dayOfWeekToDatesMap: Map<string, Date>,
+  dayOfWeekToDatesMap: DayOfWeekToDatesMap,
   day: string,
   hourOfDay: HourOfDay
 ): boolean {
@@ -277,22 +310,18 @@ export function isTimeOffFn(
   const dayDate = dayOfWeekToDatesMap.get(day);
   if (!dayDate) return false;
 
-  // TODO: update this to use temporal dates instead of numbers for determining isTimeOff
-  // TODO: update this to account for timezones
-  const timeOffForDay = timeOffSlots.filter((timeOff) => {
-    const timeOffStartDate = new Date(timeOff.startTime);
-    const timeOffEndDate = new Date(timeOff.endTime);
-    timeOffStartDate.setHours(0, 0, 0, 0);
-    timeOffEndDate.setHours(23, 59, 59, 999);
-    return dayDate >= timeOffStartDate && dayDate <= timeOffEndDate;
+  const hourToCompare = dayDate.with({
+    hour: hourOfDay.hour,
+    minute: 0,
+    second: 0,
+    millisecond: 0,
   });
 
-  return timeOffForDay.some((timeOff) => {
-    // TODO: consider switching to dates for this condition
-    const startHour = new Date(timeOff.startTime).getHours();
-    const endHour = timeOff.endTime.endsWith(':59:59.999Z')
-      ? 24
-      : new Date(timeOff.endTime).getHours();
-    return hourOfDay.hour >= startHour && hourOfDay.hour <= endHour;
+  const hourInstant = hourToCompare.toInstant();
+
+  return timeOffSlots.some((timeOff) => {
+    const start = Temporal.Instant.from(timeOff.startTime);
+    const end = Temporal.Instant.from(timeOff.endTime);
+    return isWithinInstantInterval(hourInstant, start, end);
   });
 }

@@ -1,36 +1,37 @@
 import { daysOfWeek } from '@/lib/availabilityUtils';
-import { addDays } from 'date-fns';
 import { Temporal } from '@js-temporal/polyfill';
-import { ParsedScheduleSlot, ScheduleSlot } from '@/types/ScheduleTypes';
+import {
+  DayOfWeekToDatesMap,
+  ParsedScheduleSlot,
+  ScheduleSlot,
+} from '@/types/ScheduleTypes';
 
 export const createTimeInZone = (
-  targetDate: Date,
+  targetDate: Temporal.ZonedDateTime,
   targetTimeZoneId: string,
   timeStamp: string
-): Date => {
+): Temporal.ZonedDateTime => {
   const [hour, minute, second] = timeStamp.split(':').map(Number);
-  const plainDate = Temporal.PlainDate.from({
-    year: targetDate.getFullYear(),
-    month: targetDate.getMonth() + 1,
-    day: targetDate.getDate(),
-  });
+  const zonedInstant = Temporal.Instant.fromEpochMilliseconds(
+    targetDate.epochMilliseconds
+  ).toZonedDateTimeISO(targetTimeZoneId);
 
-  const targetDateInZone = plainDate.toZonedDateTime({
+  const plainDate = zonedInstant.toPlainDate();
+
+  return plainDate.toZonedDateTime({
     timeZone: targetTimeZoneId,
     plainTime: { hour, minute, second },
   });
-
-  return new Date(targetDateInZone.epochMilliseconds);
 };
 
 // returns a string representing the day of the week
 // ex: "Sun"
 export const getDayOfWeekInTargetTimeZone = (
-  date: Date,
+  date: Temporal.ZonedDateTime,
   targetTimeZoneId: string
 ): string => {
   const zonedStart = Temporal.Instant.fromEpochMilliseconds(
-    date.getTime()
+    date.epochMilliseconds
   ).toZonedDateTimeISO(targetTimeZoneId);
   return daysOfWeek[zonedStart.dayOfWeek % 7];
 };
@@ -39,9 +40,9 @@ export const getDayOfWeekInTargetTimeZone = (
 const convertTimeToTargetTimeZone = (
   originTime: string, // "07:00:00"
   originTimeZoneId: string, // "America/New_York"
-  targetDate: Date, // date whose calendar day we want to use
+  targetDate: Temporal.ZonedDateTime, // date whose calendar day we want to use
   targetTimeZoneId: string // "America/Chicago"
-): Date => {
+): Temporal.ZonedDateTime => {
   let [hour, minute, second] = originTime.split(':').map(Number);
   let dateToUse = targetDate;
   const isMidnight = hour === 23 && minute === 59 && second === 59;
@@ -49,29 +50,26 @@ const convertTimeToTargetTimeZone = (
     hour = 0;
     minute = 0;
     second = 0;
-    dateToUse = addDays(targetDate, 1);
+    dateToUse = targetDate.add({ days: 1 });
   }
 
-  const plainDate = Temporal.PlainDate.from({
-    year: dateToUse.getFullYear(),
-    month: dateToUse.getMonth() + 1,
-    day: dateToUse.getDate(),
-  });
+  const zonedInstant = Temporal.Instant.fromEpochMilliseconds(
+    dateToUse.epochMilliseconds
+  ).toZonedDateTimeISO(targetTimeZoneId);
+
+  const plainDate = zonedInstant.toPlainDate();
 
   const originZonedDateTime = plainDate.toZonedDateTime({
     timeZone: originTimeZoneId,
     plainTime: { hour, minute, second },
   });
 
-  const instant =
-    originZonedDateTime.withTimeZone(targetTimeZoneId).epochMilliseconds;
-
-  return new Date(instant);
+  return originZonedDateTime.withTimeZone(targetTimeZoneId);
 };
 
 export const convertScheduleSlotToTimeZone = (
   scheduleSlot: ScheduleSlot,
-  targetDate: Date,
+  targetDate: Temporal.ZonedDateTime,
   targetTimeZoneId: string
 ) => {
   const startTimeInTargetTz = convertTimeToTargetTimeZone(
@@ -95,7 +93,7 @@ export const convertScheduleSlotToTimeZone = (
 
 export function parseScheduleSlot(
   slot: ScheduleSlot,
-  targetDate: Date,
+  targetDate: Temporal.ZonedDateTime,
   targetTimeZoneId: string
 ): ParsedScheduleSlot {
   const { startTimeInTargetTz, endTimeInTargetTz } =
@@ -115,7 +113,7 @@ export function parseScheduleSlot(
 
 export function parseScheduleSlots(
   slots: ScheduleSlot[],
-  dayOfWeekToDatesMap: Map<string, Date>,
+  dayOfWeekToDatesMap: DayOfWeekToDatesMap,
   targetTimeZoneId: string
 ): ParsedScheduleSlot[] {
   return slots.map((slot) => {
