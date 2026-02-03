@@ -37,6 +37,7 @@ import {
   getAvailability,
   sortedDaysOfWeek,
   getDayOfWeekToDatesMap,
+  getCurrentWeekStart,
 } from '@/lib/availabilityUtils';
 
 const hoursInDay: HourOfDay[] = createHoursInDayArray();
@@ -74,8 +75,11 @@ export default function ScheduleTable() {
       });
     }
   }, [firstAvailableSlotCoordinate, scheduleSlots]);
-
-  const dayOfWeekToDatesMap = getDayOfWeekToDatesMap(currentTimeZoneId);
+  const mondayOfCurrentWeek = getCurrentWeekStart(currentTimeZoneId);
+  const dayOfWeekToDatesMap = getDayOfWeekToDatesMap(
+    currentTimeZoneId,
+    mondayOfCurrentWeek
+  );
   const availabilityMap = getAvailability(
     currentTimeZoneId,
     hoursInDay,

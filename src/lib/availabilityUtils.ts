@@ -8,10 +8,7 @@ import {
   TimeZone,
   DayOfWeekToDatesMap,
 } from '@/types/ScheduleTypes';
-import {
-  createTimeInZone,
-  parseScheduleSlots,
-} from '@/lib/availabilityService';
+import { parseScheduleSlots } from '@/lib/availabilityService';
 import { Temporal } from '@js-temporal/polyfill';
 
 export const getCurrentTimeZoneId = (): string =>
@@ -143,14 +140,24 @@ export const getDayCurrentDayOfWeekStr = (timeZoneId: string) => {
   return convertDateToDayOfWeek(now);
 };
 
+export function getCurrentWeekStart(
+  viewerTimeZoneId: string
+): Temporal.ZonedDateTime {
+  const now = Temporal.Now.zonedDateTimeISO(viewerTimeZoneId).startOfDay();
+  const daysSinceMonday = now.dayOfWeek - 1; // Monday = 1
+  return now.subtract({ days: daysSinceMonday });
+}
+
 export function getDayOfWeekToDatesMap(
-  timeZoneId: string
+  timeZoneId: string,
+  referenceDate: Temporal.ZonedDateTime
 ): DayOfWeekToDatesMap {
-  const today = Temporal.Now.zonedDateTimeISO(timeZoneId).startOfDay();
+  const startOfWeek = referenceDate.withTimeZone(timeZoneId);
+
   const map = new Map<string, Temporal.ZonedDateTime>();
 
   for (let i = 0; i < 7; i++) {
-    const dateForDay = today.add({ days: i });
+    const dateForDay = startOfWeek.add({ days: i });
     const dayOfWeek = convertDateToDayOfWeek(dateForDay);
     map.set(dayOfWeek, dateForDay);
   }
@@ -245,12 +252,14 @@ export function filterToHoursAvailable(
   targetDate: Temporal.ZonedDateTime
 ): HourOfDay[] {
   const { startTimeInTargetTz, endTimeInTargetTz } = slot;
+
+  const dayStart = targetDate.withTimeZone(timeZoneId).startOfDay();
+
   return hoursInDay.filter(({ hour }) => {
-    const timeStamp = `${hour}:00:00`;
-    const hourToCompare = createTimeInZone(targetDate, timeZoneId, timeStamp);
+    const hourZdt = dayStart.add({ hours: hour });
 
     return isWithinZonedInterval(
-      hourToCompare,
+      hourZdt,
       startTimeInTargetTz,
       endTimeInTargetTz
     );

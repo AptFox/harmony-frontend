@@ -17,6 +17,7 @@ import {
   createHoursInDayArray,
   getCurrentTimeZoneId,
   getCurrentUserLocale,
+  getCurrentWeekStart,
   getDayOfWeekToDatesMap,
   setHourStatusInMap,
   sortedDaysOfWeek,
@@ -62,15 +63,17 @@ export default function TeamScheduleTable({
     setFirstAvailableSlotCoordinate(coordinate);
     hasFirstAvailableSlotBeenSetRef.current = true;
   };
-
+  const mondayOfCurrentWeek = getCurrentWeekStart(selectedTimeZoneId);
   const { teamSchedule, isLoading } = useTeamSchedule(team?.id);
   const playerSchedules = teamSchedule?.playerSchedules;
   const [dayOfWeekToDatesMap, setDayOfWeekToDatesMap] = useState(
-    getDayOfWeekToDatesMap(selectedTimeZoneId)
+    getDayOfWeekToDatesMap(selectedTimeZoneId, mondayOfCurrentWeek)
   );
   useEffect(() => {
     if (selectedTimeZoneId !== getCurrentTimeZoneId()) {
-      setDayOfWeekToDatesMap(getDayOfWeekToDatesMap(selectedTimeZoneId));
+      setDayOfWeekToDatesMap(
+        getDayOfWeekToDatesMap(selectedTimeZoneId, mondayOfCurrentWeek)
+      );
     }
     if (playerSchedules && firstAvailableSlotCoordinate) {
       firstAvailableHourRef.current?.scrollIntoView({
@@ -78,13 +81,17 @@ export default function TeamScheduleTable({
         block: 'center',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstAvailableSlotCoordinate, playerSchedules, selectedTimeZoneId]);
 
   const hoursInDay: HourOfDay[] = createHoursInDayArray();
 
   function setAvailabilityInMap() {
     const map = createEmptyAvailability(hoursInDay);
-    const recalculatedMap = getDayOfWeekToDatesMap(selectedTimeZoneId);
+    const recalculatedMap = getDayOfWeekToDatesMap(
+      selectedTimeZoneId,
+      mondayOfCurrentWeek
+    );
     if (playerSchedules !== undefined) {
       playerSchedules.forEach((playerSchedule) => {
         const playerName = playerSchedule.playerName;
