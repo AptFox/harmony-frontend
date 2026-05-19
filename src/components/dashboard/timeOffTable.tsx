@@ -190,7 +190,7 @@ export default function TimeOffTable() {
   return (
     <DashboardCard
       title="Time Off (TO)"
-      buttonText="Add"
+      buttonContent="Add"
       dialogContent={dialogContent}
       secondElement={deleteModeButton}
       parentClassName="flex-auto basis-2xl"

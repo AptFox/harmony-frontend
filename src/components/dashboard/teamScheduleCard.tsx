@@ -1,26 +1,25 @@
 import DashboardCard from '@/components/dashboard/dashboardCard';
-import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
+import PlayerFilterPopover from '@/components/dashboard/playerFilterPopover';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeamSchedule } from '@/hooks/useTeamSchedule';
 import { getCurrentTimeZoneId, getTimeZones } from '@/lib/availabilityUtils';
 import { TimeZone } from '@/types/ScheduleTypes';
+import { OrgProps } from '@/types/OrganizationTypes';
 import { useState } from 'react';
 
-export default function TeamScheduleCard({
-  orgId,
-  orgTimeZoneId,
-}: {
-  orgId: string | undefined;
-  orgTimeZoneId: string | undefined;
-}) {
+export default function TeamScheduleCard(props: OrgProps) {
+  const { orgId, orgTimeZoneId } = props;
   const { player } = usePlayer(orgId);
   const { teamSchedule, isLoading } = useTeamSchedule(player?.team?.id);
   const cardTitle = player?.team?.name ? `${player?.team?.name}` : 'My Team';
   const [selectedTimeZoneId, setSelectedTimeZoneId] = useState(
     getCurrentTimeZoneId()
+  );
+  const [filteredPlayers, setFilteredPlayers] = useState(
+    teamSchedule?.playerSchedules.map((schedule) => schedule.playerName)
   );
   const timeZones: TimeZone[] = getTimeZones(orgTimeZoneId);
   const playerSchedules = teamSchedule?.playerSchedules;
@@ -40,8 +39,14 @@ export default function TeamScheduleCard({
     player?.team && (
       <DashboardCard
         title={cardTitle}
-        firstElement={timeZoneSelect}
-        secondElement={() => EmptySchedulePopover(playerSchedules)}
+        firstElement={() =>
+          PlayerFilterPopover(
+            playerSchedules,
+            filteredPlayers,
+            setFilteredPlayers
+          )
+        }
+        secondElement={timeZoneSelect}
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
@@ -51,6 +56,7 @@ export default function TeamScheduleCard({
           <TeamScheduleTable
             team={player?.team}
             selectedTimeZoneId={selectedTimeZoneId}
+            filteredPlayers={filteredPlayers}
           />
         )}
       </DashboardCard>

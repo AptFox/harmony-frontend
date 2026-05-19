@@ -46,9 +46,11 @@ import { Temporal } from '@js-temporal/polyfill';
 export default function TeamScheduleTable({
   team,
   selectedTimeZoneId,
+  filteredPlayers,
 }: {
   team: Team | undefined;
   selectedTimeZoneId: string;
+  filteredPlayers: string[] | undefined;
 }) {
   const { user } = useUser();
   const twelveHourClock =
@@ -93,38 +95,40 @@ export default function TeamScheduleTable({
       mondayOfCurrentWeek
     );
     if (playerSchedules !== undefined) {
-      playerSchedules.forEach((playerSchedule) => {
-        const playerName = playerSchedule.playerName;
-        const weeklyAvailabilitySlotsForPlayer =
-          playerSchedule.availability.weeklyAvailabilitySlots;
-        const timeOffsForPlayer = playerSchedule.availability.timeOffs;
+      playerSchedules
+        .filter((schedule) => !filteredPlayers?.includes(schedule.playerName))
+        .forEach((playerSchedule) => {
+          const playerName = playerSchedule.playerName;
+          const weeklyAvailabilitySlotsForPlayer =
+            playerSchedule.availability.weeklyAvailabilitySlots;
+          const timeOffsForPlayer = playerSchedule.availability.timeOffs;
 
-        const parsedSlots = parseScheduleSlots(
-          weeklyAvailabilitySlotsForPlayer,
-          recalculatedMap,
-          selectedTimeZoneId
-        );
-        sortedDaysOfWeek.forEach((dayOfWeek) => {
-          const availabilitySlotsForDayOfWeek = parsedSlots.filter(
-            (slot) => slot.dayOfWeek === dayOfWeek
+          const parsedSlots = parseScheduleSlots(
+            weeklyAvailabilitySlotsForPlayer,
+            recalculatedMap,
+            selectedTimeZoneId
           );
-          availabilitySlotsForDayOfWeek.forEach((slot) => {
-            // We're operating on only slots that players are confirmed to be available
-            setHourStatusInMap(
-              map,
-              selectedTimeZoneId,
-              dayOfWeek,
-              recalculatedMap,
-              slot,
-              timeOffsForPlayer,
-              hoursInDay,
-              setFirstAvailableSlot,
-              true,
-              playerName
+          sortedDaysOfWeek.forEach((dayOfWeek) => {
+            const availabilitySlotsForDayOfWeek = parsedSlots.filter(
+              (slot) => slot.dayOfWeek === dayOfWeek
             );
+            availabilitySlotsForDayOfWeek.forEach((slot) => {
+              // We're operating on only slots that players are confirmed to be available
+              setHourStatusInMap(
+                map,
+                selectedTimeZoneId,
+                dayOfWeek,
+                recalculatedMap,
+                slot,
+                timeOffsForPlayer,
+                hoursInDay,
+                setFirstAvailableSlot,
+                true,
+                playerName
+              );
+            });
           });
         });
-      });
     }
     return map;
   }
