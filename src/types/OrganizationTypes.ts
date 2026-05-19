@@ -36,6 +36,11 @@ export type Player = {
   teamRole: string | undefined;
 };
 
+export type OrgProps = {
+  orgId: string | undefined;
+  orgTimeZoneId: string | undefined;
+};
+
 export type PlayerContextType = {
   player: Player | undefined;
   isLoading: boolean;

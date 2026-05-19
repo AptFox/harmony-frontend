@@ -7,13 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TeamScheduleTable from '@/components/dashboard/teamScheduleTable';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useTeams } from '@/hooks/useTeams';
-import EmptySchedulePopover from '@/components/dashboard/emptySchedulePopover';
 import { getCurrentTimeZoneId, getTimeZones } from '@/lib/availabilityUtils';
 import { TimeZone } from '@/types/ScheduleTypes';
 import TimeZoneSelect from '@/components/dashboard/timeZoneSelect';
 import ScheduleTableSkeleton from '@/components/dashboard/scheduleTableSkeleton';
+import PlayerFilterPopover from '@/components/dashboard/playerFilterPopover';
 
-export default function FranchiseScheduleTable({
+export default function FranchiseScheduleCard({
   orgId,
   orgTimeZoneId,
 }: {
@@ -38,6 +38,9 @@ export default function FranchiseScheduleTable({
     teamSchedule: selectedTeamSchedule,
     isLoading: isLoadingTeamSchedule,
   } = useTeamSchedule(selectedTeam?.id);
+  const [filteredPlayers, setFilteredPlayers] = useState(
+    selectedTeamSchedule?.playerSchedules.map((schedule) => schedule.playerName)
+  );
 
   const cardTitle = selectedTeam
     ? `${selectedTeam.franchise.name}`
@@ -70,8 +73,14 @@ export default function FranchiseScheduleTable({
     franchiseTeamsOmittingCurrentPlayerTeam && (
       <DashboardCard
         title={cardTitle}
-        firstElement={timeZoneSelect}
-        secondElement={() => EmptySchedulePopover(playerSchedules)}
+        firstElement={() =>
+          PlayerFilterPopover(
+            playerSchedules,
+            filteredPlayers,
+            setFilteredPlayers
+          )
+        }
+        secondElement={timeZoneSelect}
         parentClassName="flex-auto max-w-135"
         childrenClassName="min-h-48"
       >
@@ -102,6 +111,7 @@ export default function FranchiseScheduleTable({
                 <TeamScheduleTable
                   team={selectedTeam}
                   selectedTimeZoneId={selectedTimeZoneId}
+                  filteredPlayers={filteredPlayers}
                 />
               )}
             </TabsContent>

@@ -32,7 +32,7 @@ export default function TimeZoneSelect({
         onValueChange={setSelectedTimeZoneId}
       >
         <SelectTrigger className="w-23">
-          <SelectValue />
+          <SelectValue placeholder="TZ" />
         </SelectTrigger>
         <SelectContent position="item-aligned">
           <SelectGroup>
