@@ -9,7 +9,7 @@ import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 export default function DashboardCard({
   title,
-  buttonText,
+  buttonContent,
   dialogContent,
   firstElement,
   secondElement,
@@ -18,10 +18,10 @@ export default function DashboardCard({
   children,
 }: {
   title: string;
-  buttonText?: string;
-  dialogContent?: (
-    setDialogOpen: Dispatch<SetStateAction<boolean>>
-  ) => ReactNode;
+  buttonContent?: string | ReactNode;
+  dialogContent?:
+    | ((setDialogOpen: Dispatch<SetStateAction<boolean>>) => ReactNode)
+    | (() => ReactNode);
   firstElement?: () => ReactNode;
   secondElement?: () => ReactNode;
   parentClassName?: ClassValue;
@@ -42,19 +42,19 @@ export default function DashboardCard({
             <h2 className="text-xl font-semibold">{title}</h2>
           </div>
         </div>
-        <div className="flex flex-row gap-2 h-10">
-          {secondElement && secondElement()}
-          {firstElement && firstElement()}
-          {buttonText && (
+        <div className="flex flex-row-reverse gap-2 h-10">
+          {buttonContent && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <form>
                 <DialogTrigger asChild>
-                  <Button>{buttonText}</Button>
+                  <Button>{buttonContent}</Button>
                 </DialogTrigger>
                 {dialogContent && dialogContent(setDialogOpen)}
               </form>
             </Dialog>
           )}
+          {firstElement && firstElement()}
+          {secondElement && secondElement()}
         </div>
       </div>
       <Separator />

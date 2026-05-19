@@ -110,7 +110,7 @@ export default function ScheduleTable() {
   return (
     <DashboardCard
       title={`My Schedule (${formattedTimeZone})`}
-      buttonText="Update"
+      buttonContent="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
       childrenClassName="max-h-96 min-h-48"

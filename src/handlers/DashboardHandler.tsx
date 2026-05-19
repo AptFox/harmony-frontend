@@ -10,7 +10,7 @@ import ScheduleTable from '@/components/dashboard/scheduleTable';
 import TimeOffTable from '@/components/dashboard/timeOffTable';
 import { Spinner } from '@/components/ui/spinner';
 import PlayerCard from '@/components/dashboard/playerCard';
-import FranchiseScheduleTable from '@/components/dashboard/franchiseScheduleTable';
+import FranchiseScheduleCard from '@/components/dashboard/franchiseScheduleCard';
 import TeamScheduleCard from '@/components/dashboard/teamScheduleCard';
 import {
   Select,
@@ -151,7 +151,7 @@ export default function DashboardHandler() {
                   />
                 )}
                 {selectedOrgId && (
-                  <FranchiseScheduleTable
+                  <FranchiseScheduleCard
                     orgId={selectedOrgId}
                     orgTimeZoneId={orgTimeZoneId}
                   />
