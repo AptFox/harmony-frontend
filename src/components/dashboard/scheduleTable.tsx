@@ -147,44 +147,42 @@ export default function ScheduleTable() {
           </TableHeader>
           <TableBody>
             {availabilityMap &&
-              Array.from(
-                availabilityMap
-                  .entries()
-                  .map(([hourOfDay, mapOfHourStatus]) => (
-                    <TableRow key={hourOfDay.absHourStr} className="border-0">
-                      {Array.from(
-                        mapOfHourStatus.entries().map(([day, hourStatus]) => {
-                          const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
-                          return (
-                            <TableCell
-                              key={slotCoordinate}
-                              ref={
-                                slotCoordinate === firstAvailableSlotCoordinate
-                                  ? firstAvailableHourRef
-                                  : undefined
-                              }
-                              className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
-                            >
-                              {!hourStatus.isTimeOff && (
-                                <span
-                                  className={`text-xs font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
-                                >
-                                  {twelveHourClock
-                                    ? hourOfDay.twelveHourStr
-                                    : hourOfDay.absHourStr}
-                                </span>
-                              )}
-                              {hourStatus.isTimeOff && (
-                                <span className="font-semibold font-mono">
-                                  TO
-                                </span>
-                              )}
-                            </TableCell>
-                          );
-                        })
-                      )}
-                    </TableRow>
-                  ))
+              Array.from(availabilityMap.entries()).map(
+                ([hourOfDay, mapOfHourStatus]) => (
+                  <TableRow key={hourOfDay.absHourStr} className="border-0">
+                    {Array.from(mapOfHourStatus.entries()).map(
+                      ([day, hourStatus]) => {
+                        const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                        return (
+                          <TableCell
+                            key={slotCoordinate}
+                            ref={
+                              slotCoordinate === firstAvailableSlotCoordinate
+                                ? firstAvailableHourRef
+                                : undefined
+                            }
+                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                          >
+                            {!hourStatus.isTimeOff && (
+                              <span
+                                className={`text-xs font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
+                              >
+                                {twelveHourClock
+                                  ? hourOfDay.twelveHourStr
+                                  : hourOfDay.absHourStr}
+                              </span>
+                            )}
+                            {hourStatus.isTimeOff && (
+                              <span className="font-semibold font-mono">
+                                TO
+                              </span>
+                            )}
+                          </TableCell>
+                        );
+                      }
+                    )}
+                  </TableRow>
+                )
               )}
           </TableBody>
         </Table>
