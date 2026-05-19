@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Weekly PRs for security updates, grouped into one PR
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    target-branch: "dev"
+
+  # Monthly bundled PR for all routine version updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+    target-branch: "dev"
