@@ -175,8 +175,8 @@ export default function TeamScheduleTable({
             </p>
             <div>Available:</div>
             <div className="grid gap-1 grid-cols-1">
-              {Array.from(
-                playerHourStatus.availablePlayers.entries().map(([player]) => (
+              {Array.from(playerHourStatus.availablePlayers.entries()).map(
+                ([player]) => (
                   <div key={player}>
                     <Badge>
                       <span className="text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] max-w-40 truncate">
@@ -184,7 +184,7 @@ export default function TeamScheduleTable({
                       </span>
                     </Badge>
                   </div>
-                ))
+                )
               )}
             </div>
           </div>
