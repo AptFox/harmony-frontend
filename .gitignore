@@ -19,8 +19,11 @@
 # production
 /build
 
-# misc
+# OS / editor files
 .DS_Store
+Thumbs.db
+.vscode
+.idea/
 *.pem
 
 # debug
