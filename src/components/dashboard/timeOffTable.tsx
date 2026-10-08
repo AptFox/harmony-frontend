@@ -14,7 +14,14 @@ import { Maximize2, X, Pencil, PencilOff } from 'lucide-react';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  JSX,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { TimeOffTableDialog } from '@/components/dashboard/timeOffTableDialog';
 import {
   Popover,

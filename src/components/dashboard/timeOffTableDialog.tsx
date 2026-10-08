@@ -164,7 +164,7 @@ export function TimeOffTableDialog({
         clearInputFields();
         setDialogOpen(false);
       }
-    } catch (error: unknown) {
+    } catch {
       toast.error('Adding new timeOff failed');
     }
     setIsSendingToApi(false);
