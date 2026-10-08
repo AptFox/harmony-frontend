@@ -70,6 +70,11 @@ export function isBadRequestError(error: unknown): error is BadRequestError {
   return isAxiosError(error) && error.status === HttpStatusCode.BadRequest;
 }
 
+// Request never received a response (offline, aborted by page navigation/backgrounding, CORS, etc.)
+export function isNetworkError(error: unknown): error is AxiosError {
+  return isAxiosError(error) && error.code === AxiosError.ERR_NETWORK;
+}
+
 export const isProdEnv = () => process.env.NODE_ENV === 'production';
 
 export function logInfo(message: string): void {

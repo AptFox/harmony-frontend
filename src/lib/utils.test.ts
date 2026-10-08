@@ -10,6 +10,7 @@ import {
   isForbiddenError,
   isNotFoundError,
   isBadRequestError,
+  isNetworkError,
   isProdEnv,
   logWarn,
   logError,
@@ -137,6 +138,21 @@ describe('utils', () => {
       const error = new AxiosError('fail');
       error.status = HttpStatusCode.NotFound;
       expect(isBadRequestError(error)).toBe(false);
+    });
+  });
+
+  describe('isNetworkError', () => {
+    it('returns true for axios network errors', () => {
+      const error = new AxiosError('Network Error', AxiosError.ERR_NETWORK);
+      expect(isNetworkError(error)).toBe(true);
+    });
+    it('returns false for axios errors with a response status', () => {
+      const error = new AxiosError('fail', AxiosError.ERR_BAD_REQUEST);
+      error.status = HttpStatusCode.BadRequest;
+      expect(isNetworkError(error)).toBe(false);
+    });
+    it('returns false for non-axios errors', () => {
+      expect(isNetworkError(new Error('Network Error'))).toBe(false);
     });
   });
 
