@@ -26,6 +26,18 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
+
+  // Drop errors from non-browser JS runtimes (e.g. Deno-based crawlers),
+  // identified by internal "ext:" stack frames that real browsers never produce.
+  beforeSend(event) {
+    const frames = event.exception?.values?.flatMap(
+      (value) => value.stacktrace?.frames ?? []
+    );
+    if (frames?.some((frame) => frame.filename?.startsWith('ext:'))) {
+      return null;
+    }
+    return event;
+  },
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
