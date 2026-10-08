@@ -14,10 +14,13 @@ import {
   isApiRateLimitError,
   isUnauthorizedError,
   isBadRequestError,
+  isCanceledError,
+  isNetworkError,
   sendErrorToSentry,
   isClientRateLimitError,
   logError,
   logInfo,
+  logWarn,
   isProdEnv,
 } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
@@ -86,8 +89,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           resetAuth();
           return;
         }
-        if (!isUnauthorizedError(error) && !isBadRequestError(error))
+        if (isNetworkError(error) || isCanceledError(error)) {
+          logWarn(error, 'Token refresh did not complete');
+        } else if (!isBadRequestError(error)) {
           sendErrorToSentry(error);
+        }
         if (isApiRateLimitError(error) || isClientRateLimitError(error)) {
           const rateLimitType = isClientRateLimitError(error)
             ? 'client'
