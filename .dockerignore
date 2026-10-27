@@ -6,15 +6,18 @@ node_modules
 
 # Local env files
 .env
+.env.local
 .env.*.local
+.env.sentry-build-plugin
 
 # OS / editor files
 .DS_Store
 Thumbs.db
 .vscode
-.idea
+.idea/
 *.code-workspace
 *.pem
+
 
 # Build outputs
 .next
