@@ -246,7 +246,7 @@ export function ScheduleTableDialog({
           setDialogOpen(false);
         }
       }
-    } catch (error: unknown) {
+    } catch {
       toast.error('Schedule update failed');
     }
     setIsSendingToApi(false);
