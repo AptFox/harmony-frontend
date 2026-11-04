@@ -29,6 +29,14 @@ export default function PlayerCard({ orgId }: { orgId: string | undefined }) {
             <span>{player?.name}</span>
             <span>Team role:</span>
             <span>{player?.teamRole ? player.teamRole : 'Player'}</span>
+            <span>Salary:</span>
+            <span>{player?.salary ?? 'N/A'}</span>
+            <span>Slot:</span>
+            <span>{player?.slot ?? 'N/A'}</span>
+            <span>Scrim points:</span>
+            <span>{player?.currentScrimPoints ?? 'N/A'}</span>
+            <span>Eligible through:</span>
+            <span>{player?.eligibleThrough ?? 'N/A'}</span>
           </div>
         )}
       </DashboardCard>

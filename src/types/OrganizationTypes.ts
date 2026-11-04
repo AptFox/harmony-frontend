@@ -34,6 +34,10 @@ export type Player = {
   team: Team | undefined;
   userId: string;
   teamRole: string | undefined;
+  salary: string | undefined;
+  slot: string | undefined;
+  currentScrimPoints: number | undefined;
+  eligibleThrough: string | undefined;
 };
 
 export type OrgProps = {
