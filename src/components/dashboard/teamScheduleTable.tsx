@@ -135,6 +135,27 @@ export default function TeamScheduleTable({
 
   const availabilityMap = setAvailabilityInMap();
 
+  const visiblePlayerCount =
+    playerSchedules?.filter(
+      (schedule) => !filteredPlayers?.includes(schedule.playerName)
+    ).length ?? 0;
+  // Static class list so Tailwind can detect every shade at build time
+  const availabilityShades = [
+    'bg-primary/15',
+    'bg-primary/35',
+    'bg-primary/45',
+    'bg-primary/65',
+    'bg-primary/80',
+  ];
+  const getAvailabilityShade = (availablePlayerCount: number) => {
+    if (visiblePlayerCount === 0) return availabilityShades[0];
+    const ratio = availablePlayerCount / visiblePlayerCount;
+    const index = Math.ceil(ratio * availabilityShades.length) - 1;
+    return availabilityShades[
+      Math.min(Math.max(index, 0), availabilityShades.length - 1)
+    ];
+  };
+
   const formatPopoverDate = (
     zdt: Temporal.ZonedDateTime | undefined
   ): string => {
@@ -159,9 +180,18 @@ export default function TeamScheduleTable({
   }) => {
     return (
       <Popover>
-        <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
-          <span className="text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-            {playerHourStatus.availablePlayers.size}
+        <PopoverTrigger className="flex w-full h-full justify-center items-center text-sm text-primary-foreground font-bold font-mono">
+          <span className="relative">
+            {/* Wider white stroke behind the black-outlined number */}
+            <span
+              aria-hidden
+              className="absolute inset-0 [-webkit-text-stroke:5.5px_white] [paint-order:stroke_fill]"
+            >
+              {playerHourStatus.availablePlayers.size}
+            </span>
+            <span className="relative [-webkit-text-stroke:5px_black] [paint-order:stroke_fill]">
+              {playerHourStatus.availablePlayers.size}
+            </span>
           </span>
         </PopoverTrigger>
         <PopoverContent
@@ -236,7 +266,7 @@ export default function TeamScheduleTable({
           <TableCaption className="font-mono">
             Roster: {playerRoster}
           </TableCaption>
-          <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+          <TableHeader className="sticky top-0 z-10 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
               <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
                 Hour
@@ -279,7 +309,7 @@ export default function TeamScheduleTable({
                                       ? firstAvailableHourRef
                                       : undefined
                                   }
-                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary lg:hover:brightness-85 transition-all' : 'border-b-1 bg-none'}`}
+                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? `${getAvailabilityShade(playerHourStatus.availablePlayers.size)} lg:hover:ring-2 lg:hover:ring-inset lg:hover:ring-primary-foreground transition-all` : 'border-b-1 bg-none'}`}
                                 >
                                   {playerHourStatus.availablePlayers.size >
                                   0 ? (

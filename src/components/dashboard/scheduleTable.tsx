@@ -122,7 +122,7 @@ export default function ScheduleTable() {
               TO = Time Off, TZ: {formattedTimeZone}
             </TableCaption>
           )}
-          <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+          <TableHeader className="sticky top-0 z-10 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
               {sortedDaysOfWeek.map((day) => (
                 <TableHead
@@ -161,22 +161,24 @@ export default function ScheduleTable() {
                                 ? firstAvailableHourRef
                                 : undefined
                             }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/80' : 'border-b-1 bg-none'}`}
                           >
-                            {!hourStatus.isTimeOff && (
-                              <span
-                                className={`text-xs font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
-                              >
-                                {twelveHourClock
-                                  ? hourOfDay.twelveHourStr
-                                  : hourOfDay.absHourStr}
-                              </span>
-                            )}
-                            {hourStatus.isTimeOff && (
-                              <span className="font-semibold font-mono">
-                                TO
-                              </span>
-                            )}
+                            <span className="relative">
+                              {!hourStatus.isTimeOff && (
+                                <span
+                                  className={`text-sm font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
+                                >
+                                  {twelveHourClock
+                                    ? hourOfDay.twelveHourStr
+                                    : hourOfDay.absHourStr}
+                                </span>
+                              )}
+                              {hourStatus.isTimeOff && (
+                                <span className="font-semibold font-mono">
+                                  TO
+                                </span>
+                              )}
+                            </span>
                           </TableCell>
                         );
                       }
