@@ -141,10 +141,10 @@ export default function TeamScheduleTable({
     ).length ?? 0;
   // Static class list so Tailwind can detect every shade at build time
   const availabilityShades = [
-    'bg-primary/15',
-    'bg-primary/35',
-    'bg-primary/45',
-    'bg-primary/65',
+    'bg-primary/40',
+    'bg-primary/50',
+    'bg-primary/60',
+    'bg-primary/70',
     'bg-primary/80',
   ];
   const getAvailabilityShade = (availablePlayerCount: number) => {
@@ -180,18 +180,9 @@ export default function TeamScheduleTable({
   }) => {
     return (
       <Popover>
-        <PopoverTrigger className="flex w-full h-full justify-center items-center text-sm text-primary-foreground font-bold font-mono">
-          <span className="relative">
-            {/* Wider white stroke behind the black-outlined number */}
-            <span
-              aria-hidden
-              className="absolute inset-0 [-webkit-text-stroke:5.5px_white] [paint-order:stroke_fill]"
-            >
-              {playerHourStatus.availablePlayers.size}
-            </span>
-            <span className="relative [-webkit-text-stroke:5px_black] [paint-order:stroke_fill]">
-              {playerHourStatus.availablePlayers.size}
-            </span>
+        <PopoverTrigger className="flex w-full h-full justify-center items-center text-sm text-white font-bold font-mono">
+          <span className="text-shadow-[0_3px_3px_rgba(0,0,0,0.9)]">
+            {playerHourStatus.availablePlayers.size}
           </span>
         </PopoverTrigger>
         <PopoverContent

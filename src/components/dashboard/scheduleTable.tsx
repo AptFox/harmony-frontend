@@ -153,6 +153,9 @@ export default function ScheduleTable() {
                     {Array.from(mapOfHourStatus.entries()).map(
                       ([day, hourStatus]) => {
                         const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                        const hourStr = twelveHourClock
+                          ? hourOfDay.twelveHourStr
+                          : hourOfDay.absHourStr;
                         return (
                           <TableCell
                             key={slotCoordinate}
@@ -161,18 +164,19 @@ export default function ScheduleTable() {
                                 ? firstAvailableHourRef
                                 : undefined
                             }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/80' : 'border-b-1 bg-none'}`}
+                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/50' : 'border-b-1 bg-none'}`}
                           >
                             <span className="relative">
-                              {!hourStatus.isTimeOff && (
-                                <span
-                                  className={`text-sm font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
-                                >
-                                  {twelveHourClock
-                                    ? hourOfDay.twelveHourStr
-                                    : hourOfDay.absHourStr}
-                                </span>
-                              )}
+                              {!hourStatus.isTimeOff &&
+                                (hourStatus.isAvailable ? (
+                                  <span className="text-sm font-mono text-white font-bold text-shadow-[0_3px_3px_rgba(0,0,0,0.9)]">
+                                    {hourStr}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-mono text-muted-foreground font-extralight">
+                                    {hourStr}
+                                  </span>
+                                ))}
                               {hourStatus.isTimeOff && (
                                 <span className="font-semibold font-mono">
                                   TO

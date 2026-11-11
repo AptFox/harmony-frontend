@@ -96,14 +96,14 @@ export function createHoursInDayArray(): HourOfDay[] {
   const hoursInDayArr = Array.from({ length: 24 }, (_, i): HourOfDay => {
     const hourString = i < 10 ? `0${i}` : `${i}`;
     const absHourStr = `${hourString}h`;
-    const ampm = i < 12 ? 'am' : 'pm';
+    const ampm = i < 12 ? 'a' : 'p';
     let twelveHour = i > 12 ? i % 12 : i;
     if (twelveHour === 0) twelveHour = 12;
     const twelveHourStr = `${twelveHour}${ampm}`;
     return { absHourStr, twelveHourStr, hour: i };
   });
 
-  hoursInDayArr.push({ absHourStr: '24h', twelveHourStr: '12am', hour: 24 });
+  hoursInDayArr.push({ absHourStr: '24h', twelveHourStr: '12a', hour: 24 });
   return hoursInDayArr;
 }
 
