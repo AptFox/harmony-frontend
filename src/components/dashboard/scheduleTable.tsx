@@ -51,6 +51,7 @@ export default function ScheduleTable() {
   const timeOffSlots = availability?.timeOffs;
   const currentTimeZoneId = getCurrentTimeZoneId();
   const formattedTimeZone = getFormattedTimeZone(currentTimeZoneId);
+  const currentDayOfWeek = getDayCurrentDayOfWeekStr(currentTimeZoneId);
   const scheduleSlotsNotInCurrentTimeZone =
     scheduleSlots?.filter((slot) => slot.timeZoneId !== currentTimeZoneId)
       .length || 0;
@@ -130,7 +131,7 @@ export default function ScheduleTable() {
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
                   <div
-                    className={`flex-col ${getDayCurrentDayOfWeekStr(currentTimeZoneId) === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                    className={`flex-col ${currentDayOfWeek === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
@@ -156,6 +157,7 @@ export default function ScheduleTable() {
                         const hourStr = twelveHourClock
                           ? hourOfDay.twelveHourStr
                           : hourOfDay.absHourStr;
+                        const isToday = day === currentDayOfWeek;
                         return (
                           <TableCell
                             key={slotCoordinate}
@@ -164,7 +166,7 @@ export default function ScheduleTable() {
                                 ? firstAvailableHourRef
                                 : undefined
                             }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/50' : 'border-b-1 bg-none'}`}
+                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/50' : `border-b-1 ${isToday ? 'bg-primary/10' : 'bg-none'}`} ${isToday ? 'border-x border-primary' : ''}`}
                           >
                             <span className="relative">
                               {!hourStatus.isTimeOff &&

@@ -15,9 +15,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   createEmptyAvailability,
   createHoursInDayArray,
+  formatDateToCurrentLocale,
   getCurrentTimeZoneId,
   getCurrentUserLocale,
   getCurrentWeekStart,
+  getDayCurrentDayOfWeekStr,
   getDayOfWeekToDatesMap,
   setHourStatusInMap,
   sortedDaysOfWeek,
@@ -134,6 +136,7 @@ export default function TeamScheduleTable({
   }
 
   const availabilityMap = setAvailabilityInMap();
+  const currentDayOfWeek = getDayCurrentDayOfWeekStr(selectedTimeZoneId);
 
   const visiblePlayerCount =
     playerSchedules?.filter(
@@ -267,7 +270,18 @@ export default function TeamScheduleTable({
                   key={day}
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
-                  {day}
+                  <div
+                    className={`flex-col ${currentDayOfWeek === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                  >
+                    <div>
+                      <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+                        {formatDateToCurrentLocale(
+                          dayOfWeekToDatesMap.get(day)
+                        )}
+                      </span>
+                    </div>
+                    <div>{day}</div>
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
@@ -291,6 +305,7 @@ export default function TeamScheduleTable({
                             .entries()
                             .map(([day, playerHourStatus]) => {
                               const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                              const isToday = day === currentDayOfWeek;
                               return (
                                 <TableCell
                                   key={slotCoordinate}
@@ -300,7 +315,7 @@ export default function TeamScheduleTable({
                                       ? firstAvailableHourRef
                                       : undefined
                                   }
-                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? `${getAvailabilityShade(playerHourStatus.availablePlayers.size)} lg:hover:ring-2 lg:hover:ring-inset lg:hover:ring-primary-foreground transition-all` : 'border-b-1 bg-none'}`}
+                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? `${getAvailabilityShade(playerHourStatus.availablePlayers.size)} lg:hover:ring-2 lg:hover:ring-inset lg:hover:ring-primary-foreground transition-all` : `border-b-1 ${isToday ? 'bg-primary/10' : 'bg-none'}`} ${isToday ? 'border-x border-primary' : ''}`}
                                 >
                                   {playerHourStatus.availablePlayers.size >
                                   0 ? (
