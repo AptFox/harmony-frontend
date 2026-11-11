@@ -178,7 +178,7 @@ export default function ScheduleTable() {
                                   </span>
                                 ))}
                               {hourStatus.isTimeOff && (
-                                <span className="font-semibold font-mono">
+                                <span className="text-sm font-mono text-muted-foreground font-extralight">
                                   TO
                                 </span>
                               )}
