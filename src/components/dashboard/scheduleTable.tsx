@@ -51,6 +51,7 @@ export default function ScheduleTable() {
   const timeOffSlots = availability?.timeOffs;
   const currentTimeZoneId = getCurrentTimeZoneId();
   const formattedTimeZone = getFormattedTimeZone(currentTimeZoneId);
+  const currentDayOfWeek = getDayCurrentDayOfWeekStr(currentTimeZoneId);
   const scheduleSlotsNotInCurrentTimeZone =
     scheduleSlots?.filter((slot) => slot.timeZoneId !== currentTimeZoneId)
       .length || 0;
@@ -113,7 +114,7 @@ export default function ScheduleTable() {
       buttonContent="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
-      childrenClassName="max-h-96 min-h-48"
+      childrenClassName="@container max-h-96 min-h-48"
     >
       {renderScheduleTable && (
         <Table className="relative">
@@ -122,7 +123,7 @@ export default function ScheduleTable() {
               TO = Time Off, TZ: {formattedTimeZone}
             </TableCaption>
           )}
-          <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+          <TableHeader className="sticky top-0 z-10 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
               {sortedDaysOfWeek.map((day) => (
                 <TableHead
@@ -130,13 +131,23 @@ export default function ScheduleTable() {
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
                   <div
-                    className={`flex-col ${getDayCurrentDayOfWeekStr(currentTimeZoneId) === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                    className={`flex-col ${currentDayOfWeek === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                        {formatDateToCurrentLocale(
-                          dayOfWeekToDatesMap.get(day)
-                        )}
+                        {/* Day number only on mobile so narrow columns don't crowd */}
+                        <span className="@sm:hidden">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day),
+                            undefined,
+                            { day: 'numeric' }
+                          )}
+                        </span>
+                        <span className="hidden @sm:inline">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day)
+                          )}
+                        </span>
                       </span>
                     </div>
                     <div>{day}</div>
@@ -153,6 +164,10 @@ export default function ScheduleTable() {
                     {Array.from(mapOfHourStatus.entries()).map(
                       ([day, hourStatus]) => {
                         const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                        const hourStr = twelveHourClock
+                          ? hourOfDay.twelveHourStr
+                          : hourOfDay.absHourStr;
+                        const isToday = day === currentDayOfWeek;
                         return (
                           <TableCell
                             key={slotCoordinate}
@@ -161,22 +176,25 @@ export default function ScheduleTable() {
                                 ? firstAvailableHourRef
                                 : undefined
                             }
-                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary' : 'border-b-1 bg-none'}`}
+                            className={`text-center p-0.5 ${hourStatus.isAvailable ? 'bg-primary/50' : `border-b-1 ${isToday ? 'bg-primary/10' : 'bg-none'}`} ${isToday ? 'border-x border-primary' : ''}`}
                           >
-                            {!hourStatus.isTimeOff && (
-                              <span
-                                className={`text-xs font-mono ${hourStatus.isAvailable ? 'text-primary-foreground font-semibold text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]' : 'text-muted-foreground font-extralight'}`}
-                              >
-                                {twelveHourClock
-                                  ? hourOfDay.twelveHourStr
-                                  : hourOfDay.absHourStr}
-                              </span>
-                            )}
-                            {hourStatus.isTimeOff && (
-                              <span className="font-semibold font-mono">
-                                TO
-                              </span>
-                            )}
+                            <span className="relative">
+                              {!hourStatus.isTimeOff &&
+                                (hourStatus.isAvailable ? (
+                                  <span className="text-sm font-mono text-white font-bold text-shadow-[0_3px_3px_rgba(0,0,0,0.9)]">
+                                    {hourStr}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-mono text-muted-foreground font-extralight">
+                                    {hourStr}
+                                  </span>
+                                ))}
+                              {hourStatus.isTimeOff && (
+                                <span className="text-sm font-mono text-muted-foreground font-extralight">
+                                  TO
+                                </span>
+                              )}
+                            </span>
                           </TableCell>
                         );
                       }
