@@ -15,9 +15,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   createEmptyAvailability,
   createHoursInDayArray,
+  formatDateToCurrentLocale,
   getCurrentTimeZoneId,
   getCurrentUserLocale,
   getCurrentWeekStart,
+  getDayCurrentDayOfWeekStr,
   getDayOfWeekToDatesMap,
   setHourStatusInMap,
   sortedDaysOfWeek,
@@ -134,6 +136,28 @@ export default function TeamScheduleTable({
   }
 
   const availabilityMap = setAvailabilityInMap();
+  const currentDayOfWeek = getDayCurrentDayOfWeekStr(selectedTimeZoneId);
+
+  const visiblePlayerCount =
+    playerSchedules?.filter(
+      (schedule) => !filteredPlayers?.includes(schedule.playerName)
+    ).length ?? 0;
+  // Static class list so Tailwind can detect every shade at build time
+  const availabilityShades = [
+    'bg-primary/40',
+    'bg-primary/50',
+    'bg-primary/60',
+    'bg-primary/70',
+    'bg-primary/80',
+  ];
+  const getAvailabilityShade = (availablePlayerCount: number) => {
+    if (visiblePlayerCount === 0) return availabilityShades[0];
+    const ratio = availablePlayerCount / visiblePlayerCount;
+    const index = Math.ceil(ratio * availabilityShades.length) - 1;
+    return availabilityShades[
+      Math.min(Math.max(index, 0), availabilityShades.length - 1)
+    ];
+  };
 
   const formatPopoverDate = (
     zdt: Temporal.ZonedDateTime | undefined
@@ -159,8 +183,8 @@ export default function TeamScheduleTable({
   }) => {
     return (
       <Popover>
-        <PopoverTrigger className="flex w-full h-full justify-center items-center text-xs text-primary-foreground font-semibold font-mono">
-          <span className="text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+        <PopoverTrigger className="flex w-full h-full justify-center items-center text-sm text-white font-bold font-mono">
+          <span className="text-shadow-[0_3px_3px_rgba(0,0,0,0.9)]">
             {playerHourStatus.availablePlayers.size}
           </span>
         </PopoverTrigger>
@@ -229,14 +253,14 @@ export default function TeamScheduleTable({
   return isLoading ? (
     <ScheduleTableSkeleton />
   ) : (
-    <div className="flex flex-auto max-h-96">
+    <div className="@container flex flex-auto max-h-96">
       {!renderSchedule && emptyErrorMessage()}
       {renderSchedule && playerSchedules && playerSchedules?.length > 0 && (
         <Table>
           <TableCaption className="font-mono">
             Roster: {playerRoster}
           </TableCaption>
-          <TableHeader className="sticky top-0 bg-secondary shadow-lg/30">
+          <TableHeader className="sticky top-0 z-10 bg-secondary shadow-lg/30">
             <TableRow className="h-6">
               <TableHead className="px-0 h-6 text-center text-primary-foreground font-semibold font-mono">
                 Hour
@@ -246,7 +270,28 @@ export default function TeamScheduleTable({
                   key={day}
                   className={`px-0 h-6 text-center text-primary-foreground font-semibold font-mono`}
                 >
-                  {day}
+                  <div
+                    className={`flex-col ${currentDayOfWeek === day ? 'border-y-3 border-primary bg-primary/45' : ''}`}
+                  >
+                    <div>
+                      <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+                        {/* Day number only on mobile so narrow columns don't crowd */}
+                        <span className="@md:hidden">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day),
+                            undefined,
+                            { day: 'numeric' }
+                          )}
+                        </span>
+                        <span className="hidden @md:inline">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day)
+                          )}
+                        </span>
+                      </span>
+                    </div>
+                    <div>{day}</div>
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
@@ -270,6 +315,7 @@ export default function TeamScheduleTable({
                             .entries()
                             .map(([day, playerHourStatus]) => {
                               const slotCoordinate = `${day}-${hourOfDay.absHourStr}`;
+                              const isToday = day === currentDayOfWeek;
                               return (
                                 <TableCell
                                   key={slotCoordinate}
@@ -279,7 +325,7 @@ export default function TeamScheduleTable({
                                       ? firstAvailableHourRef
                                       : undefined
                                   }
-                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? 'bg-primary lg:hover:brightness-85 transition-all' : 'border-b-1 bg-none'}`}
+                                  className={`text-center p-0.5 ${playerHourStatus.isAvailable ? `${getAvailabilityShade(playerHourStatus.availablePlayers.size)} lg:hover:ring-2 lg:hover:ring-inset lg:hover:ring-primary-foreground transition-all` : `border-b-1 ${isToday ? 'bg-primary/10' : 'bg-none'}`} ${isToday ? 'border-x border-primary' : ''}`}
                                 >
                                   {playerHourStatus.availablePlayers.size >
                                   0 ? (
