@@ -253,7 +253,7 @@ export default function TeamScheduleTable({
   return isLoading ? (
     <ScheduleTableSkeleton />
   ) : (
-    <div className="flex flex-auto max-h-96">
+    <div className="@container flex flex-auto max-h-96">
       {!renderSchedule && emptyErrorMessage()}
       {renderSchedule && playerSchedules && playerSchedules?.length > 0 && (
         <Table>
@@ -275,9 +275,19 @@ export default function TeamScheduleTable({
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                        {formatDateToCurrentLocale(
-                          dayOfWeekToDatesMap.get(day)
-                        )}
+                        {/* Day number only on mobile so narrow columns don't crowd */}
+                        <span className="@md:hidden">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day),
+                            undefined,
+                            { day: 'numeric' }
+                          )}
+                        </span>
+                        <span className="hidden @md:inline">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day)
+                          )}
+                        </span>
                       </span>
                     </div>
                     <div>{day}</div>

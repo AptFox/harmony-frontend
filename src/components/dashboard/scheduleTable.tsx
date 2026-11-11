@@ -114,7 +114,7 @@ export default function ScheduleTable() {
       buttonContent="Update"
       dialogContent={dialogContent}
       parentClassName="flex-auto basis-xs"
-      childrenClassName="max-h-96 min-h-48"
+      childrenClassName="@container max-h-96 min-h-48"
     >
       {renderScheduleTable && (
         <Table className="relative">
@@ -135,9 +135,19 @@ export default function ScheduleTable() {
                   >
                     <div>
                       <span className="text-xs text-muted-foreground font-extralight text-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                        {formatDateToCurrentLocale(
-                          dayOfWeekToDatesMap.get(day)
-                        )}
+                        {/* Day number only on mobile so narrow columns don't crowd */}
+                        <span className="@sm:hidden">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day),
+                            undefined,
+                            { day: 'numeric' }
+                          )}
+                        </span>
+                        <span className="hidden @sm:inline">
+                          {formatDateToCurrentLocale(
+                            dayOfWeekToDatesMap.get(day)
+                          )}
+                        </span>
                       </span>
                     </div>
                     <div>{day}</div>
